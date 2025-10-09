@@ -1,0 +1,12 @@
+2025-10-09 13:27:33.867591-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create global temporary table HTE_tag(card_id integer, id integer, rn_ integer not null, [*]value varchar(255), primary key (rn_)) TRANSACTIONAL"; expected "identifier"; SQL statement:
+create global temporary table HTE_tag(card_id integer, id integer, rn_ integer not null, value varchar(255), primary key (rn_)) TRANSACTIONAL [42001-232]
+2025-10-09 13:27:34.049857-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table tag (id integer not null, [*]value varchar(255) not null, card_id integer not null, primary key (id))"; expected "identifier"; SQL statement:
+create table tag (id integer not null, value varchar(255) not null, card_id integer not null, primary key (id)) [42001-232]
+2025-10-09 13:33:01.718679-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create global temporary table HTE_tag(card_id integer, id integer, rn_ integer not null, [*]value varchar(255), primary key (rn_)) TRANSACTIONAL"; expected "identifier"; SQL statement:
+create global temporary table HTE_tag(card_id integer, id integer, rn_ integer not null, value varchar(255), primary key (rn_)) TRANSACTIONAL [42001-232]
+2025-10-09 13:33:01.880733-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "create table tag (id integer not null, [*]value varchar(255) not null, card_id integer not null, primary key (id))"; expected "identifier"; SQL statement:
+create table tag (id integer not null, value varchar(255) not null, card_id integer not null, primary key (id)) [42001-232]

@@ -1,13 +1,11 @@
-package webii.lap.CardeasyPlus;
+package ufrn.imd.cardeasy;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CardeasyPlusApplication {
-
+public class CardeasyApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(CardeasyPlusApplication.class, args);
-	}
-
-}
+		SpringApplication.run(CardeasyApplication.class, args);
+	};
+};

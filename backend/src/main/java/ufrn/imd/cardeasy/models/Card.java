@@ -1,0 +1,54 @@
+package ufrn.imd.cardeasy.models;
+
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@Entity
+@EqualsAndHashCode(of = {"id"})
+public class Card {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
+
+  @Column(nullable = false)
+  private Integer index;
+
+  @Column(nullable = false)
+  private String title;
+
+  @Column(nullable = true)
+  private String description;
+
+  @JoinColumn(name = "list_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  private CardList list;
+
+  @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private Set<Tag> tags;
+  
+  @ManyToMany
+  @JoinTable(
+    name = "assignments", 
+    joinColumns = @JoinColumn(name = "card_id"), 
+    inverseJoinColumns = {
+      @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
+      @JoinColumn(name = "team_id", referencedColumnName = "team_id")
+    }
+  ) private Set<Participation> assigneds;
+};
