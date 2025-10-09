@@ -63,7 +63,7 @@ pnpm install
 pnpm approve-builds
 ```
 
-Uma vez com todas as dependências instaladas, execute:
+Selecione tudo que aparecer no terminal com `space` após o último comando. E uma vez com todas as dependências instaladas, execute:
 
 ```sh
 pnpm dev
