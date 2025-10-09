@@ -20,7 +20,7 @@ public class Tag {
   private Integer id;
 
   @Column(nullable = false, unique = true)
-  private String value;
+  private String content;
 
   @JoinColumn(name = "card_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
