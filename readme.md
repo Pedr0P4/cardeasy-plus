@@ -60,6 +60,7 @@ Para executar o projeto, primeiramente você deve baixar todas as dependências.
 ```sh
 cd frontend
 pnpm install
+pnpm approve-builds
 ```
 
 Uma vez com todas as dependências instaladas, execute:
