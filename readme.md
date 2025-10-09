@@ -3,6 +3,12 @@
 Uma reconstrução do [Cardeasy](https://github.com/Pedr0P4/Cardeasy).
 
 - [Instruções para desenvolvedores](#instruções-para-desenvolvedores)
+  - [Instruções para backend](#instruções-para-backend)
+    - [Execução](#execução)
+    - [Importante](#importante)
+  - [Instruções para frontend](#instruções-para-frontend)
+    - [Execução](#execução-1)
+    - [Next.js](#nextjs)
 
 # Instruções para desenvolvedores
 
@@ -86,4 +92,4 @@ Exemplos de roteamento:
 │   ├── ├── page.tsx            # Página da rota "/teams/{id}"
 ```
 
-Além disso, outros arquivos, como de estilização podem ir dentro das pastas também sem problemas e novas pastas podem ser criadas. O `Next.js` suporta requisições do lado do servidor, ou seja, `server-side`. O que permite criar, por exemplo, criar um `middleware` para só permitir acesso a determinadas rotas após checar o `token`. 
+Além disso, outros arquivos, como de estilização podem ir dentro das pastas também sem problemas e novas pastas podem ser criadas. O `Next.js` suporta requisições do lado do servidor, ou seja, `server-side`. O que permite criar, por exemplo, criar um `middleware` para só permitir acesso a determinadas rotas após checar o `token`.

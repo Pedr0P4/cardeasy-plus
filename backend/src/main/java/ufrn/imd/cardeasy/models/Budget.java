@@ -20,7 +20,7 @@ public class Budget {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
-
+  
   @Column(name = "min_value", nullable = false)
   private Double minValue;
 
