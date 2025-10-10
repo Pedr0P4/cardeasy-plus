@@ -3,13 +3,10 @@ package ufrn.imd.cardeasy.storages;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Iterator;
+
 import java.awt.image.BufferedImage;
 
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 
 import org.springframework.web.multipart.MultipartFile;
 
@@ -61,6 +58,7 @@ public abstract class ImageStorage extends FileStorage {
     
     String type = file.getContentType();
 
+    // TODO - Checar depois se o problema do jpeg era do Insomnia
     Boolean isValid = 
       type.contains("png") ||
       type.contains("webp");

@@ -1,7 +1,6 @@
 package ufrn.imd.cardeasy.security;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,7 +52,6 @@ public class AuthenticationMiddleware extends OncePerRequestFilter {
           authentication
         );
       } catch (Exception e) {
-        e.printStackTrace();
         throw new BadCredentialsException("Acesso negado!");
       };
     };
