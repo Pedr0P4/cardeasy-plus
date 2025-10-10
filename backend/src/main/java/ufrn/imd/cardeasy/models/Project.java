@@ -1,7 +1,5 @@
 package ufrn.imd.cardeasy.models;
 
-import java.util.List;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,39 +12,58 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderColumn;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = { "id" })
+@NoArgsConstructor
 public class Project {
-  @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
-  private Integer id;
 
-  @Column(nullable = false)
-  private Integer index;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Integer id;
 
-  @Column(nullable = false)
-  private String title;
+    @Column(nullable = false)
+    private Integer index;
 
-  @Column(nullable = true)
-  private String description;
+    @Column(nullable = false)
+    private String title;
 
-  @JoinColumn(name = "team_id", nullable = false)
-  @ManyToOne(fetch = FetchType.LAZY)
-  private Team team;
+    @Column(nullable = true)
+    private String description;
 
-  @JoinColumn(name = "budget_id", nullable = true)
-  @OneToOne(fetch = FetchType.EAGER)
-  private Budget budget;
+    @JoinColumn(name = "team_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Team team;
 
-  @OrderColumn(name = "expected_start_in")
-  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<Stage> stages;
+    @JoinColumn(name = "budget_id", nullable = true)
+    @OneToOne(fetch = FetchType.EAGER)
+    private Budget budget;
 
-  @OrderColumn(name = "index")
-  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-  private List<CardList> lists;
-};
+    @OrderColumn(name = "expected_start_in")
+    @OneToMany(
+        mappedBy = "project",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY
+    )
+    private List<Stage> stages;
+
+    @OrderColumn(name = "index")
+    @OneToMany(
+        mappedBy = "project",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.LAZY
+    )
+    private List<CardList> lists;
+
+    public Project(int index, String title, String description, Team team) {
+        this.index = index;
+        this.title = title;
+        this.description = description;
+        this.team = team;
+    }
+}

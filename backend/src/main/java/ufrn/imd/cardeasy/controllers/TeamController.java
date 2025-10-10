@@ -25,11 +25,6 @@ public class TeamController {
 
     private final TeamService teamService;
 
-    @GetMapping("/test")
-    public ResponseEntity<Void> testConnection() {
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping
     public ResponseEntity<List<Team>> getTeams() {
         return ResponseEntity.ok(teamService.findTeams());
