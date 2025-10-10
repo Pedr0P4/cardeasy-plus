@@ -60,10 +60,10 @@ public class Project {
     )
     private List<CardList> lists;
 
-    public Project(int index, String title, String description, Team team) {
-        this.index = index;
-        this.title = title;
-        this.description = description;
-        this.team = team;
+    public Project(int index, String title, String description, Team team){
+      this.index = index;
+      this.title = title;
+      this.description = description;
+      this.team = team;
     }
 }
