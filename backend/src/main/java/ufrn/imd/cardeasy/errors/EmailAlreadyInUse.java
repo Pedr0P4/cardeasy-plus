@@ -1,17 +1,13 @@
 package ufrn.imd.cardeasy.errors;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.client.HttpStatusCodeException;
 
-public class EmailAlreadyInUse extends HttpStatusCodeException {
+public class EmailAlreadyInUse extends ValidationError {
   public EmailAlreadyInUse() {
     super(
-      "Email já se encontra em uso!", 
-      HttpStatus.CONFLICT, 
-      null, 
-      null, 
-      null, 
-      null
+      "email",
+      "email já se encontra em uso", 
+      HttpStatus.BAD_REQUEST
     );
   };
 };

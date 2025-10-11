@@ -6,7 +6,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class AccountNotFound extends HttpStatusCodeException {
   public AccountNotFound() {
     super(
-      "Conta não encontrada!", 
+      "conta não encontrada", 
       HttpStatus.NOT_FOUND, 
       null, 
       null, 

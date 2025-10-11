@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ufrn.imd.cardeasy.errors.AccountNotFound;
 import ufrn.imd.cardeasy.errors.EmailAlreadyInUse;
+import ufrn.imd.cardeasy.errors.PasswordsNotMatch;
 import ufrn.imd.cardeasy.errors.Unauthorized;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.repositories.AccountsRepository;
@@ -66,6 +67,7 @@ public class AccountsService {
     String name,
     String email,
     String password,
+    String newPassword,
     MultipartFile avatar
   ) {
     Optional<Account> candidate = this.repository.findByEmail(email);
@@ -75,14 +77,20 @@ public class AccountsService {
       !candidate.get().getId().equals(id)
     ) throw new EmailAlreadyInUse();
     
-    Account account = new Account();
-    account.setId(id);
+    Account account = this.findById(id);
+
+    if(!this.encoder.matches(
+      password,
+      account.getPassword()
+    )) throw new PasswordsNotMatch();
+    
     account.setName(name);
     account.setEmail(email);
-    
-    account.setPassword(
-      this.encoder.encode(password)
-    );
+
+    if(newPassword != null)
+      account.setPassword(
+        this.encoder.encode(newPassword)
+      );
 
     this.repository.save(account);
 

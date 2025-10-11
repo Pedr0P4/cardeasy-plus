@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dto.AccountDTO;
 import ufrn.imd.cardeasy.dto.AuthenticateAccountDTO;
 import ufrn.imd.cardeasy.dto.CreateAccountDTO;
@@ -39,7 +41,7 @@ public class AccountsController {
   @PostMapping
   public ResponseEntity<Void> create(
     @RequestPart("avatar") MultipartFile avatar,
-    @RequestPart("account") CreateAccountDTO account
+    @RequestPart("account") @Valid CreateAccountDTO account
   ) {
     this.service.create(
       account.name(),
@@ -55,7 +57,7 @@ public class AccountsController {
 
   @PostMapping("/auth")
   public ResponseEntity<String> authenticate(
-    @RequestBody AuthenticateAccountDTO body
+    @RequestBody @Valid AuthenticateAccountDTO body
   ) {
     String token = this.service.authenticate(
       body.email(), 
@@ -81,13 +83,14 @@ public class AccountsController {
   public ResponseEntity<Void> update(
     @PathVariable UUID id,
     @RequestPart MultipartFile avatar,
-    @RequestPart UpdateAccountDTO account
+    @RequestPart @Valid UpdateAccountDTO account
   ) {
     this.service.update(
       id,
       account.name(),
       account.email(),
       account.password(),
+      account.newPassword(),
       avatar
     );
 

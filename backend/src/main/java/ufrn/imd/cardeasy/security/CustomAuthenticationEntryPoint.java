@@ -18,7 +18,6 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
   private HandlerExceptionResolver resolver;
 
   @Autowired
-  
   public CustomAuthenticationEntryPoint(
     @Qualifier("handlerExceptionResolver")
     HandlerExceptionResolver resolver

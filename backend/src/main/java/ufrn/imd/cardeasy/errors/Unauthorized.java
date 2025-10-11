@@ -6,7 +6,7 @@ import org.springframework.web.client.HttpStatusCodeException;
 public class Unauthorized extends HttpStatusCodeException {
   public Unauthorized() {
     super(
-      "Falha de autenticação!", 
+      "falha de autenticação", 
       HttpStatus.UNAUTHORIZED, 
       null, 
       null, 
