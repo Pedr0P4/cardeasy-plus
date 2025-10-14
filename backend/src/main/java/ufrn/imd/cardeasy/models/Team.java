@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,33 +23,34 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Team {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @Column(nullable = true)
-    private String description;
+  @Column(nullable = true)
+  private String description;
 
-    @OneToMany(
-        mappedBy = "team",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY
-    )
-    private Set<Participation> participations;
+  @OneToMany(
+    mappedBy = "team",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
+  private Set<Participation> participations;
 
-    @OrderColumn(name = "index")
-    @OneToMany(
-        mappedBy = "team",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY
-    )
-    private List<Project> projects;
+  @JsonIgnore
+  @OrderColumn(name = "index")
+  @OneToMany(
+    mappedBy = "team",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
+  private List<Project> projects;
 
-    public Team(String title, String description) {
-        this.title = title;
-        this.description = description;
-    }
+  public Team(String title, String description) {
+    this.title = title;
+    this.description = description;
+  }
 }

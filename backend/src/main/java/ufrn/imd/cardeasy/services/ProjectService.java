@@ -85,7 +85,7 @@ public class ProjectService {
   ) {
     Project project = teamService.getProjectFromTeam(teamId, projectId);
     Budget budget = project.getBudget();
-    if (budget == null) throw new EntitySecurityException(
+    if (budget == null) throw new EntityNotFoundException(
       "The project " + projectId + " don't have any budget!"
     );
     budget.setMinValue(budgetRequest.minValue());

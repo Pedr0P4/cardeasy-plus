@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,7 +16,6 @@ import jakarta.persistence.OrderColumn;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
 @Entity
@@ -35,6 +35,7 @@ public class Project {
   @Column(nullable = true)
   private String description;
 
+  @JsonIgnore
   @JoinColumn(name = "team_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   private Team team;

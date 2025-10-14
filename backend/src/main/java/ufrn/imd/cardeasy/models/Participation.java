@@ -1,8 +1,5 @@
 package ufrn.imd.cardeasy.models;
 
-import java.util.Set;
-
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -13,13 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
+import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = { "id" })
 public class Participation {
+
   @EmbeddedId
   private ParticipationId id;
 
@@ -39,4 +38,4 @@ public class Participation {
 
   @ManyToMany(mappedBy = "assigneds")
   Set<Card> assignments;
-};
+}
