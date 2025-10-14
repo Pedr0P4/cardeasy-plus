@@ -5,9 +5,12 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import ufrn.imd.cardeasy.dtos.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.ProjectDTO;
 import ufrn.imd.cardeasy.exceptions.EntitySecurityException;
+import ufrn.imd.cardeasy.models.Budget;
 import ufrn.imd.cardeasy.models.Project;
+import ufrn.imd.cardeasy.models.Stage;
 import ufrn.imd.cardeasy.models.Team;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 
@@ -39,5 +42,50 @@ public class ProjectService {
 
     project1.setIndex(index2);
     projectsRepository.save(project1);
+  }
+
+  @Transactional
+  public Budget setProjectBudget(
+    UUID teamId,
+    Integer projectId,
+    BudgetDTO budgetRequest
+  ) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    Budget newBudget = new Budget();
+    newBudget.setMinValue(budgetRequest.minValue());
+    newBudget.setMaxValue(budgetRequest.maxValue());
+    newBudget.setCurrency(budgetRequest.currency());
+    newBudget.setDeadline(budgetRequest.deadline());
+    newBudget.setProject(project);
+    project.setBudget(newBudget);
+    projectsRepository.save(project);
+    return newBudget;
+  }
+
+  @Transactional
+  public Budget editProjectBudget(
+    UUID teamId,
+    Integer projectId,
+    BudgetDTO budgetRequest
+  ) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    Budget budget = project.getBudget();
+    if (budget == null) throw new EntitySecurityException(
+      "The project " + projectId + " don't have any budget!"
+    );
+    budget.setMinValue(budgetRequest.minValue());
+    budget.setMaxValue(budgetRequest.maxValue());
+    budget.setCurrency(budgetRequest.currency());
+    budget.setDeadline(budgetRequest.deadline());
+    project.setBudget(budget);
+    projectsRepository.save(project);
+    return budget;
+  }
+
+  @Transactional
+  public void deleteProjectBudget(UUID teamId, Integer projectId) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    project.setBudget(null);
+    projectsRepository.save(project);
   }
 }

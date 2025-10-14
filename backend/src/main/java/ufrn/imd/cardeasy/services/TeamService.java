@@ -95,6 +95,7 @@ public class TeamService {
     teamsRepository.save(team);
   }
 
+  @Transactional
   public Project editTeamProject(
     UUID teamId,
     Integer projectId,
