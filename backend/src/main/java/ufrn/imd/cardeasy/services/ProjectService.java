@@ -5,16 +5,18 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import ufrn.imd.cardeasy.dtos.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.ProjectDTO;
+import ufrn.imd.cardeasy.dtos.StageDTO;
 import ufrn.imd.cardeasy.exceptions.EntitySecurityException;
 import ufrn.imd.cardeasy.models.Budget;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Stage;
-import ufrn.imd.cardeasy.models.Team;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 
 @RequiredArgsConstructor
+@Service
 public class ProjectService {
 
   private final TeamService teamService;
@@ -42,6 +44,19 @@ public class ProjectService {
 
     project1.setIndex(index2);
     projectsRepository.save(project1);
+  }
+
+  @Transactional
+  public Project editTeamProject(
+    UUID teamId,
+    Integer projectId,
+    ProjectDTO projectRequest
+  ) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    project.setTitle(projectRequest.title());
+    project.setDescription(projectRequest.description());
+    projectsRepository.save(project);
+    return project;
   }
 
   @Transactional
@@ -86,6 +101,57 @@ public class ProjectService {
   public void deleteProjectBudget(UUID teamId, Integer projectId) {
     Project project = teamService.getProjectFromTeam(teamId, projectId);
     project.setBudget(null);
+    projectsRepository.save(project);
+  }
+
+  public List<Stage> getProjectStages(UUID teamId, Integer projectId) {
+    return teamService.getProjectFromTeam(teamId, projectId).getStages();
+  }
+
+  public Stage getProjectStage(
+    UUID teamId,
+    Integer projectId,
+    Integer stageId
+  ) {
+    return teamService
+      .getProjectFromTeam(teamId, projectId)
+      .getStages()
+      .stream()
+      .filter(s -> s.getId().equals(stageId))
+      .findFirst()
+      .orElseThrow(() ->
+        new EntityNotFoundException("Stage not found on project " + projectId)
+      );
+  }
+
+  @Transactional
+  public Stage addStageOnProject(
+    UUID teamId,
+    Integer projectId,
+    StageDTO stageRequest
+  ) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    Stage newStage = new Stage();
+    newStage.setName(stageRequest.name());
+    newStage.setDescription(stageRequest.description());
+    newStage.setCurrent(stageRequest.current());
+    newStage.setExpectedStartIn(stageRequest.expectedStartIn());
+    newStage.setExpectedEndIn(stageRequest.expectedEndIn());
+    newStage.setProject(project);
+    project.getStages().add(newStage);
+    projectsRepository.save(project);
+    return newStage;
+  }
+
+  @Transactional
+  public void deleteProjectStage(
+    UUID teamId,
+    Integer projectId,
+    Integer stageId
+  ) {
+    Project project = teamService.getProjectFromTeam(teamId, projectId);
+    Stage stage = this.getProjectStage(teamId, projectId, stageId);
+    project.getStages().remove(stage);
     projectsRepository.save(project);
   }
 }

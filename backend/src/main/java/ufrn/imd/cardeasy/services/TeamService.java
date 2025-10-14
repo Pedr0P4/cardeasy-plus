@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.services;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +44,7 @@ public class TeamService {
 
   @Transactional
   public void deleteTeam(UUID id) {
-    Team teamToDelete = findTeam(id);
+    Team teamToDelete = this.findTeam(id);
     teamsRepository.delete(teamToDelete);
   }
 
@@ -84,49 +83,8 @@ public class TeamService {
   @Transactional
   public void deleteTeamProject(UUID teamId, Integer projectId) {
     Team team = this.findTeam(teamId);
-
-    team.setProjects(
-      team
-        .getProjects()
-        .stream()
-        .filter(p -> p.getId() != projectId)
-        .collect(Collectors.toList())
-    );
+    Project projectToDelete = this.getProjectFromTeam(teamId, projectId);
+    team.getProjects().remove(projectToDelete);
     teamsRepository.save(team);
-  }
-
-  @Transactional
-  public Project editTeamProject(
-    UUID teamId,
-    Integer projectId,
-    ProjectDTO projectRequest
-  ) {
-    Team team = this.findTeam(teamId);
-    Integer tmpIndex = team
-      .getProjects()
-      .stream()
-      .filter(p -> p.getId().equals(projectId))
-      .findFirst()
-      .orElseThrow(() ->
-        new EntityNotFoundException(
-          "Project " + projectId + " not found on team " + teamId
-        )
-      )
-      .getIndex();
-    team.setProjects(
-      team
-        .getProjects()
-        .stream()
-        .filter(p -> p.getId() != projectId)
-        .collect(Collectors.toList())
-    );
-    Project editedProject = new Project();
-    editedProject.setTitle(projectRequest.title());
-    editedProject.setDescription(projectRequest.description());
-    editedProject.setIndex(tmpIndex);
-    editedProject.setTeam(team);
-    team.getProjects().add(editedProject);
-    teamsRepository.save(team);
-    return editedProject;
   }
 }
