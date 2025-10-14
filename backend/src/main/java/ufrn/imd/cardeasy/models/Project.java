@@ -20,50 +20,42 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @EqualsAndHashCode(of = { "id" })
-@NoArgsConstructor
 public class Project {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
 
-    @Column(nullable = false)
-    private Integer index;
+  @Column(nullable = false)
+  private Integer index;
 
-    @Column(nullable = false)
-    private String title;
+  @Column(nullable = false)
+  private String title;
 
-    @Column(nullable = true)
-    private String description;
+  @Column(nullable = true)
+  private String description;
 
-    @JoinColumn(name = "team_id", nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Team team;
+  @JoinColumn(name = "team_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  private Team team;
 
-    @JoinColumn(name = "budget_id", nullable = true)
-    @OneToOne(fetch = FetchType.EAGER)
-    private Budget budget;
+  @JoinColumn(name = "budget_id", nullable = true)
+  @OneToOne(fetch = FetchType.EAGER)
+  private Budget budget;
 
-    @OrderColumn(name = "expected_start_in")
-    @OneToMany(
-        mappedBy = "project",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY
-    )
-    private List<Stage> stages;
+  @OrderColumn(name = "expected_start_in")
+  @OneToMany(
+    mappedBy = "project",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
+  private List<Stage> stages;
 
-    @OrderColumn(name = "index")
-    @OneToMany(
-        mappedBy = "project",
-        cascade = CascadeType.ALL,
-        fetch = FetchType.LAZY
-    )
-    private List<CardList> lists;
-
-    public Project(int index, String title, String description, Team team){
-      this.index = index;
-      this.title = title;
-      this.description = description;
-      this.team = team;
-    }
+  @OrderColumn(name = "index")
+  @OneToMany(
+    mappedBy = "project",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
+  private List<CardList> lists;
 }
