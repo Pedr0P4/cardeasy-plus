@@ -18,8 +18,8 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import ufrn.imd.cardeasy.dto.ErrorDTO;
-import ufrn.imd.cardeasy.dto.ValidationErrorDTO;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
+import ufrn.imd.cardeasy.dtos.ValidationErrorDTO;
 import ufrn.imd.cardeasy.errors.ValidationError;
 import ufrn.imd.cardeasy.errors.files.EmptyFileException;
 import ufrn.imd.cardeasy.errors.files.FileException;

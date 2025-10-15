@@ -33,6 +33,9 @@ public class Team {
   @Column(nullable = true)
   private String description;
 
+  @Column(nullable = true, unique = true)
+  private String inviteCode;
+
   @OneToMany(
     mappedBy = "team",
     cascade = CascadeType.ALL,

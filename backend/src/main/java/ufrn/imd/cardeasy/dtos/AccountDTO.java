@@ -1,4 +1,4 @@
-package ufrn.imd.cardeasy.dto;
+package ufrn.imd.cardeasy.dtos;
 
 import java.util.UUID;
 

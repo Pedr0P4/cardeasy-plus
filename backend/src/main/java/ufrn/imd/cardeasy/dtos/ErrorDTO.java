@@ -1,13 +1,12 @@
-package ufrn.imd.cardeasy.dto;
-
-import java.util.Map;
+package ufrn.imd.cardeasy.dtos;
 
 import org.springframework.http.HttpStatusCode;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-public record ValidationErrorDTO(
+public record ErrorDTO(
   HttpStatusCode status,
+
   @JsonInclude(JsonInclude.Include.NON_NULL)
-  Map<String, String> errors
+  String error
 ) {};

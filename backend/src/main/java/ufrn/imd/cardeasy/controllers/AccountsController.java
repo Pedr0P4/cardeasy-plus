@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dto.AccountDTO;
-import ufrn.imd.cardeasy.dto.AuthenticateAccountDTO;
-import ufrn.imd.cardeasy.dto.CreateAccountDTO;
-import ufrn.imd.cardeasy.dto.UpdateAccountDTO;
+import ufrn.imd.cardeasy.dtos.AccountDTO;
+import ufrn.imd.cardeasy.dtos.AuthenticateAccountDTO;
+import ufrn.imd.cardeasy.dtos.CreateAccountDTO;
+import ufrn.imd.cardeasy.dtos.UpdateAccountDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.AccountsService;
