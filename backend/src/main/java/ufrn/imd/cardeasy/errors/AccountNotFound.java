@@ -1,0 +1,18 @@
+package ufrn.imd.cardeasy.errors;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.client.HttpStatusCodeException;
+
+public class AccountNotFound extends HttpStatusCodeException {
+  public AccountNotFound() {
+    super(
+      "conta não encontrada", 
+      HttpStatus.NOT_FOUND, 
+      null, 
+      null, 
+      null, 
+      null
+    );
+  };
+};
+

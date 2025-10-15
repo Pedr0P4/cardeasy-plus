@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.models;
 
+import java.util.Set;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -10,7 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
-import java.util.Set;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
