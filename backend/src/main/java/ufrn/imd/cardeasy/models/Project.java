@@ -1,7 +1,6 @@
 package ufrn.imd.cardeasy.models;
 
-import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,13 +13,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderColumn;
+import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @Entity
-@EqualsAndHashCode(of = {"id"})
+@EqualsAndHashCode(of = { "id" })
 public class Project {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
@@ -34,6 +35,7 @@ public class Project {
   @Column(nullable = true)
   private String description;
 
+  @JsonIgnore
   @JoinColumn(name = "team_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   private Team team;
@@ -43,10 +45,18 @@ public class Project {
   private Budget budget;
 
   @OrderColumn(name = "expected_start_in")
-  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(
+    mappedBy = "project",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
   private List<Stage> stages;
 
   @OrderColumn(name = "index")
-  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(
+    mappedBy = "project",
+    cascade = CascadeType.ALL,
+    fetch = FetchType.LAZY
+  )
   private List<CardList> lists;
-};
+}
