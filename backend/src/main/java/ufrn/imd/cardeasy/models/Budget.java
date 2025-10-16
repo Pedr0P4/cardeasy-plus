@@ -18,38 +18,23 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = { "id" })
 @NoArgsConstructor
 public class Budget {
+  @Id
+  @GeneratedValue(strategy = GenerationType.AUTO)
+  private Integer id;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+  @Column(name = "min_value", nullable = false)
+  private Double minValue;
 
-    @Column(name = "min_value", nullable = false)
-    private Double minValue;
+  @Column(name = "max_value", nullable = false)
+  private Double maxValue;
 
-    @Column(name = "max_value", nullable = false)
-    private Double maxValue;
+  @Column(nullable = false)
+  private String currency;
 
-    @Column(nullable = false)
-    private String currency;
+  @Column(nullable = true)
+  private Date deadline;
 
-    @Column(nullable = true)
-    private Date deadline;
-
-    @JoinColumn(name = "project_id", nullable = false)
-    @OneToOne(fetch = FetchType.LAZY)
-    private Project project;
-
-    public Budget(
-        Double minValue,
-        Double maxValue,
-        String currency,
-        Date deadline,
-        Project project
-    ) {
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-        this.currency = currency;
-        this.deadline = deadline;
-        this.project = project;
-    }
-}
+  @JoinColumn(name = "project_id", nullable = false)
+  @OneToOne(fetch = FetchType.LAZY)
+  private Project project;
+};

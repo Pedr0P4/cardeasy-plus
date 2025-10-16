@@ -15,12 +15,10 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @EqualsAndHashCode(of = { "id" })
-@NoArgsConstructor
 public class Team {
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
@@ -36,8 +34,7 @@ public class Team {
     mappedBy = "team",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  )
-  private Set<Participation> participations;
+  ) private Set<Participation> participations;
 
   @JsonIgnore
   @OrderColumn(name = "index")
@@ -45,11 +42,5 @@ public class Team {
     mappedBy = "team",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  )
-  private List<Project> projects;
-
-  public Team(String title, String description) {
-    this.title = title;
-    this.description = description;
-  }
-}
+  ) private List<Project> projects;
+};

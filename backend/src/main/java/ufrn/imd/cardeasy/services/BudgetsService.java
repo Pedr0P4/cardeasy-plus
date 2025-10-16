@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import ufrn.imd.cardeasy.errors.BudgetNotFound;
+import ufrn.imd.cardeasy.errors.ProjectBudgetAlreadyExists;
 import ufrn.imd.cardeasy.models.Budget;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.repositories.BudgetsRepository;
@@ -30,6 +31,9 @@ public class BudgetsService {
   ) {
     Project project = new Project();
     project.setId(projectId);
+
+    if(project.getBudget() != null)
+      throw new ProjectBudgetAlreadyExists();
 
     Budget budget = new Budget();
     budget.setProject(project);
@@ -67,6 +71,7 @@ public class BudgetsService {
   };
 
   public void deleteById(Integer id) {
+    this.findById(id);
     this.budgets.deleteById(id);
   };
 };

@@ -25,7 +25,7 @@ public class Stage {
   private String name;
 
   @Column(nullable = false)
-  private Boolean current;
+  private Boolean current = false;
 
   @Column(nullable = true)
   private String description;

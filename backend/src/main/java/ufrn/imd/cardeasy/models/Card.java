@@ -20,7 +20,6 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(of = { "id" })
 public class Card {
-
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
@@ -42,8 +41,7 @@ public class Card {
     mappedBy = "card",
     cascade = CascadeType.ALL,
     fetch = FetchType.EAGER
-  )
-  private Set<Tag> tags;
+  ) private Set<Tag> tags;
 
   @ManyToMany
   @JoinTable(
@@ -53,6 +51,5 @@ public class Card {
       @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
       @JoinColumn(name = "team_id", referencedColumnName = "team_id"),
     }
-  )
-  private Set<Participation> assigneds;
-}
+  ) private Set<Participation> assigneds;
+};

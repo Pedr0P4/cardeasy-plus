@@ -49,14 +49,12 @@ public class Project {
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  )
-  private List<Stage> stages;
+  ) private List<Stage> stages;
 
   @OrderColumn(name = "index")
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  )
-  private List<CardList> lists;
-}
+  ) private List<CardList> lists;
+};

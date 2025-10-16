@@ -40,4 +40,4 @@ public class Participation {
 
   @ManyToMany(mappedBy = "assigneds")
   Set<Card> assignments;
-}
+};
