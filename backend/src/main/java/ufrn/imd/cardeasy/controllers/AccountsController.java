@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
+
 import ufrn.imd.cardeasy.dtos.account.AccountDTO;
 import ufrn.imd.cardeasy.dtos.account.AuthenticateAccountDTO;
 import ufrn.imd.cardeasy.dtos.account.CreateAccountDTO;

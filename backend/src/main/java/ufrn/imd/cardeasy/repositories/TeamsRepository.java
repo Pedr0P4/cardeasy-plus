@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.repositories;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,4 +10,7 @@ import ufrn.imd.cardeasy.models.Team;
 
 @Repository
 public interface TeamsRepository 
-extends JpaRepository<Team, UUID> {};
+extends JpaRepository<Team, UUID> {
+  public Boolean existsByCode(String code);
+  public Optional<Team> findByCode(String code);
+};

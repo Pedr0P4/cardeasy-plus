@@ -29,6 +29,9 @@ public class Team {
 
   @Column(nullable = true)
   private String description;
+  
+  @Column(nullable = true, unique = true)
+  private String code;
 
   @OneToMany(
     mappedBy = "team",

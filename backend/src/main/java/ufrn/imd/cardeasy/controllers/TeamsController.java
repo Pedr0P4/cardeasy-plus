@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.controllers;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,8 @@ import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateTeamDTO;
 import ufrn.imd.cardeasy.models.Account;
+import ufrn.imd.cardeasy.models.Participation;
+import ufrn.imd.cardeasy.models.ParticipationId;
 import ufrn.imd.cardeasy.models.Team;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.TeamsService;
