@@ -1,4 +1,4 @@
-package ufrn.imd.cardeasy.dto;
+package ufrn.imd.cardeasy.dtos;
 
 import java.util.Map;
 
@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 public record ValidationErrorDTO(
   HttpStatusCode status,
+  
   @JsonInclude(JsonInclude.Include.NON_NULL)
   Map<String, String> errors
 ) {};

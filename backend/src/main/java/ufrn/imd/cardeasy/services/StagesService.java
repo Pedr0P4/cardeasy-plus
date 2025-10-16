@@ -9,9 +9,9 @@ import ufrn.imd.cardeasy.repositories.StagesRepository;
 
 @Service
 @RequiredArgsConstructor
-public class StageService {
+public class StagesService {
 
-  private final ProjectService projectService;
+  private final ProjectsService ProjectsService;
   private final StagesRepository stagesRepository;
 
   public Stage editProjectStage(
@@ -20,7 +20,7 @@ public class StageService {
     Integer stageId,
     StageDTO stageRequest
   ) {
-    Stage stageToEdit = projectService.getProjectStage(
+    Stage stageToEdit = ProjectsService.getProjectStage(
       teamId,
       projectId,
       stageId

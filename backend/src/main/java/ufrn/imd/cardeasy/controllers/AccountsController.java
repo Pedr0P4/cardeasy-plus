@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dto.AccountDTO;
-import ufrn.imd.cardeasy.dto.AuthenticateAccountDTO;
-import ufrn.imd.cardeasy.dto.CreateAccountDTO;
-import ufrn.imd.cardeasy.dto.UpdateAccountDTO;
+import ufrn.imd.cardeasy.dtos.account.AccountDTO;
+import ufrn.imd.cardeasy.dtos.account.AuthenticateAccountDTO;
+import ufrn.imd.cardeasy.dtos.account.CreateAccountDTO;
+import ufrn.imd.cardeasy.dtos.account.UpdateAccountDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.AccountsService;
@@ -55,6 +55,26 @@ public class AccountsController {
       .build();
   };
 
+  @PutMapping("/{id}")
+  public ResponseEntity<Void> update(
+    @PathVariable UUID id,
+    @RequestPart MultipartFile avatar,
+    @RequestPart @Valid UpdateAccountDTO account
+  ) {
+    this.service.update(
+      id,
+      account.name(),
+      account.email(),
+      account.password(),
+      account.newPassword(),
+      avatar
+    );
+
+    return ResponseEntity
+      .status(HttpStatus.OK)
+      .build();
+  };
+
   @PostMapping("/auth")
   public ResponseEntity<String> authenticate(
     @RequestBody @Valid AuthenticateAccountDTO body
@@ -77,25 +97,5 @@ public class AccountsController {
       account.getName(),
       account.getEmail()
     ));
-  };
-
-  @PutMapping("/{id}")
-  public ResponseEntity<Void> update(
-    @PathVariable UUID id,
-    @RequestPart MultipartFile avatar,
-    @RequestPart @Valid UpdateAccountDTO account
-  ) {
-    this.service.update(
-      id,
-      account.name(),
-      account.email(),
-      account.password(),
-      account.newPassword(),
-      avatar
-    );
-
-    return ResponseEntity
-      .status(HttpStatus.OK)
-      .build();
   };
 };

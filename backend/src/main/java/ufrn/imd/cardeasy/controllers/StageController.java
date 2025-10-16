@@ -16,25 +16,28 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ufrn.imd.cardeasy.dtos.StageDTO;
 import ufrn.imd.cardeasy.models.Stage;
-import ufrn.imd.cardeasy.services.ProjectService;
-import ufrn.imd.cardeasy.services.StageService;
+import ufrn.imd.cardeasy.services.ProjectsService;
+import ufrn.imd.cardeasy.services.StagesService;
 
-@RequiredArgsConstructor
 @RestController
-@RequestMapping("/teams/{teamId}/{projectId}/stages")
+@RequestMapping("/stages")
 public class StageController {
+  private StagesService stages;
 
-  private final ProjectService projectService;
-  private final StageService stageService;
+  public StageController(
+    StagesService stages
+  ) {
+    this.stages = stages;
+  };
 
   @GetMapping
   public ResponseEntity<List<Stage>> getAllStages(
     @PathVariable UUID teamId,
     @PathVariable Integer projectId
   ) {
-    List<Stage> stages = projectService.getProjectStages(teamId, projectId);
+    List<Stage> stages = ProjectsService.getProjectStages(teamId, projectId);
     return ResponseEntity.ok(stages);
-  }
+  };
 
   @GetMapping("/{stageId}")
   public ResponseEntity<Stage> getStage(
@@ -42,17 +45,17 @@ public class StageController {
     @PathVariable Integer projectId,
     @PathVariable Integer stageId
   ) {
-    Stage stage = projectService.getProjectStage(teamId, projectId, stageId);
+    Stage stage = ProjectsService.getProjectStage(teamId, projectId, stageId);
     return ResponseEntity.ok(stage);
-  }
-
+  };
+  
   @PostMapping
-  public ResponseEntity<Stage> addStage(
+  public ResponseEntity<Stage> create(
     @PathVariable UUID teamId,
     @PathVariable Integer projectId,
     @RequestBody StageDTO stageRequest
   ) {
-    Stage newStage = projectService.addStageOnProject(
+    Stage newStage = ProjectsService.addStageOnProject(
       teamId,
       projectId,
       stageRequest
@@ -62,7 +65,7 @@ public class StageController {
       .buildAndExpand(newStage.getId())
       .toUri();
     return ResponseEntity.created(uri).body(newStage);
-  }
+  };
 
   @PutMapping("/{stageId}")
   public ResponseEntity<Stage> editStage(
@@ -78,7 +81,7 @@ public class StageController {
       stageRequest
     );
     return ResponseEntity.ok(stage);
-  }
+  };
 
   @DeleteMapping("/{stageId}")
   public ResponseEntity<Stage> deleteStage(
@@ -86,7 +89,7 @@ public class StageController {
     @PathVariable Integer projectId,
     @PathVariable Integer stageId
   ) {
-    projectService.deleteProjectStage(teamId, projectId, stageId);
+    ProjectsService.deleteProjectStage(teamId, projectId, stageId);
     return ResponseEntity.ok().build();
-  }
-}
+  };
+};

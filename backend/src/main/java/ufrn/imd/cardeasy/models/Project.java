@@ -37,7 +37,7 @@ public class Project {
 
   @JsonIgnore
   @JoinColumn(name = "team_id", nullable = false)
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   private Team team;
 
   @JoinColumn(name = "budget_id", nullable = true)

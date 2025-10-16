@@ -5,8 +5,9 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ufrn.imd.cardeasy.dtos.ProjectDTO;
-import ufrn.imd.cardeasy.dtos.TeamDTO;
+
+import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
+import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.exceptions.EntityNotFoundException;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Team;

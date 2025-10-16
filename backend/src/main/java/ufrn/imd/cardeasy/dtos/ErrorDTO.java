@@ -1,4 +1,4 @@
-package ufrn.imd.cardeasy.dto;
+package ufrn.imd.cardeasy.dtos;
 
 import org.springframework.http.HttpStatusCode;
 

@@ -22,7 +22,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = { "id" })
 @NoArgsConstructor
 public class Team {
-
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;

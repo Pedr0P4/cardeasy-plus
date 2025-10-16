@@ -22,30 +22,30 @@ import ufrn.imd.cardeasy.storages.AvatarStorage;
 public class AccountsService {
   private AvatarStorage avatars;
   private Authenticator authenticator;
-  private AccountsRepository repository;
+  private AccountsRepository accounts;
   private BCryptPasswordEncoder encoder;
 
   @Autowired
   public AccountsService(
     AvatarStorage avatars,
     Authenticator authenticator,
-    AccountsRepository repository,
+    AccountsRepository accounts,
     BCryptPasswordEncoder encoder
   ) {
     this.avatars = avatars;
     this.authenticator = authenticator;
-    this.repository = repository;
+    this.accounts = accounts;
     this.encoder = encoder;
   };
 
   @Transactional
-  public void create(
+  public Account create(
     String name,
     String email,
     String password,
     MultipartFile avatar
   ) {
-    if(this.repository.findByEmail(email).isPresent())
+    if(this.accounts.findByEmail(email).isPresent())
       throw new EmailAlreadyInUse();
     
     Account account = new Account();
@@ -55,14 +55,26 @@ public class AccountsService {
       this.encoder.encode(password)
     );
 
-    this.repository.save(account);
+    this.accounts.save(account);
 
     if(avatar != null)
       this.avatars.store(account.getId(), avatar);
+
+    return account;
+  };
+
+  public Account findById(UUID id) {
+    return this.accounts.findById(id)
+      .orElseThrow(AccountNotFound::new);
+  };
+
+  public Account findByEmail(String email) {
+    return this.accounts.findByEmail(email)
+      .orElseThrow(AccountNotFound::new);
   };
 
   @Transactional
-  public void update(
+  public Account update(
     UUID id,
     String name,
     String email,
@@ -70,7 +82,7 @@ public class AccountsService {
     String newPassword,
     MultipartFile avatar
   ) {
-    Optional<Account> candidate = this.repository.findByEmail(email);
+    Optional<Account> candidate = this.accounts.findByEmail(email);
 
     if(
       candidate.isPresent() && 
@@ -92,23 +104,15 @@ public class AccountsService {
         this.encoder.encode(newPassword)
       );
 
-    this.repository.save(account);
+    this.accounts.save(account);
 
     if(avatar != null) {
       this.avatars.store(account.getId(), avatar);
     } else if(this.avatars.exists(account.getId())) {
       this.avatars.delete(account.getId());
     };
-  };
 
-  public Account findById(UUID id) {
-    return this.repository.findById(id)
-      .orElseThrow(AccountNotFound::new);
-  };
-
-  public Account findByEmail(String email) {
-    return this.repository.findByEmail(email)
-      .orElseThrow(AccountNotFound::new);
+    return account;
   };
 
   public String authenticate(

@@ -1,23 +1,21 @@
-package ufrn.imd.cardeasy.dto;
-
-import java.util.UUID;
+package ufrn.imd.cardeasy.dtos.account;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record AccountDTO(
-  @NotNull
-  @org.hibernate.validator.constraints.UUID
-  UUID id,
-
+public record CreateAccountDTO(
   @NotNull
   @Size(min = 3, max = 45)
   String name,
-
-  @NotBlank 
+  
+  @NotBlank
   @Email
   @Size(min = 0, max = 45)
-  String email
+  String email,
+
+  @NotNull
+  @Size(min = 6, max = 36)
+  String password
 ) {};
