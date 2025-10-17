@@ -74,4 +74,9 @@ public class BudgetsService {
     this.findById(id);
     this.budgets.deleteById(id);
   };
+
+  public void existsById(Integer id) {
+    if(!this.budgets.existsById(id))
+      throw new BudgetNotFound();
+  };
 };

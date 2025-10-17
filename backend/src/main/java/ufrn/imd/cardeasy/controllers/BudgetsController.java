@@ -18,18 +18,26 @@ import ufrn.imd.cardeasy.dtos.budget.CreateBudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.UpdateBudgetDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Budget;
+import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.BudgetsService;
+import ufrn.imd.cardeasy.services.ParticipationsService;
+import ufrn.imd.cardeasy.services.ProjectsService;
 
 @RestController
 @RequestMapping("/budgets")
 public class BudgetsController {
+  private ParticipationsService participations;
+  private ProjectsService projects;
   private BudgetsService budgets;
 
   @Autowired
   public BudgetsController(
+    ParticipationsService participations,
+    ProjectsService projects,
     BudgetsService budgets
   ) {
+    this.participations = participations;
     this.budgets = budgets;
   };
 
@@ -39,7 +47,13 @@ public class BudgetsController {
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateBudgetDTO budget
   ) {
-    // TODO - authentication
+    this.projects.existsById(budget.project());
+
+    this.participations.checkProjectAccess(
+      Role.ADMIN,
+      account.getId(), 
+      budget.project()
+    );
 
     Budget created = this.budgets.create(
       budget.project(),
@@ -48,18 +62,10 @@ public class BudgetsController {
       budget.currency(),
       budget.deadline()
     );
-
-    BudgetDTO response = new BudgetDTO(
-      created.getId(),
-      created.getMinValue(),
-      created.getMaxValue(),
-      created.getCurrency(),
-      created.getDeadline()
-    );
     
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(response);
+      .body(BudgetDTO.from(created));
   };
 
   @Authenticate
@@ -69,7 +75,13 @@ public class BudgetsController {
     @PathVariable Integer id,
     @RequestBody UpdateBudgetDTO budget
   ) {
-    // TODO - authentication
+    this.budgets.existsById(id);
+
+    this.participations.checkBudgetAccess(
+      Role.ADMIN,
+      account.getId(), 
+      id
+    );
 
     Budget updated = this.budgets.update(
       id,
@@ -79,15 +91,9 @@ public class BudgetsController {
       budget.deadline()
     );
 
-    BudgetDTO response = new BudgetDTO(
-      updated.getId(),
-      updated.getMinValue(),
-      updated.getMaxValue(),
-      updated.getCurrency(),
-      updated.getDeadline()
+    return ResponseEntity.ok(
+      BudgetDTO.from(updated)
     );
-
-    return ResponseEntity.ok(response);
   };
 
   @Authenticate
@@ -96,9 +102,16 @@ public class BudgetsController {
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {
-    // TODO - authentication
+    this.budgets.existsById(id);
+
+    this.participations.checkBudgetAccess(
+      Role.ADMIN,
+      account.getId(), 
+      id
+    );
 
     this.budgets.deleteById(id);
+    
     return ResponseEntity
       .noContent()
       .build();

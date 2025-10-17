@@ -3,6 +3,8 @@ package ufrn.imd.cardeasy.services;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,16 @@ public class StagesService {
       .orElseThrow(StageNotFound::new);
   };
 
+  public List<Stage> findAllByAccountAndProject(
+    UUID accountId,
+    Integer projectId
+  ) {
+    return this.stages.findAllByAccountAndProject(
+      accountId,
+      projectId
+    );
+  };
+
   @Transactional
   public Stage update(
     Integer id,
@@ -67,13 +79,13 @@ public class StagesService {
     stage.setDescription(description);
     stage.setExpectedStartIn(expectedStartIn);
     stage.setExpectedEndIn(expectedEndIn);
-
-    if(current) {
-      stage.setCurrent(current);
-      // TODO - Desativa todos e ativa esse (se necessário)
-    };
+    stage.setCurrent(current);
 
     this.stages.save(stage);
+    if(stage.getCurrent())
+      this.stages.disableCurrentsInProjectExceptById(
+        stage.getId()
+      );
 
     return stage;
   };
@@ -81,5 +93,12 @@ public class StagesService {
   public void deleteById(Integer id) {
     this.findById(id);
     this.stages.deleteById(id);
+  };
+
+  public void existsById(
+    Integer id
+  ) {
+    if(!this.stages.existsById(id))
+      throw new StageNotFound();
   };
 };

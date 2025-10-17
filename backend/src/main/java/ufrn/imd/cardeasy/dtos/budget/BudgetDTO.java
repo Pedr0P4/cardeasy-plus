@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.dtos.budget;
 
 import java.sql.Date;
 
+import ufrn.imd.cardeasy.models.Budget;
 import ufrn.imd.cardeasy.models.Project;
 
 public record BudgetDTO(
@@ -12,14 +13,21 @@ public record BudgetDTO(
   Date deadline
 ) {
   public static BudgetDTO from(Project project) {
-    if(project.getBudget() == null) return null;
+    if(project.getBudget() == null) 
+      return null;
     
+    return BudgetDTO.from(
+      project.getBudget()
+    );
+  };
+
+  public static BudgetDTO from(Budget budget) {
     return new BudgetDTO(
-      project.getBudget().getId(),
-      project.getBudget().getMinValue(),
-      project.getBudget().getMaxValue(),
-      project.getBudget().getCurrency(),
-      project.getBudget().getDeadline()
+      budget.getId(),
+      budget.getMinValue(),
+      budget.getMaxValue(),
+      budget.getCurrency(),
+      budget.getDeadline()
     );
   };
 };

@@ -1,10 +1,15 @@
 package ufrn.imd.cardeasy.services;
 
 import jakarta.transaction.Transactional;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import ufrn.imd.cardeasy.errors.InvalidSwap;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Project;
@@ -49,6 +54,10 @@ public class ProjectsService {
       .orElseThrow(ProjectNotFound::new);
   };
 
+  public List<Project> findAllByAccount(UUID accountId) {
+    return this.projects.findAllByAccount(accountId);
+  };
+
   public Project update(
     Integer id,
     String title,
@@ -68,21 +77,31 @@ public class ProjectsService {
     this.projects.deleteById(id);
   };
 
+  public void existsById(
+    Integer id
+  ) {
+    if(!this.projects.existsById(id))
+      throw new TeamNotFound();
+  };
+
   @Transactional
   public void swap(
-    Integer first, 
-    Integer second
+    Integer firstId, 
+    Integer secondId
   ) {
-    // TODO - finish it
-    // Integer index = second.getIndex();
+    Project first = this.findById(firstId);
+    Project second = this.findById(secondId);
 
-    // first.setIndex(-1);
-    // projects.saveAndFlush(first);
+    if(!first.getTeam().getId().equals(
+      second.getTeam().getId()
+    )) throw new InvalidSwap();
 
-    // second.setIndex(first.getIndex());
-    // projects.saveAndFlush(second);
-
-    // first.setIndex(index);
-    // projects.save(first);
+    Collections.swap(
+      first.getTeam().getProjects(),
+      first.getIndex(),
+      second.getIndex()
+    );
+    
+    this.teams.save(first.getTeam());
   };
 };

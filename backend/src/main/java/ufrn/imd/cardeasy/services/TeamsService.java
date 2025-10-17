@@ -1,11 +1,15 @@
 package ufrn.imd.cardeasy.services;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ufrn.imd.cardeasy.errors.CannotKickOnwer;
+import ufrn.imd.cardeasy.errors.Forbidden;
+import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.models.ParticipationId;
@@ -32,7 +36,7 @@ public class TeamsService {
 
   @Transactional
   public Team create(
-    UUID owner,
+    UUID ownerId,
     String title,
     String description
   ) {
@@ -43,7 +47,7 @@ public class TeamsService {
     this.teams.save(team);
 
     ParticipationId participationId = new ParticipationId();
-    participationId.setAccountId(owner);
+    participationId.setAccountId(ownerId);
     participationId.setTeamId(team.getId());
 
     Participation participation = new Participation();
@@ -65,6 +69,14 @@ public class TeamsService {
     return this.teams
       .findByCode(code)
       .orElseThrow(TeamNotFound::new);
+  };
+
+  public List<Team> findAllByAccount(
+    UUID accountId
+  ) {
+    return this.teams.findAllByAccount(
+      accountId
+    );
   };
 
   public Team update(
@@ -112,24 +124,52 @@ public class TeamsService {
   public void removeCodeById(UUID id) {
     Team team = this.findById(id);
     team.setCode(null);
+    
     this.teams.save(team);
   };
 
-  public Participation addParticipation (UUID teamId, UUID accountId) {
+  public Team join(
+    UUID accountId,
+    String code
+  ) {
+    Team team = this.findByCode(code);
+
     ParticipationId participationId = new ParticipationId();
-    participationId.setTeamId(teamId);
+    participationId.setTeamId(team.getId());
     participationId.setAccountId(accountId);
+
     Participation participation = new Participation();
     participation.setId(participationId);
     participation.setRole(Role.MEMBER);
-    participationsRepository.save(participation);
-    return participation;
+
+    this.participations.save(participation);
+
+    return team;
   };
 
-  public void deleteParticipation (UUID teamId, UUID accountId) {
+  public void kick(
+    UUID accountId,
+    UUID teamId
+  ) {
+    this.existsById(teamId);
+
     ParticipationId participationId = new ParticipationId();
     participationId.setTeamId(teamId);
     participationId.setAccountId(accountId);
-    participationsRepository.deleteById(participationId);
+
+    Participation participation = this.participations.findById(participationId)
+      .orElseThrow(ParticipationNotFound::new);
+
+    if(participation.getRole() == Role.OWNER)
+      throw new CannotKickOnwer();
+
+    this.participations.deleteById(participationId);
+  };
+
+  public void existsById(
+    UUID id
+  ) {
+    if(!this.teams.existsById(id))
+      throw new TeamNotFound();
   };
 };

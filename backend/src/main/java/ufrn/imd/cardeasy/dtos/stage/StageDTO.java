@@ -1,6 +1,10 @@
 package ufrn.imd.cardeasy.dtos.stage;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import ufrn.imd.cardeasy.models.Stage;
 
 public record StageDTO(
   Integer id,
@@ -9,4 +13,25 @@ public record StageDTO(
   String description,
   Date expectedStartIn,
   Date expectedEndIn
-) {};
+) {
+  public static StageDTO from(
+    Stage stage
+  ) {
+    return new StageDTO(
+      stage.getId(),
+      stage.getName(),
+      stage.getCurrent(),
+      stage.getDescription(),
+      stage.getExpectedStartIn(),
+      stage.getExpectedEndIn()
+    );
+  };
+
+  public static List<StageDTO> from(
+    List<Stage> stages
+  ) {
+    return stages.stream()
+      .map(StageDTO::from)
+      .collect(Collectors.toList());
+  };
+};

@@ -1,6 +1,10 @@
 package ufrn.imd.cardeasy.repositories;
 
+import java.util.Optional;
+import java.util.UUID;
+
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import ufrn.imd.cardeasy.models.Participation;
@@ -8,4 +12,51 @@ import ufrn.imd.cardeasy.models.ParticipationId;
 
 @Repository
 public interface ParticipationsRepository 
-extends JpaRepository<Participation, ParticipationId> {};
+extends JpaRepository<Participation, ParticipationId> {
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
+      WHERE pt.account_id = ?1
+      AND pj.id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndProject(
+    UUID accountId,
+    Integer projectId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
+      JOIN stage AS st
+      ON st.project_id = pj.id
+      WHERE pt.account_id = ?1
+      AND st.id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndStage(
+    UUID accountId,
+    Integer stageId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
+      WHERE pt.account_id = ?1
+      AND pj.budget_id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndBudget(
+    UUID accountId,
+    Integer budgetId
+  );
+};

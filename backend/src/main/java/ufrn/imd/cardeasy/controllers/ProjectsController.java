@@ -15,25 +15,32 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dtos.budget.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
 import ufrn.imd.cardeasy.dtos.project.SwapProjectsDTO;
 import ufrn.imd.cardeasy.dtos.project.UpdateProjectDTO;
-import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Project;
+import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
+import ufrn.imd.cardeasy.services.TeamsService;
 
 @RestController
 @RequestMapping("/projects")
 public class ProjectsController {
+  private TeamsService teams;
+  private ParticipationsService participations;
   private ProjectsService projects;
 
   public ProjectsController(
+    TeamsService teams,
+    ParticipationsService participations,
     ProjectsService projects
   ) {
+    this.teams = teams;
+    this.participations = participations;
     this.projects = projects;
   };
 
@@ -43,8 +50,13 @@ public class ProjectsController {
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateProjectDTO project
   ) {
-    // TODO - authentication
-    // TODO - this.teams.findById()
+    this.teams.existsById(project.team());
+
+    this.participations.checkAccess(
+      Role.ADMIN,
+      account.getId(),
+      project.team()
+    );
 
     Project created = this.projects.create(
       project.team(),
@@ -52,41 +64,41 @@ public class ProjectsController {
       project.description()
     );
 
-    ProjectDTO response = new ProjectDTO(
-      created.getId(),
-      created.getTitle(),
-      created.getDescription(),
-      TeamDTO.from(created),
-      BudgetDTO.from(created)
-    );
-
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(response);
+      .body(ProjectDTO.from(created));
   };
 
   @Authenticate
   @GetMapping
-  public ResponseEntity<List<Project>> findAll(
+  public ResponseEntity<List<ProjectDTO>> findAll(
     @AuthenticationPrincipal Account account
   ) {
-    // TODO - authentication
-    // TODO - Participation service
-    // TODO - join
-    
-    // List<Project> projects = th
-    return ResponseEntity.ok(List.of());
+    List<Project> projects = this.projects.findAllByAccount(
+      account.getId()
+    );
+
+    return ResponseEntity.ok(
+      ProjectDTO.from(projects)
+    );
   };
 
   @Authenticate
   @GetMapping("/{id}")
-  public ResponseEntity<Project> findById(
+  public ResponseEntity<ProjectDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {
-    // TODO - authentication
     Project project = this.projects.findById(id);
-    return ResponseEntity.ok(project);
+
+    this.participations.checkAccess(
+      account.getId(),
+      project.getTeam().getId()
+    );
+    
+    return ResponseEntity.ok(
+      ProjectDTO.from(project)
+    );
   };
 
   @Authenticate
@@ -96,7 +108,12 @@ public class ProjectsController {
     @PathVariable Integer id,
     @RequestBody @Valid UpdateProjectDTO project
   ) {
-    // TODO - authentication
+    this.projects.existsById(id);
+
+    this.participations.checkProjectAccess(
+      account.getId(),
+      id
+    );
 
     Project updated = this.projects.update(
       id,
@@ -104,25 +121,9 @@ public class ProjectsController {
       project.description()
     );
 
-    ProjectDTO response = new ProjectDTO(
-      updated.getId(),
-      updated.getTitle(),
-      updated.getDescription(),
-      new TeamDTO(
-        updated.getTeam().getId(),
-        updated.getTeam().getTitle(),
-        updated.getTeam().getDescription()
-      ),
-      new BudgetDTO(
-        updated.getBudget().getId(),
-        updated.getBudget().getMinValue(),
-        updated.getBudget().getMaxValue(),
-        updated.getBudget().getCurrency(),
-        updated.getBudget().getDeadline()
-      )
+    return ResponseEntity.ok(
+      ProjectDTO.from(updated)
     );
-
-    return ResponseEntity.ok(response);
   };
 
   @Authenticate
@@ -131,9 +132,16 @@ public class ProjectsController {
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {
-    // TODO - authentication
+    this.projects.existsById(id);
+
+    this.participations.checkProjectAccess(
+      Role.OWNER,
+      account.getId(),
+      id
+    );
 
     this.projects.deleteById(id);
+
     return ResponseEntity
       .noContent()
       .build();
@@ -145,7 +153,20 @@ public class ProjectsController {
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid SwapProjectsDTO projects
   ) {
-    // TODO - authentication
+    this.projects.existsById(projects.first());
+    this.projects.existsById(projects.second());
+    
+    this.participations.checkProjectAccess(
+      Role.ADMIN,
+      account.getId(),
+      projects.first()
+    );
+
+    this.participations.checkProjectAccess(
+      Role.ADMIN,
+      account.getId(),
+      projects.second()
+    );
     
     this.projects.swap(
       projects.first(),

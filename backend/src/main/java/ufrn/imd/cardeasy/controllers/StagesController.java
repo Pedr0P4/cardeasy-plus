@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,27 +18,43 @@ import ufrn.imd.cardeasy.dtos.stage.CreateStageDTO;
 import ufrn.imd.cardeasy.dtos.stage.StageDTO;
 import ufrn.imd.cardeasy.dtos.stage.UpdateStageDTO;
 import ufrn.imd.cardeasy.models.Account;
+import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.models.Stage;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.ParticipationsService;
+import ufrn.imd.cardeasy.services.ProjectsService;
 import ufrn.imd.cardeasy.services.StagesService;
 
 @RestController
 @RequestMapping("/stages")
 public class StagesController {
+  private ParticipationsService participations;
+  private ProjectsService projects;
   private StagesService stages;
 
   public StagesController(
+    ParticipationsService participations,
+    ProjectsService projects,
     StagesService stages
   ) {
+    this.participations = participations;
+    this.projects = projects;
     this.stages = stages;
   };
   
   @Authenticate
   @PostMapping
   public ResponseEntity<StageDTO> create(
+    @AuthenticationPrincipal Account account,
     @RequestBody CreateStageDTO stage
   ) {
-    // TODO - authentication
+    this.projects.existsById(stage.project());
+
+    this.participations.checkProjectAccess(
+      Role.ADMIN,
+      account.getId(),
+      stage.project()
+    );
 
     Stage created = this.stages.create(
       stage.project(),
@@ -46,50 +64,61 @@ public class StagesController {
       stage.expectedEndIn()
     );
 
-    StageDTO response = new StageDTO(
-      created.getId(),
-      created.getName(),
-      created.getCurrent(),
-      created.getDescription(),
-      created.getExpectedStartIn(),
-      created.getExpectedEndIn()
-    );
-
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(response);
+      .body(StageDTO.from(created));
   };
 
   @Authenticate
   @GetMapping("/{id}")
   public ResponseEntity<StageDTO> findById(
+    @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {
-    // TODO - authentication
+    this.stages.existsById(id);
+
+    this.participations.checkStageAccess(
+      account.getId(),
+      id
+    );
 
     Stage stage = this.stages.findById(id);
 
-    StageDTO response = new StageDTO(
-      stage.getId(),
-      stage.getName(),
-      stage.getCurrent(),
-      stage.getDescription(),
-      stage.getExpectedStartIn(),
-      stage.getExpectedEndIn()
+    return ResponseEntity.ok(
+      StageDTO.from(stage)
     );
-
-    return ResponseEntity.ok(response);
   };
 
-  // TODO - Find all by project
+  @Authenticate
+  @GetMapping("/project/{id}")
+  public ResponseEntity<List<StageDTO>> findAllById(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    List<Stage> stages = this.stages.findAllByAccountAndProject(
+      account.getId(),
+      id
+    );
+    
+    return ResponseEntity.ok(
+      StageDTO.from(stages)
+    );
+  };
 
   @Authenticate
   @PutMapping("/{id}")
   public ResponseEntity<StageDTO> update(
+    @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
     @RequestBody UpdateStageDTO stage
   ) {
-    // TODO - authentication
+    this.stages.existsById(id);
+
+    this.participations.checkStageAccess(
+      Role.ADMIN,
+      account.getId(),
+      id
+    );
 
     Stage updated = this.stages.update(
       id,
@@ -100,16 +129,9 @@ public class StagesController {
       stage.expectedEndIn()
     );
 
-    StageDTO response = new StageDTO(
-      updated.getId(),
-      updated.getName(),
-      updated.getCurrent(),
-      updated.getDescription(),
-      updated.getExpectedStartIn(),
-      updated.getExpectedEndIn()
+    return ResponseEntity.ok(
+      StageDTO.from(updated)
     );
-
-    return ResponseEntity.ok(response);
   };
 
   @Authenticate
@@ -118,7 +140,13 @@ public class StagesController {
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {
-    // TODO - authentication
+    this.stages.existsById(id);
+    
+    this.participations.checkStageAccess(
+      Role.ADMIN,
+      account.getId(),
+      id
+    );
 
     this.stages.deleteById(id);
     return ResponseEntity
