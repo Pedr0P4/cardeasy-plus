@@ -40,7 +40,7 @@ public class Card {
   @OneToMany(
     mappedBy = "card",
     cascade = CascadeType.ALL,
-    fetch = FetchType.EAGER
+    fetch = FetchType.LAZY
   ) private Set<Tag> tags;
 
   @ManyToMany

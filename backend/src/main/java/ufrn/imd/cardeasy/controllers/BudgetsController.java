@@ -95,7 +95,7 @@ public class BudgetsController {
       BudgetDTO.from(updated)
     );
   };
-
+  
   @Authenticate
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(
