@@ -119,6 +119,8 @@ public class AccountsService {
     String email,
     String password
   ) {
+    System.out.println(this.encoder.encode(password));
+
     Account account = this.findByEmail(email);
     
     if(!this.encoder.matches(

@@ -1,6 +1,6 @@
 interface Props {
   id: string;
-};
+}
 
 export default function Hero({ id }: Props) {
   return (
@@ -9,14 +9,14 @@ export default function Hero({ id }: Props) {
         <div className="max-w-md">
           <h1 className="text-4xl font-bold">Exemplo de componente</h1>
           <p className="pt-6 pb-2">
-            Copiei esse componente quase inteiro do 
-            <span className="badge badge-neutral px-1.5 mx-0.5">Daisy UI</span>. 
-            As cores estão meio alteradas porque eu não limpei o 
-            <span className="badge badge-neutral px-1.5 mx-0.5">CSS</span> do template.
-            O time que você está tentando acessar é o: 
+            Copiei esse componente quase inteiro do
+            <span className="badge badge-neutral px-1.5 mx-0.5">Daisy UI</span>.
+            As cores estão meio alteradas porque eu não limpei o
+            <span className="badge badge-neutral px-1.5 mx-0.5">CSS</span> do
+            template. O time que você está tentando acessar é o:
           </p>
           <p className="pb-6 text-nowrap">{id}</p>
-          <a 
+          <a
             href="https://daisyui.com/components/"
             target="_blank"
             rel="noopener noreferrer"
@@ -28,4 +28,4 @@ export default function Hero({ id }: Props) {
       </div>
     </div>
   );
-};
+}
