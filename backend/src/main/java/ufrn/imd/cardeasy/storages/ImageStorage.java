@@ -57,10 +57,11 @@ public abstract class ImageStorage extends FileStorage {
     if(file.getContentType() == null) throw new InvalidImageFormat();
     
     String type = file.getContentType();
-
-    // TODO - Checar depois se o problema do jpeg era do Insomnia
+    
     Boolean isValid = 
       type.contains("png") ||
+      type.contains("jpeg") ||
+      type.contains("jpg") ||
       type.contains("webp");
 
     if(!isValid) throw new InvalidImageFormat();
