@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.KickDTO;
@@ -84,7 +82,7 @@ public class TeamsController {
     Team team = this.teams.findById(id);
 
     this.participations.checkAccess(
-      account.getId(),
+      account.getId(), 
       id
     );
 
@@ -103,13 +101,13 @@ public class TeamsController {
     this.teams.existsById(id);
 
     this.participations.checkAccess(
-      account.getId(),
+      account.getId(), 
       id
     );
 
     Team updated = this.teams.update(
       id, 
-      team.title(),
+      team.title(), 
       team.description()
     );
 
@@ -127,8 +125,8 @@ public class TeamsController {
     this.teams.existsById(id);
 
     this.participations.checkAccess(
-      Role.OWNER,
-      account.getId(),
+      Role.OWNER, 
+      account.getId(), 
       id
     );
 
@@ -148,17 +146,15 @@ public class TeamsController {
     this.teams.existsById(id);
 
     this.participations.checkAccess(
-      Role.ADMIN,
-      account.getId(),
+      Role.ADMIN, 
+      account.getId(), 
       id
     );
 
     String code = this.teams.generateCodeById(id);
 
     return ResponseEntity.ok(
-      new GeneratedCodeDTO(
-        code
-      )
+      new GeneratedCodeDTO(code)
     );
   };
 
@@ -171,11 +167,11 @@ public class TeamsController {
     this.teams.existsById(id);
 
     this.participations.checkAccess(
-      Role.ADMIN,
-      account.getId(),
+      Role.ADMIN, 
+      account.getId(), 
       id
     );
-    
+
     this.teams.removeCodeById(id);
 
     return ResponseEntity
@@ -209,7 +205,7 @@ public class TeamsController {
     this.teams.existsById(id);
 
     Participation participation = this.participations.findById(
-      kick.acount().getId(),
+      kick.account().getId(),
       id
     );
 
@@ -220,8 +216,8 @@ public class TeamsController {
     );
 
     this.teams.kick(
-      id,
-      account.getId()
+      kick.account().getId(), 
+      id
     );
 
     return ResponseEntity

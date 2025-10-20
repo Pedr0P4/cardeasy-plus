@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,8 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.budget.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.CreateBudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.UpdateBudgetDTO;
@@ -38,6 +37,7 @@ public class BudgetsController {
     BudgetsService budgets
   ) {
     this.participations = participations;
+    this.projects = projects;
     this.budgets = budgets;
   };
 
@@ -51,7 +51,7 @@ public class BudgetsController {
 
     this.participations.checkProjectAccess(
       Role.ADMIN,
-      account.getId(), 
+      account.getId(),
       budget.project()
     );
 
@@ -62,7 +62,7 @@ public class BudgetsController {
       budget.currency(),
       budget.deadline()
     );
-    
+
     return ResponseEntity
       .status(HttpStatus.CREATED)
       .body(BudgetDTO.from(created));
@@ -78,7 +78,7 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN,
+      Role.ADMIN, 
       account.getId(), 
       id
     );
@@ -95,7 +95,7 @@ public class BudgetsController {
       BudgetDTO.from(updated)
     );
   };
-  
+
   @Authenticate
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(
@@ -105,13 +105,13 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN,
+      Role.ADMIN, 
       account.getId(), 
       id
     );
 
     this.budgets.deleteById(id);
-    
+
     return ResponseEntity
       .noContent()
       .build();

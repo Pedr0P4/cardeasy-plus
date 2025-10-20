@@ -1,10 +1,8 @@
 package ufrn.imd.cardeasy.services;
 
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import ufrn.imd.cardeasy.errors.Forbidden;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.models.Participation;
@@ -24,7 +22,7 @@ public class ParticipationsService {
   };
 
   public Participation findById(
-    UUID accountId,
+    UUID accountId, 
     UUID teamId
   ) {
     ParticipationId id = new ParticipationId();
@@ -45,7 +43,7 @@ public class ParticipationsService {
   };
 
   public Participation findByAccountAndStage(
-    UUID accountId,
+    UUID accountId, 
     Integer stageId
   ) {
     return this.participations
@@ -62,101 +60,85 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
-  public void checkAccess(
-    Role role,
-    UUID accountId,
-    UUID teamId
-  ) {
-    Participation participation = this.findById(
-      accountId, 
-      teamId
-    );
+  public void checkAccess(Role role, UUID accountId, UUID teamId) {
+    Participation participation = this.findById(accountId, teamId);
 
-    if(!participation.getRole().hasAccessOf(role))
+    if (!participation.getRole().hasAccessOf(role)) 
       throw new Forbidden();
   };
 
-  public void checkAccess(
-    UUID accountId,
-    UUID teamId
-  ) {
-    this.checkAccess(
-      Role.MEMBER,
-      accountId, 
-      teamId
-    );
+  public void checkAccess(UUID accountId, UUID teamId) {
+    this.checkAccess(Role.MEMBER, accountId, teamId);
   };
 
-  public void checkProjectAccess(
-    Role role,
-    UUID accountId,
-    Integer projectId
-  ) {
+  public void checkProjectAccess(Role role, UUID accountId, Integer projectId) {
     Participation participation = this.findByAccountAndProject(
-      accountId, 
+      accountId,
       projectId
     );
 
-    if(!participation.getRole().hasAccessOf(role))
+    if (!participation.getRole().hasAccessOf(role)) 
       throw new Forbidden();
   };
 
   public void checkProjectAccess(
-    UUID accountId,
+    UUID accountId, 
     Integer projectId
   ) {
     this.checkProjectAccess(
-      Role.MEMBER,
+      Role.MEMBER, 
       accountId, 
       projectId
     );
   };
 
   public void checkStageAccess(
-    Role role,
-    UUID accountId,
+    Role role, 
+    UUID accountId, 
     Integer stageId
   ) {
     Participation participation = this.findByAccountAndStage(
-      accountId, 
+      accountId,
       stageId
     );
 
-    if(!participation.getRole().hasAccessOf(role))
+    if (!participation.getRole().hasAccessOf(role)) 
       throw new Forbidden();
   };
 
   public void checkStageAccess(
-    UUID accountId,
+    UUID accountId, 
     Integer stageId
   ) {
     this.checkStageAccess(
-      Role.MEMBER,
+      Role.MEMBER, 
       accountId, 
       stageId
     );
   };
 
   public void checkBudgetAccess(
-    Role role,
-    UUID accountId,
+    Role role, 
+    UUID accountId, 
     Integer budgetId
   ) {
     Participation participation = this.findByAccountAndBudget(
-      accountId, 
+      accountId,
       budgetId
     );
 
-    if(!participation.getRole().hasAccessOf(role))
-      throw new Forbidden();
+    if (
+      !participation.getRole()
+        .hasAccessOf(role)
+    ) throw new Forbidden();
   };
 
   public void checkBudgetAccess(
-    UUID accountId,
+    UUID accountId, 
     Integer stageId
   ) {
     this.checkStageAccess(
-      Role.MEMBER,
+      Role.MEMBER, 
       accountId, 
       stageId
     );

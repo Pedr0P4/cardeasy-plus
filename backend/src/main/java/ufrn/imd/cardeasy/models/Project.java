@@ -21,7 +21,6 @@ import lombok.EqualsAndHashCode;
 @Entity
 @EqualsAndHashCode(of = { "id" })
 public class Project {
-
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
@@ -39,10 +38,13 @@ public class Project {
   @JoinColumn(name = "team_id", nullable = false)
   @ManyToOne(fetch = FetchType.EAGER)
   private Team team;
-
+  
   @JoinColumn(name = "budget_id", nullable = true)
-  @OneToOne(fetch = FetchType.EAGER)
-  private Budget budget;
+  @OneToOne(
+    fetch = FetchType.EAGER,
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  ) private Budget budget;
 
   @OrderColumn(name = "expected_start_in")
   @OneToMany(
