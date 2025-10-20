@@ -1,20 +1,20 @@
 "use client";
 
+import clsx from "clsx";
+import Image from "next/image";
 import {
-  ButtonHTMLAttributes,
-  ChangeEvent,
-  DetailedHTMLProps,
-  DragEvent,
+  type ButtonHTMLAttributes,
+  type ChangeEvent,
+  type DetailedHTMLProps,
+  type DragEvent,
   useRef,
   useState,
 } from "react";
-import Cropper, { Area } from "react-easy-crop";
-import getCroppedImg from "@/services/crop";
+import Cropper, { type Area } from "react-easy-crop";
 import { FaCloudUploadAlt, FaTrash, FaUpload } from "react-icons/fa";
 import { FaCheck, FaRotate, FaX } from "react-icons/fa6";
+import getCroppedImg from "@/services/crop";
 import Input from "./Input";
-import Image from "next/image";
-import clsx from "clsx";
 
 export interface CropProps
   extends Exclude<

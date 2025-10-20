@@ -1,8 +1,8 @@
-import { ImageData } from "@/services/image";
-import ImageInput from "./ImageInput";
-import { FaUpload } from "react-icons/fa";
 import clsx from "clsx";
 import Image from "next/image";
+import { FaUpload } from "react-icons/fa";
+import type { ImageData } from "@/services/image";
+import ImageInput from "./ImageInput";
 
 interface Props {
   name: string;
