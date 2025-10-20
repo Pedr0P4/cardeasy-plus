@@ -18,9 +18,11 @@ export default function AccountStoreInitializer({ account }: Props) {
   }
 
   useEffect(() => {
-    imageUrlToData(`/avatars/${account.id}.webp`).then((res) => {
-      useAccount.getState().setAvatar(res);
-    });
+    imageUrlToData(`/avatars/${account.id}.webp`)
+      .then((res) => {
+        useAccount.getState().setAvatar(res);
+      })
+      .catch(() => {});
   }, [account.id]);
 
   return null;

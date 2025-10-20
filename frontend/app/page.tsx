@@ -21,15 +21,10 @@ export default function HomePage() {
     e.preventDefault();
     setError("");
 
-    const success = await login(data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isApiError()) setError("usuário ou senha incorretos");
-        else setError("erro inesperado");
-        return false;
-      });
+    const message = await login(data);
 
-    if (success) redirect("/teams");
+    if (message) setError(message);
+    else redirect("/teams");
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
