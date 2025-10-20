@@ -41,7 +41,7 @@ public class AccountsController {
 
   @PostMapping
   public ResponseEntity<Void> create(
-    @RequestPart("avatar") MultipartFile avatar,
+    @RequestPart(name = "avatar", required = false) MultipartFile avatar,
     @RequestPart("account") @Valid CreateAccountDTO account
   ) {
     this.service.create(
@@ -59,7 +59,7 @@ public class AccountsController {
   @PutMapping("/{id}")
   public ResponseEntity<Void> update(
     @PathVariable UUID id,
-    @RequestPart MultipartFile avatar,
+    @RequestPart(name = "avatar", required = false) MultipartFile avatar,
     @RequestPart @Valid UpdateAccountDTO account
   ) {
     this.service.update(

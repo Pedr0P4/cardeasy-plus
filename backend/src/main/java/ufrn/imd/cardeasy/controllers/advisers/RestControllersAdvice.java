@@ -31,6 +31,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
   public ResponseEntity<ValidationErrorDTO> handleValidationError(
     ValidationError e
   ) {
+    
     Map<String, String> errors = new LinkedHashMap<>();
     errors.put(e.getField(), e.getMessage());
 
@@ -46,6 +47,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorDTO> handleError(
     HttpStatusCodeException e
   ) {
+    
     return ResponseEntity
       .status(e.getStatusCode())
       .body(new ErrorDTO(
@@ -117,13 +119,12 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorDTO> handleInternalError(
     Exception e
   ) {
-    e.printStackTrace();
 
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(new ErrorDTO(
         HttpStatus.INTERNAL_SERVER_ERROR,
-        "Erro interno do servidor!"
+        "erro interno do servidor"
       ));
   };
 
@@ -139,7 +140,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
       .status(status)
       .body(new ErrorDTO(
         status,
-        null
+        e.getMessage().toLowerCase()
       ));
   };
 };
