@@ -1,5 +1,6 @@
+import type { UUID } from "crypto";
 import { api } from "./axios";
-import { ImageData } from "./image";
+import type { ImageData } from "./image";
 
 export type RegisterData = {
   avatar?: ImageData;
@@ -10,7 +11,7 @@ export type RegisterData = {
 
 export async function register({ avatar, ...data }: RegisterData) {
   const form = new FormData();
-  
+
   if (avatar) form.append("avatar", avatar.blob, avatar.filename);
 
   form.append(
@@ -20,11 +21,24 @@ export async function register({ avatar, ...data }: RegisterData) {
     }),
   );
 
-  return api
-    .post<string>("/accounts", form, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    })
-    .then((res) => {});
+  return api.post<string>("/accounts", form, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+}
+
+export type Account = {
+  id: UUID;
+  name: string;
+  email: string;
+  avatar?: ImageData;
+};
+
+export async function verify(token: string) {
+  return api.get<Account>("/accounts/verify", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 }

@@ -2,13 +2,13 @@
 
 import clsx from "clsx";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
+import { FaTriangleExclamation } from "react-icons/fa6";
+import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
 import { type RegisterData, register } from "@/services/accounts";
 import type { ApiErrorResponse } from "@/services/axios";
-import Avatar from "@/components/Avatar";
-import { FaTriangleExclamation } from "react-icons/fa6";
-import { redirect } from "next/navigation";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string>("");

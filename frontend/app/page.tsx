@@ -2,12 +2,12 @@
 
 import clsx from "clsx";
 import Link from "next/link";
+import { redirect, useSearchParams } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
-import Input from "@/components/Input";
-import { type LoginData, login } from "@/services/authentication";
-import type { ApiErrorResponse } from "@/services/axios";
 import { FaTriangleExclamation } from "react-icons/fa6";
-import { useSearchParams } from "next/navigation";
+import Input from "@/components/Input";
+import { type LoginData, login } from "@/services/auth";
+import type { ApiErrorResponse } from "@/services/axios";
 
 export default function HomePage() {
   const params = useSearchParams();
@@ -17,13 +17,19 @@ export default function HomePage() {
     password: "",
   });
 
-  const onSubmit = (e: FormEvent) => {
+  const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    login(data).catch((err: ApiErrorResponse) => {
-      if (err.isApiError()) setError("usuário ou senha incorretos");
-      else setError("erro inesperado");
-    });
+
+    const success = await login(data)
+      .then(() => true)
+      .catch((err: ApiErrorResponse) => {
+        if (err.isApiError()) setError("usuário ou senha incorretos");
+        else setError("erro inesperado");
+        return false;
+      });
+
+    if (success) redirect("/teams");
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
