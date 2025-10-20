@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -18,6 +19,7 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(of = { "id" })
 @NoArgsConstructor
 public class Budget {
+
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer id;
@@ -34,7 +36,6 @@ public class Budget {
   @Column(nullable = true)
   private Date deadline;
 
-  @JoinColumn(name = "project_id", nullable = false)
-  @OneToOne(fetch = FetchType.LAZY)
+  @OneToOne(mappedBy = "budget", fetch = FetchType.LAZY)
   private Project project;
-};
+}

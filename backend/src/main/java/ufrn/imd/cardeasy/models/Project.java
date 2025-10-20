@@ -40,8 +40,12 @@ public class Project {
   @ManyToOne(fetch = FetchType.EAGER)
   private Team team;
 
+  @OneToOne(
+    fetch = FetchType.EAGER,
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  )
   @JoinColumn(name = "budget_id", nullable = true)
-  @OneToOne(fetch = FetchType.EAGER)
   private Budget budget;
 
   @OrderColumn(name = "expected_start_in")
@@ -49,12 +53,14 @@ public class Project {
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private List<Stage> stages;
+  )
+  private List<Stage> stages;
 
   @OrderColumn(name = "index")
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private List<CardList> lists;
-};
+  )
+  private List<CardList> lists;
+}

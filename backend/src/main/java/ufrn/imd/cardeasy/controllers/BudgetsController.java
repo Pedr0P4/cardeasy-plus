@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,13 +12,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.budget.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.CreateBudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.UpdateBudgetDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Budget;
+import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.BudgetsService;
@@ -27,6 +27,7 @@ import ufrn.imd.cardeasy.services.ProjectsService;
 @RestController
 @RequestMapping("/budgets")
 public class BudgetsController {
+
   private ParticipationsService participations;
   private ProjectsService projects;
   private BudgetsService budgets;
@@ -38,8 +39,9 @@ public class BudgetsController {
     BudgetsService budgets
   ) {
     this.participations = participations;
+    this.projects = projects;
     this.budgets = budgets;
-  };
+  }
 
   @Authenticate
   @PostMapping
@@ -51,7 +53,7 @@ public class BudgetsController {
 
     this.participations.checkProjectAccess(
       Role.ADMIN,
-      account.getId(), 
+      account.getId(),
       budget.project()
     );
 
@@ -62,11 +64,11 @@ public class BudgetsController {
       budget.currency(),
       budget.deadline()
     );
-    
-    return ResponseEntity
-      .status(HttpStatus.CREATED)
-      .body(BudgetDTO.from(created));
-  };
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      BudgetDTO.from(created)
+    );
+  }
 
   @Authenticate
   @PutMapping("/{id}")
@@ -76,12 +78,7 @@ public class BudgetsController {
     @RequestBody UpdateBudgetDTO budget
   ) {
     this.budgets.existsById(id);
-
-    this.participations.checkBudgetAccess(
-      Role.ADMIN,
-      account.getId(), 
-      id
-    );
+    this.participations.checkBudgetAccess(Role.ADMIN, account.getId(), id);
 
     Budget updated = this.budgets.update(
       id,
@@ -91,11 +88,9 @@ public class BudgetsController {
       budget.deadline()
     );
 
-    return ResponseEntity.ok(
-      BudgetDTO.from(updated)
-    );
-  };
-  
+    return ResponseEntity.ok(BudgetDTO.from(updated));
+  }
+
   @Authenticate
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> delete(
@@ -104,16 +99,10 @@ public class BudgetsController {
   ) {
     this.budgets.existsById(id);
 
-    this.participations.checkBudgetAccess(
-      Role.ADMIN,
-      account.getId(), 
-      id
-    );
+    this.participations.checkBudgetAccess(Role.ADMIN, account.getId(), id);
 
     this.budgets.deleteById(id);
-    
-    return ResponseEntity
-      .noContent()
-      .build();
-  };
-};
+
+    return ResponseEntity.noContent().build();
+  }
+}

@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.KickDTO;
@@ -32,6 +30,7 @@ import ufrn.imd.cardeasy.services.TeamsService;
 @RestController
 @RequestMapping("/teams")
 public class TeamsController {
+
   private ParticipationsService participations;
   private TeamsService teams;
 
@@ -42,7 +41,7 @@ public class TeamsController {
   ) {
     this.participations = participations;
     this.teams = teams;
-  };
+  }
 
   @Authenticate
   @PostMapping
@@ -56,24 +55,20 @@ public class TeamsController {
       team.description()
     );
 
-    return ResponseEntity
-      .status(HttpStatus.CREATED)
-      .body(TeamDTO.from(created));
-  };
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      TeamDTO.from(created)
+    );
+  }
 
   @Authenticate
   @GetMapping
   public ResponseEntity<List<TeamDTO>> findAll(
     @AuthenticationPrincipal Account account
   ) {
-    List<Team> teams = this.teams.findAllByAccount(
-      account.getId()
-    );
+    List<Team> teams = this.teams.findAllByAccount(account.getId());
 
-    return ResponseEntity.ok(
-      TeamDTO.from(teams)
-    );
-  };
+    return ResponseEntity.ok(TeamDTO.from(teams));
+  }
 
   @Authenticate
   @GetMapping("/{id}")
@@ -83,15 +78,10 @@ public class TeamsController {
   ) {
     Team team = this.teams.findById(id);
 
-    this.participations.checkAccess(
-      account.getId(),
-      id
-    );
+    this.participations.checkAccess(account.getId(), id);
 
-    return ResponseEntity.ok(
-      TeamDTO.from(team)
-    );
-  };
+    return ResponseEntity.ok(TeamDTO.from(team));
+  }
 
   @Authenticate
   @PutMapping("/{id}")
@@ -102,21 +92,12 @@ public class TeamsController {
   ) {
     this.teams.existsById(id);
 
-    this.participations.checkAccess(
-      account.getId(),
-      id
-    );
+    this.participations.checkAccess(account.getId(), id);
 
-    Team updated = this.teams.update(
-      id, 
-      team.title(),
-      team.description()
-    );
+    Team updated = this.teams.update(id, team.title(), team.description());
 
-    return ResponseEntity.ok(
-      TeamDTO.from(updated)
-    );
-  };
+    return ResponseEntity.ok(TeamDTO.from(updated));
+  }
 
   @Authenticate
   @DeleteMapping("/{id}")
@@ -126,18 +107,12 @@ public class TeamsController {
   ) {
     this.teams.existsById(id);
 
-    this.participations.checkAccess(
-      Role.OWNER,
-      account.getId(),
-      id
-    );
+    this.participations.checkAccess(Role.OWNER, account.getId(), id);
 
     this.teams.deleteById(id);
 
-    return ResponseEntity
-      .noContent()
-      .build();
-  };
+    return ResponseEntity.noContent().build();
+  }
 
   @Authenticate
   @PostMapping("/{id}/code/generate")
@@ -147,20 +122,12 @@ public class TeamsController {
   ) {
     this.teams.existsById(id);
 
-    this.participations.checkAccess(
-      Role.ADMIN,
-      account.getId(),
-      id
-    );
+    this.participations.checkAccess(Role.ADMIN, account.getId(), id);
 
     String code = this.teams.generateCodeById(id);
 
-    return ResponseEntity.ok(
-      new GeneratedCodeDTO(
-        code
-      )
-    );
-  };
+    return ResponseEntity.ok(new GeneratedCodeDTO(code));
+  }
 
   @Authenticate
   @DeleteMapping("/{id}/code")
@@ -170,18 +137,12 @@ public class TeamsController {
   ) {
     this.teams.existsById(id);
 
-    this.participations.checkAccess(
-      Role.ADMIN,
-      account.getId(),
-      id
-    );
-    
+    this.participations.checkAccess(Role.ADMIN, account.getId(), id);
+
     this.teams.removeCodeById(id);
 
-    return ResponseEntity
-      .noContent()
-      .build();
-  };
+    return ResponseEntity.noContent().build();
+  }
 
   @Authenticate
   @PostMapping("/join/{code}")
@@ -189,15 +150,10 @@ public class TeamsController {
     @AuthenticationPrincipal Account account,
     @PathVariable String code
   ) {
-    Team team = this.teams.join(
-      account.getId(), 
-      code
-    );
+    Team team = this.teams.join(account.getId(), code);
 
-    return ResponseEntity.ok(
-      TeamDTO.from(team)
-    );
-  };
+    return ResponseEntity.ok(TeamDTO.from(team));
+  }
 
   @Authenticate
   @PostMapping("/{id}/kick")
@@ -209,7 +165,7 @@ public class TeamsController {
     this.teams.existsById(id);
 
     Participation participation = this.participations.findById(
-      kick.acount().getId(),
+      kick.account().getId(),
       id
     );
 
@@ -219,13 +175,8 @@ public class TeamsController {
       id
     );
 
-    this.teams.kick(
-      id,
-      account.getId()
-    );
+    this.teams.kick(kick.account().getId(), id);
 
-    return ResponseEntity
-      .noContent()
-      .build();
-  };
-};
+    return ResponseEntity.noContent().build();
+  }
+}
