@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record UpdateAccountDTO(
-  @NotNull
+  @NotBlank
   @Size(min = 3, max = 45)
   String name,
 
@@ -15,7 +15,7 @@ public record UpdateAccountDTO(
   @Size(min = 0, max = 45)
   String email,
   
-  @NotNull
+  @NotBlank
   String password,
 
   @Size(min = 6, max = 36)

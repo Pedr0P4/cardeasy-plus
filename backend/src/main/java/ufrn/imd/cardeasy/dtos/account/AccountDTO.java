@@ -12,7 +12,7 @@ public record AccountDTO(
   @org.hibernate.validator.constraints.UUID
   UUID id,
 
-  @NotNull
+  @NotBlank
   @Size(min = 3, max = 45)
   String name,
 
