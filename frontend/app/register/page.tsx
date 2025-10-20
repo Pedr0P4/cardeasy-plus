@@ -134,7 +134,7 @@ export default function RegisterPage() {
       </form>
       {error && (
         <div role="alert" className="alert alert-error alert-soft w-xs">
-          <FaTriangleExclamation></FaTriangleExclamation>
+          <FaTriangleExclamation className="size-4 -mr-1" />
           <span className="first-letter:uppercase">{error}</span>
         </div>
       )}
