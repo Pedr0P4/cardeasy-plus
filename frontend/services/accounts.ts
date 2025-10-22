@@ -1,32 +1,6 @@
 import type { UUID } from "crypto";
-import { api } from "./axios";
 import type { ImageData } from "./image";
-
-export type RegisterData = {
-  avatar?: ImageData;
-  name: string;
-  email: string;
-  password: string;
-};
-
-export async function register({ avatar, ...data }: RegisterData) {
-  const form = new FormData();
-
-  if (avatar) form.append("avatar", avatar.blob, avatar.filename);
-
-  form.append(
-    "account",
-    new Blob([JSON.stringify(data)], {
-      type: "application/json",
-    }),
-  );
-
-  return api.post<string>("/accounts", form, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-}
+import { Service } from "./base/services";
 
 export type Account = {
   id: UUID;
@@ -35,10 +9,45 @@ export type Account = {
   avatar?: ImageData;
 };
 
-export async function verify(token: string) {
-  return api.get<Account>("/accounts/verify", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export type LoginData = {
+  email: string;
+  password: string;
+};
+
+export type RegisterData = {
+  avatar?: ImageData;
+  name: string;
+  email: string;
+  password: string;
+};
+
+export class AccountsService extends Service {
+  async login(data: LoginData) {
+    return this.api.post<string>("/accounts/auth", data).then(async (res) => {
+      this.setCookie("cardeasy@token", res.data);
+    });
+  }
+
+  async register({ avatar, ...data }: RegisterData) {
+    const form = new FormData();
+
+    if (avatar) form.append("avatar", avatar.blob, avatar.filename);
+
+    form.append(
+      "account",
+      new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      }),
+    );
+
+    return this.api.post<string>("/accounts", form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  async verify() {
+    return this.api.get<Account>("/accounts/verify");
+  }
 }

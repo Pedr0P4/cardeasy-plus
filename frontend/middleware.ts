@@ -1,17 +1,18 @@
+import { getCookie } from "cookies-next/server";
 import { type NextRequest, NextResponse } from "next/server";
-import { verify } from "./services/accounts";
+import { Api } from "./services/api";
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const headers = new Headers(req.headers);
   headers.set("x-pathname", pathname);
 
-  const token = req.cookies.get("cardeasy@token")?.value;
+  const token = await getCookie("cardeasy@token", { req });
   const isProtectedRoute = pathname.startsWith("/teams");
 
   if (token && typeof token === "string") {
     try {
-      const res = await verify(token);
+      const res = await Api.server().accounts().verify();
 
       headers.set("x-user-account", JSON.stringify(res.data));
 

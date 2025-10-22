@@ -1,11 +1,15 @@
 import type { UUID } from "crypto";
-import { headers } from "next/headers";
 import Link from "next/link";
 import type { IconType } from "react-icons";
-import { FaHome, FaProjectDiagram, FaQuestion } from "react-icons/fa";
+import {
+  FaHome,
+  FaProjectDiagram,
+  FaQuestion,
+  FaWalking,
+} from "react-icons/fa";
 import { FaUserGroup } from "react-icons/fa6";
-import { getProject, type Project } from "@/services/projects";
-import { getTeam, type Team } from "@/services/teams";
+import { Api } from "@/services/api";
+import clsx from "clsx";
 
 type Breadcrumb = {
   title: string;
@@ -15,28 +19,20 @@ type Breadcrumb = {
 };
 
 type BreadcrumbMatcher = {
-  getTitle: (id: string) => string | Promise<string>;
+  getTitle: (id: string) => Promise<string>;
   match: RegExp;
   Icon: IconType;
 };
 
 const matchers: BreadcrumbMatcher[] = [
   {
-    getTitle: () => "Times",
+    getTitle: async () => "Início",
     Icon: FaHome,
     match: /^\/teams$/g,
   },
   {
     getTitle: async (id) => {
-      const team = await getProject(Number.parseInt(id)).catch(
-        () =>
-          ({
-            id: Number.parseInt(id),
-            title: "Desconhecido",
-            description: "...",
-          }) as Project,
-      );
-
+      const team = await Api.server().projects().get(Number.parseInt(id));
       return team.title;
     },
     Icon: FaProjectDiagram,
@@ -44,14 +40,9 @@ const matchers: BreadcrumbMatcher[] = [
   },
   {
     getTitle: async (id) => {
-      const team = await getTeam(id as UUID).catch(
-        () =>
-          ({
-            id,
-            title: "Desconhecido",
-            description: "...",
-          }) as Team,
-      );
+      const team = await Api.server()
+        .teams()
+        .get(id as UUID);
 
       return team.title;
     },
@@ -66,13 +57,16 @@ async function getTranslatedBreadcrumb(
   navigable: boolean,
 ): Promise<Breadcrumb> {
   for (const matcher of matchers) {
-    if (pathname.match(matcher.match))
+    if (pathname.match(matcher.match)) {
+      const title = await matcher.getTitle(last).catch(() => "Desconhecido");
+
       return {
-        title: await matcher.getTitle(last),
+        title,
         Icon: matcher.Icon,
         path: pathname,
         navigable,
       };
+    }
   }
 
   return {
@@ -110,10 +104,14 @@ export default async function Breadcrumbs() {
   );
 
   if (breadcrumbs.length <= 0) return null;
-  console.log(breadcrumbs);
 
   return (
-    <div className="breadcrumbs text-sm px-6 bg-base-200">
+    <div
+      className={clsx(
+        "breadcrumbs text-sm px-6 bg-base-200",
+        "flex flex-row justify-between items-center",
+      )}
+    >
       <ul>
         {breadcrumbs.reverse().map(({ Icon, navigable, path, title }) => {
           return (
