@@ -1,8 +1,9 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import AccountStoreInitializer from "@/components/AccountStoreInitializer";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import Header from "@/components/Header";
 import type { Account } from "@/services/accounts";
-import { imageUrlToData } from "@/services/image";
 
 export default async function TeamsLayout({
   children,
@@ -18,6 +19,8 @@ export default async function TeamsLayout({
     return (
       <>
         <AccountStoreInitializer account={account} />
+        <Header />
+        <Breadcrumbs />
         {children}
       </>
     );
