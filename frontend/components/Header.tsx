@@ -23,32 +23,34 @@ export default function Header() {
       </div>
       {account && (
         <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-col items-end">
+          <div className="flex flex-col items-end not-md:hidden">
             <h2 className="font-semibold">{account.name}</h2>
             <p className="font-thin text-sm -mt-1.5">{account.email}</p>
           </div>
           <div className="relative">
-            <Avatar
-              className="!size-8"
-              name={account.name ?? ""}
-              avatar={account.avatar}
-            />
+            <div className="not-md:hidden">
+              <Avatar
+                className="!size-8"
+                name={account.name ?? ""}
+                avatar={account.avatar}
+              />
+            </div>
             <div
               className={clsx(
-                "absolute dropdown dropdown-end",
-                "bottom-0 right-0 translate-x-1/2 translate-y-2",
+                "md:absolute dropdown dropdown-end",
+                "bottom-0 right-0 md:translate-x-1/2 md:translate-y-2",
               )}
             >
               <button
                 tabIndex={0}
                 type="button"
-                className={clsx("btn btn-xs btn-neutral btn-square", "")}
+                className={clsx("btn btn-md md:btn-xs btn-neutral btn-square")}
               >
                 <FaBars />
               </button>
               <ul
                 tabIndex={-1}
-                className="menu dropdown-content bg-base-300 rounded-box z-1 mt-4 w-52 p-2 shadow-sm"
+                className="menu dropdown-content bg-base-300 rounded-box z-1 mt-6 md:mt-4 w-52 p-2 shadow-sm"
               >
                 <li>
                   <button type="button">

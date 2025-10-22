@@ -44,7 +44,7 @@ export default function HomePage() {
   return (
     <main
       className={clsx(
-        "h-screen w-screen bg-base-100 flex flex-col",
+        "h-screen w-full bg-base-100 flex flex-col",
         "items-center justify-center",
       )}
     >
