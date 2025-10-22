@@ -7,8 +7,9 @@ import { type ChangeEvent, type FormEvent, useState } from "react";
 import { FaTriangleExclamation } from "react-icons/fa6";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
-import { type RegisterData, register } from "@/services/accounts";
-import type { ApiErrorResponse } from "@/services/axios";
+import type { RegisterData } from "@/services/accounts";
+import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string>("");
@@ -24,7 +25,9 @@ export default function RegisterPage() {
     setError("");
     setErrors({});
 
-    const success = await register(data)
+    const success = await Api.client()
+      .accounts()
+      .register(data)
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isValidationError()) setErrors(err.errors);

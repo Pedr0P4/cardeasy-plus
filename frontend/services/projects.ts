@@ -1,7 +1,4 @@
-"use server";
-
-import { cookies } from "next/headers";
-import { api } from "./axios";
+import { Service } from "./base/services";
 import type { Team } from "./teams";
 
 export type Project = {
@@ -11,14 +8,8 @@ export type Project = {
   team: Team;
 };
 
-export async function getProject(id: number) {
-  const _cookies = await cookies();
-
-  return api
-    .get<Project>(`/projects/${id}`, {
-      headers: {
-        Authorization: `Bearer ${_cookies.get("cardeasy@token")?.value}`,
-      },
-    })
-    .then((res) => res.data);
+export class ProjectsService extends Service {
+  async get(id: number) {
+    return this.api.get<Project>(`/projects/${id}`).then((res) => res.data);
+  }
 }

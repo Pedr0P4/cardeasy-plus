@@ -6,6 +6,7 @@ import ImageInput from "./ImageInput";
 
 interface Props {
   name: string;
+  className?: string;
   avatar?: ImageData;
   onLoadAvatar?: (base64: string, blob: Blob, filename?: string) => void;
   onClearAvatar?: () => void;
@@ -13,6 +14,7 @@ interface Props {
 
 export default function Avatar({
   name,
+  className,
   avatar,
   onClearAvatar,
   onLoadAvatar,
@@ -25,6 +27,7 @@ export default function Avatar({
         className={clsx(
           "ring-neutral bg-base-100 ring-offset-base-200",
           "size-12 rounded-full ring-2 ring-offset-2",
+          className,
         )}
       >
         {hasImage ? (

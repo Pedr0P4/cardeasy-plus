@@ -26,22 +26,27 @@ function isErrorResponse(data: any): data is ErrorResponse {
   return data && typeof data.error === "string" && data.error !== null;
 }
 
-const api = axios.create({
-  baseURL: "http://localhost:8080",
-});
+// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+export class Axios {
+  public static create() {
+    const api = axios.create({
+      baseURL: "http://localhost:8080",
+    });
 
-api.interceptors.response.use(
-  (res) => res,
-  (err: AxiosError) => {
-    return Promise.reject({
-      ...(err.response?.data ?? {}),
-      isErrorResponse: () => isErrorResponse(err.response?.data),
-      isValidationError: () => isValidationError(err.response?.data),
-      isApiError: () =>
-        isErrorResponse(err.response?.data) ||
-        isValidationError(err.response?.data),
-    } as ApiErrorResponse);
-  },
-);
+    api.interceptors.response.use(
+      (res) => res,
+      (err: AxiosError) => {
+        return Promise.reject({
+          ...(err.response?.data ?? {}),
+          isErrorResponse: () => isErrorResponse(err.response?.data),
+          isValidationError: () => isValidationError(err.response?.data),
+          isApiError: () =>
+            isErrorResponse(err.response?.data) ||
+            isValidationError(err.response?.data),
+        } as ApiErrorResponse);
+      },
+    );
 
-export { api };
+    return api;
+  }
+}

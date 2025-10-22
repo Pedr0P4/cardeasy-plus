@@ -2,8 +2,8 @@
 
 import { useEffect, useRef } from "react";
 import type { Account } from "@/services/accounts";
-import { imageUrlToData } from "@/services/image";
 import { useAccount } from "@/stores/useAccount";
+import { Api } from "../services/api";
 
 interface Props {
   account: Account;
@@ -18,7 +18,9 @@ export default function AccountStoreInitializer({ account }: Props) {
   }
 
   useEffect(() => {
-    imageUrlToData(`/avatars/${account.id}.webp`)
+    Api.client()
+      .images()
+      .urlToData(`/avatars/${account.id}.webp`)
       .then((res) => {
         useAccount.getState().setAvatar(res);
       })
