@@ -1,5 +1,5 @@
 import type { AxiosInstance } from "axios";
-import { type CookieValueTypes } from "cookies-next/client";
+import type { CookieValueTypes } from "cookies-next/client";
 
 export abstract class Service {
   constructor(

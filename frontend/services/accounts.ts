@@ -1,6 +1,6 @@
 import type { UUID } from "crypto";
-import type { ImageData } from "./image";
 import { Service } from "./base/services";
+import type { ImageData } from "./image";
 
 export type Account = {
   id: UUID;
@@ -24,8 +24,13 @@ export type RegisterData = {
 export class AccountsService extends Service {
   async login(data: LoginData) {
     return this.api.post<string>("/accounts/auth", data).then(async (res) => {
-      this.setCookie("cardeasy@token", res.data);
+      await this.setCookie("cardeasy@token", res.data);
     });
+  }
+
+  async logout() {
+    // TODO - Clear cookie
+    await this.setCookie("cardeasy@token", "");
   }
 
   async register({ avatar, ...data }: RegisterData) {

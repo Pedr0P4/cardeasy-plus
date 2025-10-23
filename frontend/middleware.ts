@@ -8,7 +8,7 @@ export async function middleware(req: NextRequest) {
   headers.set("x-pathname", pathname);
 
   const token = await getCookie("cardeasy@token", { req });
-  const isProtectedRoute = pathname.startsWith("/teams");
+  const isProtectedRoute = pathname.startsWith("/home");
 
   if (token && typeof token === "string") {
     try {
@@ -17,7 +17,7 @@ export async function middleware(req: NextRequest) {
       headers.set("x-user-account", JSON.stringify(res.data));
 
       if (isProtectedRoute) return NextResponse.next({ headers });
-      return NextResponse.redirect(new URL("/teams", req.url), { headers });
+      return NextResponse.redirect(new URL("/home", req.url), { headers });
     } catch (_) {}
   }
 

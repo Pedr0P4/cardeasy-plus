@@ -1,18 +1,30 @@
 "use client";
 
-import { useAccount } from "@/stores/useAccount";
-import Avatar from "./Avatar";
-import { FaBars, FaPencilAlt, FaPencilRuler } from "react-icons/fa";
 import clsx from "clsx";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { FaBars, FaPencilAlt, FaPencilRuler } from "react-icons/fa";
 import {
   FaDoorOpen,
   FaPencil,
   FaPenToSquare,
   FaRightToBracket,
 } from "react-icons/fa6";
+import { Api } from "@/services/api";
+import { useAccount } from "@/stores/useAccount";
+import Avatar from "./Avatar";
 
 export default function Header() {
   const account = useAccount((state) => state.account);
+
+  const onLogout = () => {
+    Api.client()
+      .accounts()
+      .logout()
+      .then(() => {
+        redirect("/login");
+      });
+  };
 
   return (
     <header className="navbar bg-base-300 shadow-sm pl-6 pr-8 py-4">
@@ -53,12 +65,16 @@ export default function Header() {
                 className="menu dropdown-content bg-base-300 rounded-box z-1 mt-6 md:mt-4 w-52 p-2 shadow-sm"
               >
                 <li>
-                  <button type="button">
+                  <Link href="/home/account/edit">
                     <FaPenToSquare /> Editar
-                  </button>
+                  </Link>
                 </li>
                 <li>
-                  <button type="button" className="text-primary">
+                  <button
+                    type="button"
+                    className="text-primary"
+                    onClick={onLogout}
+                  >
                     <FaRightToBracket />
                     Sair
                   </button>

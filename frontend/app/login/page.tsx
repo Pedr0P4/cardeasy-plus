@@ -8,9 +8,9 @@ import { FaTriangleExclamation } from "react-icons/fa6";
 import Input from "@/components/Input";
 import type { LoginData } from "@/services/accounts";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { Api } from "../services/api";
+import { Api } from "../../services/api";
 
-export default function HomePage() {
+export default function LoginPage() {
   const params = useSearchParams();
   const [error, setError] = useState<string>("");
   const [data, setData] = useState<LoginData>({
@@ -32,7 +32,7 @@ export default function HomePage() {
         return false;
       });
 
-    if (success) redirect("/teams");
+    if (success) redirect("/home");
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>

@@ -36,7 +36,7 @@ export default function RegisterPage() {
         return false;
       });
 
-    if (success) redirect(`/?email=${data.email}`);
+    if (success) redirect(`/login?email=${data.email}`);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
