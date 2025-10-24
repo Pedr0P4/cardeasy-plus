@@ -67,18 +67,25 @@ export default function RegisterPage() {
   return (
     <main
       className={clsx(
-        "h-screen w-screen bg-base-100 flex flex-col",
+        "h-screen w-full bg-base-100 flex flex-col",
         "items-center justify-center",
       )}
     >
-      <h1 className="text-4xl font-semibold">
+      <h1
+        className={clsx(
+          "text-4xl font-semibold not-sm:my-6",
+          "not-sm:text-2xl not-sm:self-start",
+          "not-sm:mx-4",
+        )}
+      >
         Cardeasy<span className="text-neutral">+</span>
       </h1>
       <form
         onSubmit={onSubmit}
         className={clsx(
           "flex flex-col gap-4 bg-base-200 border-base-300",
-          "rounded-box w-xs border p-4 m-4",
+          "rounded-box w-full not-sm:rounded-none sm:w-xs border",
+          "p-4 m-4 not-sm:flex-1 not-sm:m-0",
         )}
       >
         <div className="flex flex-row gap-4 w-full items-center">

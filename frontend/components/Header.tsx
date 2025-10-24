@@ -3,13 +3,8 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FaBars, FaPencilAlt, FaPencilRuler } from "react-icons/fa";
-import {
-  FaDoorOpen,
-  FaPencil,
-  FaPenToSquare,
-  FaRightToBracket,
-} from "react-icons/fa6";
+import { FaBars } from "react-icons/fa";
+import { FaPenToSquare, FaRightToBracket } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { useAccount } from "@/stores/useAccount";
 import Avatar from "./Avatar";
@@ -27,7 +22,7 @@ export default function Header() {
   };
 
   return (
-    <header className="navbar bg-base-300 shadow-sm pl-6 pr-8 py-4">
+    <header className="navbar bg-base-300 shadow-sm px-6 py-4">
       <div className="flex-1">
         <p className="text-2xl font-semibold">
           Cardeasy<span className="text-neutral">+</span>
@@ -62,7 +57,7 @@ export default function Header() {
               </button>
               <ul
                 tabIndex={-1}
-                className="menu dropdown-content bg-base-300 rounded-box z-1 mt-6 md:mt-4 w-52 p-2 shadow-sm"
+                className="menu dropdown-content bg-base-300 rounded-box z-1 mt-6 w-52 p-2 shadow-sm"
               >
                 <li>
                   <Link href="/home/account/edit">

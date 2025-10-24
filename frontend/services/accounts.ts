@@ -21,6 +21,14 @@ export type RegisterData = {
   password: string;
 };
 
+export type EditAccountData = {
+  avatar?: ImageData;
+  name: string;
+  email: string;
+  password: string;
+  newPassword?: string;
+};
+
 export class AccountsService extends Service {
   async login(data: LoginData) {
     return this.api.post<string>("/accounts/auth", data).then(async (res) => {
@@ -46,6 +54,25 @@ export class AccountsService extends Service {
     );
 
     return this.api.post<string>("/accounts", form, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+  }
+
+  async update(id: UUID, { avatar, ...data }: EditAccountData) {
+    const form = new FormData();
+
+    if (avatar) form.append("avatar", avatar.blob, avatar.filename);
+
+    form.append(
+      "account",
+      new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      }),
+    );
+
+    return this.api.put<string>(`/accounts/${id}`, form, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

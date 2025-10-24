@@ -5,6 +5,7 @@ export type Team = {
   id: UUID;
   title: string;
   description: string;
+  participations: number;
 };
 
 export class TeamsService extends Service {

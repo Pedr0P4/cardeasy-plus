@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Api } from "@/services/api";
 import type { Project } from "@/services/projects";
 import type { Team } from "@/services/teams";
+import { FaUserGroup } from "react-icons/fa6";
 
 type ProjectsPerTeam = {
   team: Team;
@@ -41,7 +42,13 @@ export default async function HomePage() {
       {Object.entries(projectsPerTeam).map(([id, { team, projects }]) => {
         return (
           <section className="w-full p-6 flex flex-col gap-2" key={id}>
-            <h1 className="font-bold text-xl">{team.title}</h1>
+            <div className="flex flex-row gap-2 items-center">
+              <h1 className="font-bold text-xl">{team.title}</h1>
+              <div className="badge badge-outline">
+                <FaUserGroup className="-mr-1" />
+                {team.participations} membros
+              </div>
+            </div>
             <hr className="w-1/6 mb-2 border-base-300" />
             <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {projects.map((project) => {

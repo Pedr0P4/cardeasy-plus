@@ -10,7 +10,8 @@ import ufrn.imd.cardeasy.models.Team;
 public record TeamDTO(
   UUID id,
   String title,
-  String description
+  String description,
+  Integer participations
 ) {
   public static TeamDTO from(Project project) {
     return TeamDTO.from(project.getTeam());
@@ -20,7 +21,8 @@ public record TeamDTO(
     return new TeamDTO(
       team.getId(),
       team.getTitle(),
-      team.getDescription()
+      team.getDescription(),
+      team.getParticipations().size()
     );
   };
 

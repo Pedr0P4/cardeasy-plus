@@ -24,7 +24,7 @@ export async function middleware(req: NextRequest) {
   req.cookies.clear();
 
   if (isProtectedRoute)
-    return NextResponse.redirect(new URL("/", req.url), { headers });
+    return NextResponse.redirect(new URL("/login", req.url), { headers });
   return NextResponse.next({ headers });
 }
 
