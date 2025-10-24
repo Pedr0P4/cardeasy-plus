@@ -22,7 +22,7 @@ export default function Header() {
   };
 
   return (
-    <header className="navbar bg-base-300 shadow-sm px-6 py-4">
+    <header className="navbar bg-base-300 shadow-sm px-6 py-4 z-10">
       <div className="flex-1">
         <p className="text-2xl font-semibold">
           Cardeasy<span className="text-neutral">+</span>
@@ -42,22 +42,23 @@ export default function Header() {
                 avatar={account.avatar}
               />
             </div>
-            <div
+            <details
               className={clsx(
                 "md:absolute dropdown dropdown-end",
                 "bottom-0 right-0 md:translate-x-1/2 md:translate-y-2",
               )}
             >
-              <button
-                tabIndex={0}
-                type="button"
+              <summary
                 className={clsx("btn btn-md md:btn-xs btn-neutral btn-square")}
               >
                 <FaBars />
-              </button>
+              </summary>
               <ul
                 tabIndex={-1}
-                className="menu dropdown-content bg-base-300 rounded-box z-1 mt-6 w-52 p-2 shadow-sm"
+                className={clsx(
+                  "menu dropdown-content bg-base-300",
+                  "rounded-box z-50 mt-1.5 w-52 p-2 shadow-sm",
+                )}
               >
                 <li>
                   <Link href="/home/account/edit">
@@ -75,7 +76,7 @@ export default function Header() {
                   </button>
                 </li>
               </ul>
-            </div>
+            </details>
           </div>
         </div>
       )}

@@ -81,7 +81,8 @@ export default function EditAccountPage() {
     <main
       className={clsx(
         "h-full bg-base-100 flex flex-col",
-        "items-center justify-center flex-1",
+        "items-center justify-center sm:flex-1 not-sm:bg-base-200",
+        "not-sm:justify-start",
       )}
     >
       <form
@@ -89,7 +90,7 @@ export default function EditAccountPage() {
         className={clsx(
           "flex flex-col gap-4 bg-base-200 border-base-300",
           "rounded-box w-full not-sm:rounded-none sm:w-xs border",
-          "p-4 m-4 not-sm:flex-1 not-sm:m-0",
+          "p-4 m-4 not-sm:m-0",
         )}
       >
         <div className="flex flex-row gap-4 w-full items-center">
@@ -152,7 +153,13 @@ export default function EditAccountPage() {
         </button>
       </form>
       {error && (
-        <div role="alert" className="alert alert-error alert-soft w-xs">
+        <div
+          role="alert"
+          className={clsx(
+            "alert alert-error alert-soft w-xs",
+            "not-sm:w-full not-sm:rounded-none",
+          )}
+        >
           <FaTriangleExclamation className="size-4 -mr-1" />
           <span className="first-letter:uppercase">{error}</span>
         </div>
