@@ -32,7 +32,7 @@ public class Team {
   
   @Column(nullable = true, unique = true)
   private String code;
-
+  
   @OneToMany(
     mappedBy = "team",
     cascade = CascadeType.ALL,

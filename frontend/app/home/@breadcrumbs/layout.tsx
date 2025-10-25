@@ -10,6 +10,8 @@ export default async function Breadcrumbs({
       className={clsx(
         "breadcrumbs text-sm px-6 bg-base-200",
         "flex flex-row justify-between items-center",
+        "!scrollbar !scrollbar-thin scrollbar-thumb-base-content",
+        "scrollbar-track-base-200",
       )}
     >
       <ul>{children}</ul>

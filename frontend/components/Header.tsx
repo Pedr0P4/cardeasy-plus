@@ -3,7 +3,7 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { FaBars } from "react-icons/fa";
+import { FaBars } from "react-icons/fa6";
 import { FaPenToSquare, FaRightToBracket } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { useAccount } from "@/stores/useAccount";

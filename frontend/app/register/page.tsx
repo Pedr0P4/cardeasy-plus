@@ -4,7 +4,15 @@ import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
-import { FaTriangleExclamation } from "react-icons/fa6";
+import {
+  FaEnvelope,
+  FaKey,
+  FaPencil,
+  FaRegEnvelope,
+  FaRegUser,
+  FaTriangleExclamation,
+  FaUser,
+} from "react-icons/fa6";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
 import type { RegisterData } from "@/services/accounts";
@@ -101,6 +109,7 @@ export default function RegisterPage() {
             type="text"
             placeholder="Nome"
             label="Nome"
+            icon={FaUser}
             value={data.name}
             onChange={onChange}
             errors={errors}
@@ -113,6 +122,7 @@ export default function RegisterPage() {
           type="text"
           placeholder="Email"
           label="Email"
+          icon={FaEnvelope}
           value={data.email}
           onChange={onChange}
           errors={errors}
@@ -124,6 +134,7 @@ export default function RegisterPage() {
           type="password"
           placeholder="Senha"
           label="Senha"
+          icon={FaKey}
           value={data.password}
           onChange={onChange}
           errors={errors}
@@ -131,6 +142,7 @@ export default function RegisterPage() {
           hiddenError={!!error}
         />
         <button type="submit" className="btn btn-neutral mt-2">
+          <FaPencil />
           Registrar-se
         </button>
         <p className="text-sm">

@@ -3,7 +3,13 @@
 import clsx from "clsx";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
-import { FaTriangleExclamation } from "react-icons/fa6";
+import {
+  FaEnvelope,
+  FaFloppyDisk,
+  FaKey,
+  FaTriangleExclamation,
+  FaUser,
+} from "react-icons/fa6";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
 import type { EditAccountData } from "@/services/accounts";
@@ -105,6 +111,7 @@ export default function EditAccountPage() {
             type="text"
             placeholder="Nome"
             label="Nome"
+            icon={FaUser}
             value={data.name}
             onChange={onChange}
             errors={errors}
@@ -118,6 +125,7 @@ export default function EditAccountPage() {
           placeholder="Email"
           label="Email"
           value={data.email}
+          icon={FaEnvelope}
           onChange={onChange}
           errors={errors}
           error={error}
@@ -128,6 +136,7 @@ export default function EditAccountPage() {
           type="password"
           placeholder="Senha"
           label="Senha"
+          icon={FaKey}
           value={data.password}
           onChange={onChange}
           errors={errors}
@@ -139,6 +148,7 @@ export default function EditAccountPage() {
           type="password"
           placeholder="Nova senha"
           label="Alterar senha"
+          icon={FaKey}
           value={data.newPassword}
           onChange={onChange}
           errors={errors}
@@ -149,6 +159,7 @@ export default function EditAccountPage() {
           onChangeOptional={onChangePassword}
         />
         <button type="submit" className="btn btn-neutral mt-2">
+          <FaFloppyDisk />
           Salvar
         </button>
       </form>

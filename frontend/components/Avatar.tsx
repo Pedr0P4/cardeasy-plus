@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import Image from "next/image";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa6";
 import type { ImageData } from "@/services/image";
 import ImageInput from "./ImageInput";
 

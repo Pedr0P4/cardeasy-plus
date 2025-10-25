@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.stage.CreateStageDTO;
 import ufrn.imd.cardeasy.dtos.stage.StageDTO;
 import ufrn.imd.cardeasy.dtos.stage.UpdateStageDTO;
@@ -46,7 +47,7 @@ public class StagesController {
   @PostMapping
   public ResponseEntity<StageDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody CreateStageDTO stage
+    @RequestBody @Valid CreateStageDTO stage
   ) {
     this.projects.existsById(stage.project());
 
@@ -110,7 +111,7 @@ public class StagesController {
   public ResponseEntity<StageDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody UpdateStageDTO stage
+    @RequestBody @Valid UpdateStageDTO stage
   ) {
     this.stages.existsById(id);
 

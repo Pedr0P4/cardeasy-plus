@@ -1,16 +1,15 @@
 import Link from "next/link";
 import { FaUserGroup, FaDiagramProject, FaHouse } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import { UUID } from "crypto";
 
 export default async function ProjectBreadcrumbs({
   params,
 }: Readonly<{
-  params: Promise<{ project: string }>;
+  params: Promise<{ team: UUID }>;
 }>) {
-  const { project: projectId } = await params;
-  const project = await Api.server()
-    .projects()
-    .get(Number.parseInt(projectId, 10));
+  const { team: teamId } = await params;
+  const team = await Api.server().teams().get(teamId);
 
   return (
     <>
@@ -21,15 +20,9 @@ export default async function ProjectBreadcrumbs({
         </Link>
       </li>
       <li>
-        <Link href={`/home/teams/${project.team.id}`}>
-          <FaUserGroup />
-          {project.team.title}
-        </Link>
-      </li>
-      <li>
         <span className="inline-flex items-center gap-2">
-          <FaDiagramProject />
-          {project.title}
+          <FaUserGroup />
+          {team.title}
         </span>
       </li>
     </>

@@ -18,11 +18,15 @@ public record TeamDTO(
   };
 
   public static TeamDTO from(Team team) {
+    return TeamDTO.from(team, team.getParticipations().size());
+  };
+
+  public static TeamDTO from(Team team, Integer participations) {
     return new TeamDTO(
       team.getId(),
       team.getTitle(),
       team.getDescription(),
-      team.getParticipations().size()
+      participations
     );
   };
 

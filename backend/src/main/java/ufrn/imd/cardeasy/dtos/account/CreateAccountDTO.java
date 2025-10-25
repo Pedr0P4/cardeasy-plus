@@ -12,10 +12,10 @@ public record CreateAccountDTO(
   
   @NotBlank
   @Email
-  @Size(min = 0, max = 45)
+  @Size(min = 3, max = 45)
   String email,
 
-  @NotNull
+  @NotBlank
   @Size(min = 6, max = 36)
   String password
 ) {};

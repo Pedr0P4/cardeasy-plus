@@ -4,7 +4,12 @@ import clsx from "clsx";
 import Link from "next/link";
 import { redirect, useSearchParams } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
-import { FaTriangleExclamation } from "react-icons/fa6";
+import {
+  FaEnvelope,
+  FaKey,
+  FaTriangleExclamation,
+  FaUnlock,
+} from "react-icons/fa6";
 import Input from "@/components/Input";
 import type { LoginData } from "@/services/accounts";
 import type { ApiErrorResponse } from "@/services/base/axios";
@@ -71,6 +76,7 @@ export default function LoginPage() {
           type="text"
           placeholder="Email"
           label="Email"
+          icon={FaEnvelope}
           value={data.email}
           onChange={onChange}
           error={error}
@@ -81,6 +87,7 @@ export default function LoginPage() {
           type="password"
           placeholder="Senha"
           label="Senha"
+          icon={FaKey}
           value={data.password}
           onChange={onChange}
           error={error}
@@ -88,6 +95,7 @@ export default function LoginPage() {
         />
 
         <button type="submit" className="btn btn-neutral mt-2">
+          <FaUnlock />
           Entrar
         </button>
         <p className="text-sm">
