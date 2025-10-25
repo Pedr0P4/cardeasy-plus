@@ -2,10 +2,7 @@ package ufrn.imd.cardeasy.dtos.budget;
 
 import java.sql.Date;
 
-import jakarta.validation.constraints.FutureOrPresent;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record UpdateBudgetDTO(
   @Min(0)
@@ -14,7 +11,7 @@ public record UpdateBudgetDTO(
   @Min(0)
   Double maxValue,
 
-  @NotNull
+  @NotBlank
   @Size(min = 1, max = 45)
   String currency,
   

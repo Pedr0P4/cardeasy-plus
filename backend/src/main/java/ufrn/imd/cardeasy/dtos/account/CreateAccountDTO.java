@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateAccountDTO(
-  @NotNull
+  @NotBlank
   @Size(min = 3, max = 45)
   String name,
   

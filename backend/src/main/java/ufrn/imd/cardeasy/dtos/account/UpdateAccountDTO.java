@@ -15,7 +15,7 @@ public record UpdateAccountDTO(
   @Size(min = 3, max = 45)
   String email,
   
-  @NotNull
+  @NotBlank
   String password,
 
   @Size(min = 6, max = 36)

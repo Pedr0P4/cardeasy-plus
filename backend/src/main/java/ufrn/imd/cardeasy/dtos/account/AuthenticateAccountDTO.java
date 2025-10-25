@@ -7,6 +7,6 @@ public record AuthenticateAccountDTO(
   @NotBlank 
   String email,
 
-  @NotNull 
+  @NotBlank
   String password
 ) {};
