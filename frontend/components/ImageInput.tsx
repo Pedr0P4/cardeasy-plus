@@ -11,8 +11,14 @@ import {
   useState,
 } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { FaCloudArrowUp, FaTrash, FaUpload } from "react-icons/fa6";
-import { FaCheck, FaRotate, FaX } from "react-icons/fa6";
+import {
+  FaCheck,
+  FaCloudArrowUp,
+  FaRotate,
+  FaTrash,
+  FaUpload,
+  FaX,
+} from "react-icons/fa6";
 import getCroppedImg from "@/services/crop";
 import Input from "./Input";
 

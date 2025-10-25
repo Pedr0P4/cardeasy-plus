@@ -94,7 +94,7 @@ export default function LoginPage() {
           hiddenError
         />
 
-        <button type="submit" className="btn btn-neutral mt-2">
+        <button type="submit" className="btn btn-neutral">
           <FaUnlock />
           Entrar
         </button>

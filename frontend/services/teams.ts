@@ -25,4 +25,8 @@ export class TeamsService extends Service {
   async create(data: CreateTeamData) {
     return this.api.post<Team>("/teams", data).then((res) => res.data);
   }
+
+  async join(code: string) {
+    return this.api.post<Team>(`/teams/join/${code}`).then((res) => res.data);
+  }
 }

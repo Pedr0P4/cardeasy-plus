@@ -9,6 +9,7 @@ import {
   FaKey,
   FaTriangleExclamation,
   FaUser,
+  FaUserPen,
 } from "react-icons/fa6";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
@@ -91,6 +92,17 @@ export default function EditAccountPage() {
         "not-sm:justify-start",
       )}
     >
+      <h1
+        className={clsx(
+          "text-2xl font-semibold not-sm:py-4",
+          "not-sm:text-xl not-sm:self-start",
+          "not-sm:px-4 bg-base-100 not-sm:w-full",
+          "flex flex-row items-center gap-2",
+        )}
+      >
+        <FaUserPen className="size-8" />
+        Editar conta
+      </h1>
       <form
         onSubmit={onSubmit}
         className={clsx(
@@ -158,7 +170,7 @@ export default function EditAccountPage() {
           hiddenError={!!error}
           onChangeOptional={onChangePassword}
         />
-        <button type="submit" className="btn btn-neutral mt-2">
+        <button type="submit" className="btn btn-neutral">
           <FaFloppyDisk />
           Salvar
         </button>

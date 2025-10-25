@@ -141,7 +141,7 @@ export default function RegisterPage() {
           error={error}
           hiddenError={!!error}
         />
-        <button type="submit" className="btn btn-neutral mt-2">
+        <button type="submit" className="btn btn-neutral">
           <FaPencil />
           Registrar-se
         </button>

@@ -2,13 +2,13 @@
 
 import clsx from "clsx";
 import {
-  TextareaHTMLAttributes,
-  useId,
   type ChangeEvent,
   type DetailedHTMLProps,
   type InputHTMLAttributes,
+  type TextareaHTMLAttributes,
+  useId,
 } from "react";
-import { IconType } from "react-icons";
+import type { IconType } from "react-icons";
 
 interface InputProps
   extends DetailedHTMLProps<

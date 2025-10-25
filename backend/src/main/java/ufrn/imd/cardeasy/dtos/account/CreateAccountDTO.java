@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.dtos.account;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateAccountDTO(

@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { FaUserGroup, FaHouse, FaFileContract } from "react-icons/fa6";
+import {
+  FaFileContract,
+  FaHouse,
+  FaPlus,
+  FaUserGroup,
+  FaUsers,
+} from "react-icons/fa6";
 
 export default async function ProjectBreadcrumbs() {
   return (
@@ -12,7 +18,7 @@ export default async function ProjectBreadcrumbs() {
       </li>
       <li>
         <span className="inline-flex items-center gap-2">
-          <FaFileContract />
+          <FaPlus />
           Criar novo time
         </span>
       </li>

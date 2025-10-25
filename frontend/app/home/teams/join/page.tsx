@@ -4,39 +4,33 @@ import clsx from "clsx";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
-  FaClipboardList,
-  FaFileContract,
-  FaPenClip,
-  FaPencil,
-  FaPlus,
+  FaDungeon,
+  FaHashtag,
+  FaPersonRunning,
   FaTriangleExclamation,
-  FaUsers,
-  FaUsersLine,
 } from "react-icons/fa6";
 import Input from "@/components/Input";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import type { CreateTeamData } from "@/services/teams";
 
 export default function CreateTeamPage() {
   const [error, setError] = useState<string>("");
-  const [errors, setErrors] = useState<Record<string, string>>();
-  const [data, setData] = useState<CreateTeamData>({
-    title: "",
-    description: "",
-  });
+  const [code, setCode] = useState<string>("");
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
-    setErrors({});
+
+    if (!code.trim()) {
+      setError("time não encontrado");
+      return;
+    }
 
     const team = await Api.client()
       .teams()
-      .create(data)
+      .join(code)
       .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
+        if (err.isErrorResponse()) setError(err.error);
         else setError("erro inesperado");
         return undefined;
       });
@@ -45,10 +39,7 @@ export default function CreateTeamPage() {
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
-    setData((data) => ({
-      ...data,
-      [e.target.name]: e.target.value,
-    }));
+    setCode(e.target.value);
 
   return (
     <main
@@ -66,8 +57,8 @@ export default function CreateTeamPage() {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaPlus className="size-8" />
-        Criar novo time
+        <FaDungeon className="size-8" />
+        Entrar por código
       </h1>
       <form
         onSubmit={onSubmit}
@@ -78,33 +69,18 @@ export default function CreateTeamPage() {
         )}
       >
         <Input
-          name="title"
+          name="code"
           type="text"
-          placeholder="Título"
-          label="Título"
-          icon={FaPenClip}
-          value={data.title}
+          placeholder="Código"
+          icon={FaHashtag}
+          value={code}
           onChange={onChange}
-          errors={errors}
-          error={error}
-          hiddenError={!!error}
-        />
-        <Input
-          name="description"
-          type="textarea"
-          placeholder="Descrição"
-          label="Descrição"
-          className="min-h-32"
-          icon={FaClipboardList}
-          value={data.description}
-          onChange={onChange}
-          errors={errors}
           error={error}
           hiddenError={!!error}
         />
         <button type="submit" className="btn btn-neutral">
-          <FaPencil />
-          Registrar-se
+          <FaPersonRunning />
+          Entrar
         </button>
       </form>
       {error && (

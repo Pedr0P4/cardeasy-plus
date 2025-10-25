@@ -1,7 +1,7 @@
-import { Project } from "@/services/projects";
-import { Team } from "@/services/teams";
 import Link from "next/link";
 import { FaUserGroup } from "react-icons/fa6";
+import type { Project } from "@/services/projects";
+import type { Team } from "@/services/teams";
 
 interface Props {
   team: Team;

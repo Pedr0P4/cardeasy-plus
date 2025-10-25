@@ -1,7 +1,13 @@
 import Link from "next/link";
-import { FaHouse, FaUserPen } from "react-icons/fa6";
+import {
+  FaDungeon,
+  FaFileContract,
+  FaHouse,
+  FaUserGroup,
+  FaUsers,
+} from "react-icons/fa6";
 
-export default function ProjectBreadcrumbs() {
+export default async function ProjectBreadcrumbs() {
   return (
     <>
       <li>
@@ -12,8 +18,8 @@ export default function ProjectBreadcrumbs() {
       </li>
       <li>
         <span className="inline-flex items-center gap-2">
-          <FaUserPen />
-          Editar conta
+          <FaDungeon />
+          Entrar por código
         </span>
       </li>
     </>

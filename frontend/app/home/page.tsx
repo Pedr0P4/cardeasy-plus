@@ -1,11 +1,11 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import Link from "next/link";
+import { FaDungeon, FaPlus } from "react-icons/fa6";
+import TeamSection from "@/components/TeamSection";
 import { Api } from "@/services/api";
 import type { Project } from "@/services/projects";
 import type { Team } from "@/services/teams";
-import { FaDungeon, FaPlus } from "react-icons/fa6";
-import TeamSection from "@/components/TeamSection";
 
 export default async function HomePage() {
   const teams = await Api.server().teams().all();

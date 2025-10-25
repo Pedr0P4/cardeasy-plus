@@ -1,7 +1,12 @@
+import type { UUID } from "crypto";
 import Link from "next/link";
-import { FaUserGroup, FaDiagramProject, FaHouse } from "react-icons/fa6";
+import {
+  FaDiagramProject,
+  FaHouse,
+  FaUserGroup,
+  FaUsers,
+} from "react-icons/fa6";
 import { Api } from "@/services/api";
-import { UUID } from "crypto";
 
 export default async function ProjectBreadcrumbs({
   params,
@@ -21,7 +26,7 @@ export default async function ProjectBreadcrumbs({
       </li>
       <li>
         <span className="inline-flex items-center gap-2">
-          <FaUserGroup />
+          <FaUsers />
           {team.title}
         </span>
       </li>

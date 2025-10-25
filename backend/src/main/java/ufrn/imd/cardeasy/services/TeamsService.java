@@ -132,7 +132,7 @@ public class TeamsService {
   public Team join(UUID accountId, String code) {
     Account account = this.accounts.findById(accountId)
       .orElseThrow(AccountNotFound::new);
-
+    
     Team team = this.findByCode(code);
 
     ParticipationId participationId = new ParticipationId();

@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { FaUserGroup, FaDiagramProject, FaHouse } from "react-icons/fa6";
+import {
+  FaDiagramProject,
+  FaHouse,
+  FaUserGroup,
+  FaUsers,
+} from "react-icons/fa6";
 import { Api } from "@/services/api";
 
 export default async function ProjectBreadcrumbs({
@@ -22,7 +27,7 @@ export default async function ProjectBreadcrumbs({
       </li>
       <li>
         <Link href={`/home/teams/${project.team.id}`}>
-          <FaUserGroup />
+          <FaUsers />
           {project.team.title}
         </Link>
       </li>
