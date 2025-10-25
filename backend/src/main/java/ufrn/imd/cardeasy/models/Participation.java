@@ -31,7 +31,7 @@ public class Participation {
 
   @MapsId("teamId")
   @JoinColumn(name = "team_id", nullable = false)
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   private Team team;
 
   @Column(nullable = false)

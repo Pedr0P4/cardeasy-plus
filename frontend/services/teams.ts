@@ -1,5 +1,18 @@
 import type { UUID } from "crypto";
 import { Service } from "./base/services";
+import { Account } from "./accounts";
+
+export type Participation = {
+  account: Account;
+  team: Team;
+  role: Role;
+};
+
+export enum Role {
+  OWNER = "OWNER",
+  ADMIN = "ADMIN",
+  MEMBER = "MEMBER",
+}
 
 export type Team = {
   id: UUID;
@@ -14,12 +27,12 @@ export type CreateTeamData = {
 };
 
 export class TeamsService extends Service {
-  async get(id: UUID) {
-    return this.api.get<Team>(`/teams/${id}`).then((res) => res.data);
+  async participation(id: UUID) {
+    return this.api.get<Participation>(`/teams/${id}`).then((res) => res.data);
   }
 
-  async all() {
-    return this.api.get<Team[]>(`/teams`).then((res) => res.data);
+  async participations() {
+    return this.api.get<Participation[]>(`/teams`).then((res) => res.data);
   }
 
   async create(data: CreateTeamData) {

@@ -2,13 +2,12 @@ import clsx from "clsx";
 import type { UUID } from "crypto";
 import Link from "next/link";
 import { FaDungeon, FaPlus } from "react-icons/fa6";
-import TeamSection from "@/components/TeamSection";
+import TeamSection from "@/components/teams/TeamSection";
 import { Api } from "@/services/api";
 import type { Project } from "@/services/projects";
-import type { Team } from "@/services/teams";
 
 export default async function HomePage() {
-  const teams = await Api.server().teams().all();
+  const participations = await Api.server().participations().all();
   const projects = await Api.server().projects().all();
 
   const projectsPerTeam = projects.reduce(
@@ -38,11 +37,18 @@ export default async function HomePage() {
           Entrar por código
         </Link>
       </section>
-      {teams.map((team) => {
+      {participations.map((participation) => {
         const projects: Omit<Project, "team">[] =
-          projectsPerTeam[team.id] ?? [];
+          projectsPerTeam[participation.team.id] ?? [];
 
-        return <TeamSection key={team.id} team={team} projects={projects} />;
+        return (
+          <TeamSection
+            key={participation.team.id}
+            role={participation.role}
+            team={participation.team}
+            projects={projects}
+          />
+        );
       })}
     </main>
   );

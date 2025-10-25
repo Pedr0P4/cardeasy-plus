@@ -1,12 +1,13 @@
-import type { UUID } from "crypto";
+import { Api } from "@/services/api";
+import { UUID } from "crypto";
 import Link from "next/link";
 import {
-  FaDiagramProject,
+  FaFileContract,
   FaHouse,
+  FaPlus,
   FaUserGroup,
   FaUsers,
 } from "react-icons/fa6";
-import { Api } from "@/services/api";
 
 export default async function ProjectBreadcrumbs({
   params,
@@ -15,7 +16,7 @@ export default async function ProjectBreadcrumbs({
 }>) {
   const { team: teamId } = await params;
   const participation = await Api.server().participations().get(teamId);
-
+  
   return (
     <>
       <li>
@@ -25,9 +26,15 @@ export default async function ProjectBreadcrumbs({
         </Link>
       </li>
       <li>
-        <span className="inline-flex items-center gap-2">
+        <Link href={`/home/teams/${participation.team.id}`}>
           <FaUsers />
           {participation.team.title}
+        </Link>
+      </li>
+      <li>
+        <span className="inline-flex items-center gap-2">
+          <FaPlus />
+          Criar novo projeto
         </span>
       </li>
     </>

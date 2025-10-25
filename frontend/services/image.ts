@@ -25,11 +25,7 @@ export class ImagesService extends Service {
       .then(async (response) => {
         const blob = response.data;
         const base64 = await this.blobToBase64(blob);
-        console.log(
-          response.config.baseURL,
-          url,
-          new URL(url, response.config.baseURL).href,
-        );
+
         return {
           url: new URL(url, response.config.baseURL).href,
           blob,

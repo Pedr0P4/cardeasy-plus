@@ -20,7 +20,6 @@ export default function Avatar({
   onLoadAvatar,
 }: Props) {
   const hasImage = !!avatar?.url;
-  console.log(avatar?.url);
 
   return (
     <div className={clsx("relative avatar", !hasImage && "avatar-placeholder")}>

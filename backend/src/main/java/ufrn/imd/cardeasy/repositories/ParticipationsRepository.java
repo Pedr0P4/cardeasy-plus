@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,6 +27,17 @@ extends JpaRepository<Participation, ParticipationId> {
   ) public Optional<Participation> findByAccountAndProject(
     UUID accountId,
     Integer projectId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      WHERE pt.account_id = ?1
+    """,
+    nativeQuery = true
+  ) public List<Participation> findAllByAccount(
+    UUID accountId
   );
 
   @Query(

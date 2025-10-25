@@ -5,13 +5,15 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import ufrn.imd.cardeasy.models.Project;
+import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.models.Team;
 
 public record TeamDTO(
   UUID id,
   String title,
   String description,
-  Integer participations
+  Integer participations,
+  Role role
 ) {
   public static TeamDTO from(Project project) {
     return TeamDTO.from(project.getTeam());
@@ -26,7 +28,8 @@ public record TeamDTO(
       team.getId(),
       team.getTitle(),
       team.getDescription(),
-      participations
+      participations,
+      Role.ADMIN
     );
   };
 

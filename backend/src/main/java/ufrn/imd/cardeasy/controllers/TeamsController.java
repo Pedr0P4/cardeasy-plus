@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.KickDTO;
+import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateTeamDTO;
 import ufrn.imd.cardeasy.models.Account;
@@ -63,33 +64,33 @@ public class TeamsController {
 
   @Authenticate
   @GetMapping
-  public ResponseEntity<List<TeamDTO>> findAll(
+  public ResponseEntity<List<ParticipationDTO>> findAll(
     @AuthenticationPrincipal Account account
   ) {
-    List<Team> teams = this.teams.findAllByAccount(
+    List<Participation> participations = this.participations.findAllByAccount(
       account.getId()
     );
 
     return ResponseEntity.ok(
-      TeamDTO.from(teams)
+      ParticipationDTO.from(participations)
     );
   };
 
   @Authenticate
   @GetMapping("/{id}")
-  public ResponseEntity<TeamDTO> findById(
+  public ResponseEntity<ParticipationDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id
   ) {
-    Team team = this.teams.findById(id);
+    this.teams.existsById(id);
 
-    this.participations.checkAccess(
+    Participation participation = this.participations.checkAccess(
       account.getId(), 
       id
     );
 
     return ResponseEntity.ok(
-      TeamDTO.from(team)
+      ParticipationDTO.from(participation)
     );
   };
 
