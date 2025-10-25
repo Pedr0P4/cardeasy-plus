@@ -1,11 +1,12 @@
 import clsx from "clsx";
 import Image from "next/image";
-import { FaUpload } from "react-icons/fa";
+import { FaUpload } from "react-icons/fa6";
 import type { ImageData } from "@/services/image";
 import ImageInput from "./ImageInput";
 
 interface Props {
   name: string;
+  className?: string;
   avatar?: ImageData;
   onLoadAvatar?: (base64: string, blob: Blob, filename?: string) => void;
   onClearAvatar?: () => void;
@@ -13,11 +14,13 @@ interface Props {
 
 export default function Avatar({
   name,
+  className,
   avatar,
   onClearAvatar,
   onLoadAvatar,
 }: Props) {
   const hasImage = !!avatar?.url;
+  console.log(avatar?.url);
 
   return (
     <div className={clsx("relative avatar", !hasImage && "avatar-placeholder")}>
@@ -25,6 +28,7 @@ export default function Avatar({
         className={clsx(
           "ring-neutral bg-base-100 ring-offset-base-200",
           "size-12 rounded-full ring-2 ring-offset-2",
+          className,
         )}
       >
         {hasImage ? (

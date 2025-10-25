@@ -11,7 +11,7 @@ import {
   useState,
 } from "react";
 import Cropper, { type Area } from "react-easy-crop";
-import { FaCloudUploadAlt, FaTrash, FaUpload } from "react-icons/fa";
+import { FaCloudArrowUp, FaTrash, FaUpload } from "react-icons/fa6";
 import { FaCheck, FaRotate, FaX } from "react-icons/fa6";
 import getCroppedImg from "@/services/crop";
 import Input from "./Input";
@@ -176,7 +176,7 @@ export default function ImageInput({
               />
             ) : (
               <div className="flex flex-col gap-4 justify-center items-center">
-                <FaCloudUploadAlt className="size-9" />
+                <FaCloudArrowUp className="size-9" />
                 <div className="flex flex-col gap-1">
                   <strong>Clique ou arraste para carregar</strong>
                   <p className="hidden sm:block font-light">

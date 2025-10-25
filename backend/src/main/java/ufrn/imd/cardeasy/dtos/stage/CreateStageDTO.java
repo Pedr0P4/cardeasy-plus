@@ -14,9 +14,8 @@ public record CreateStageDTO(
   @NotBlank
   @Size(min = 3, max = 45)
   String name,
-
-  @NotBlank
-  @Size(min = 3, max = 45)
+  
+  @Size(min = 0, max = 45)
   String description,
   
   @FutureOrPresent

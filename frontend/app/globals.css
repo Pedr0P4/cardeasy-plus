@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@plugin 'tailwind-scrollbar';
+
 @plugin "daisyui" {
   themes:
     synthwave --default,

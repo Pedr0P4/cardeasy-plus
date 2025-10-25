@@ -14,6 +14,6 @@ public record CreateProjectDTO(
   @Size(min = 3, max = 45)
   String title,
   
-  @Size(min = 1, max = 125)
+  @Size(min = 0, max = 125)
   String description
 ) {};
