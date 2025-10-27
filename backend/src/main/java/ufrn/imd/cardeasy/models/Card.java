@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -35,13 +36,14 @@ public class Card {
 
   @JoinColumn(name = "list_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
   private CardList list;
 
   @OneToMany(
     mappedBy = "card",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private Set<Tag> tags;
+  ) @ToString.Exclude private Set<Tag> tags;
 
   @ManyToMany
   @JoinTable(
@@ -51,5 +53,6 @@ public class Card {
       @JoinColumn(name = "account_id", referencedColumnName = "account_id"),
       @JoinColumn(name = "team_id", referencedColumnName = "team_id"),
     }
-  ) private Set<Participation> assigneds;
+  ) @ToString.Exclude
+  private Set<Participation> assigneds;
 };

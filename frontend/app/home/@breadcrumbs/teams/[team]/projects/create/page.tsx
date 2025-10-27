@@ -1,5 +1,4 @@
-import { Api } from "@/services/api";
-import { UUID } from "crypto";
+import type { UUID } from "crypto";
 import Link from "next/link";
 import {
   FaFileContract,
@@ -8,6 +7,7 @@ import {
   FaUserGroup,
   FaUsers,
 } from "react-icons/fa6";
+import { Api } from "@/services/api";
 
 export default async function ProjectBreadcrumbs({
   params,
@@ -16,7 +16,7 @@ export default async function ProjectBreadcrumbs({
 }>) {
   const { team: teamId } = await params;
   const participation = await Api.server().participations().get(teamId);
-  
+
   return (
     <>
       <li>

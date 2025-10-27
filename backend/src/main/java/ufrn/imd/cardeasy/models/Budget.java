@@ -11,6 +11,7 @@ import java.sql.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -34,5 +35,6 @@ public class Budget {
   private Date deadline;
 
   @OneToOne(mappedBy = "budget", fetch = FetchType.LAZY)
+  @ToString.Exclude
   private Project project;
 };

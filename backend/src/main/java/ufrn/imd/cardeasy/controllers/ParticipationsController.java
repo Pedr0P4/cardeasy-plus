@@ -34,7 +34,7 @@ public class ParticipationsController {
   };
 
   @Authenticate
-  @GetMapping("/me")
+  @GetMapping
   public ResponseEntity<List<ParticipationDTO>> findAll(
     @AuthenticationPrincipal Account account
   ) {
@@ -48,7 +48,7 @@ public class ParticipationsController {
   };
 
   @Authenticate
-  @GetMapping("/me/{id}")
+  @GetMapping("{id}")
   public ResponseEntity<ParticipationDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id
@@ -62,24 +62,6 @@ public class ParticipationsController {
 
     return ResponseEntity.ok(
       ParticipationDTO.from(participation)
-    );
-  };
-
-  @Authenticate
-  @GetMapping("/{id}")
-  public ResponseEntity<List<ParticipationDTO>> findOthersById(
-    @AuthenticationPrincipal Account account,
-    @PathVariable UUID id
-  ) {
-    Team team = this.teams.findById(id);
-
-    this.participations.checkAccess(
-      account.getId(), 
-      id
-    );
-
-    return ResponseEntity.ok(
-      ParticipationDTO.from(team)
     );
   };
 };

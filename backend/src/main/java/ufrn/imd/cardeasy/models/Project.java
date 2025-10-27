@@ -12,10 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -36,27 +38,31 @@ public class Project {
 
   @JsonIgnore
   @JoinColumn(name = "team_id", nullable = false)
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
   private Team team;
   
   @JoinColumn(name = "budget_id", nullable = true)
   @OneToOne(
-    fetch = FetchType.EAGER,
+    fetch = FetchType.LAZY,
     cascade = CascadeType.ALL,
     orphanRemoval = true
-  ) private Budget budget;
+  ) @ToString.Exclude
+  private Budget budget;
 
-  @OrderColumn(name = "expected_start_in")
+  @OrderBy("expected_start_in")
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private List<Stage> stages;
-
-  @OrderColumn(name = "index")
+  ) @ToString.Exclude
+  private List<Stage> stages;
+  
+  @OrderBy("index")
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private List<CardList> lists;
+  ) @ToString.Exclude
+  private List<CardList> lists;
 };

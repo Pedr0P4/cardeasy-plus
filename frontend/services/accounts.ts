@@ -38,6 +38,7 @@ export class AccountsService extends Service {
 
   async logout() {
     // TODO - Clear cookie
+    // (deixar para marcel, pode ser mais complexo do que parece)
     await this.setCookie("cardeasy@token", "");
   }
 

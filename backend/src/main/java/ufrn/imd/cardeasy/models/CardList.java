@@ -12,9 +12,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -34,7 +36,8 @@ public class CardList {
   @ManyToOne(fetch = FetchType.LAZY)
   private Project project;
 
-  @OrderColumn(name = "index")
+  @OrderBy("index ASC")
   @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ToString.Exclude
   private List<Card> cards;
 };

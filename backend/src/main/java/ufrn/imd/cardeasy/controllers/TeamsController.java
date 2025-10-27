@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.KickDTO;
@@ -64,7 +65,7 @@ public class TeamsController {
 
   @Authenticate
   @GetMapping
-  public ResponseEntity<List<ParticipationDTO>> findAll(
+  public ResponseEntity<List<ParticipationDTO>> findAllParticipationsByAccount(
     @AuthenticationPrincipal Account account
   ) {
     List<Participation> participations = this.participations.findAllByAccount(
@@ -91,6 +92,42 @@ public class TeamsController {
 
     return ResponseEntity.ok(
       ParticipationDTO.from(participation)
+    );
+  };
+
+  @Authenticate
+  @GetMapping("/{id}/participations")
+  public ResponseEntity<List<ParticipationDTO>> findAllParticipationsById(
+    @AuthenticationPrincipal Account account,
+    @PathVariable UUID id
+  ) {
+    Team team = this.teams.findById(id);
+
+    this.participations.checkAccess(
+      account.getId(), 
+      id
+    );
+
+    return ResponseEntity.ok(
+      ParticipationDTO.from(team)
+    );
+  };
+
+  @Authenticate
+  @GetMapping("/{id}/projects")
+  public ResponseEntity<List<ProjectDTO>> findAllProjectsById(
+    @AuthenticationPrincipal Account account,
+    @PathVariable UUID id
+  ) {
+    this.teams.existsById(id);
+
+    Participation participation = this.participations.checkAccess(
+      account.getId(), 
+      id
+    );
+
+    return ResponseEntity.ok(
+      ProjectDTO.from(participation.getTeam().getProjects())
     );
   };
 

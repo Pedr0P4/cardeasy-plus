@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -38,5 +39,6 @@ public class Stage {
 
   @JoinColumn(name = "project_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
   private Project project;
 };

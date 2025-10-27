@@ -95,6 +95,13 @@ public class ProjectsService {
       second.getIndex()
     );
 
-    this.teams.save(first.getTeam());
+    Integer firstIndex = first.getIndex();
+    Integer secondIndex = second.getIndex();
+
+    first.setIndex(secondIndex);
+    second.setIndex(firstIndex);
+
+    this.projects.save(first);
+    this.projects.save(second);
   };
 };

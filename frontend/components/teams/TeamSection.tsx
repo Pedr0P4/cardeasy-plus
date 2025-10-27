@@ -1,14 +1,14 @@
+import clsx from "clsx";
+import Link from "next/link";
 import { FaUserGroup } from "react-icons/fa6";
 import type { Project } from "@/services/projects";
-import { Role, type Team } from "@/services/teams";
+import type { Role, Team } from "@/services/teams";
 import TeamProjects from "./TeamProjects";
-import Link from "next/link";
-import clsx from "clsx";
 
 interface Props {
   team: Team;
   role: Role;
-  projects: Omit<Project, "team">[];
+  projects: Project[];
 }
 
 export default async function TeamSection({ team, role, projects }: Props) {

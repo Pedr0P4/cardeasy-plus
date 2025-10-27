@@ -15,23 +15,23 @@ import jakarta.persistence.MapsId;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
 @EqualsAndHashCode(of = { "id" })
 public class Participation {
-
   @EmbeddedId
   private ParticipationId id;
 
   @MapsId("accountId")
   @JoinColumn(name = "account_id", nullable = false)
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   private Account account;
 
   @MapsId("teamId")
   @JoinColumn(name = "team_id", nullable = false)
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   private Team team;
 
   @Column(nullable = false)
@@ -39,5 +39,6 @@ public class Participation {
   private Role role;
 
   @ManyToMany(mappedBy = "assigneds")
-  Set<Card> assignments;
+  @ToString.Exclude
+  private Set<Card> assignments;
 };

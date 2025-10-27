@@ -1,6 +1,7 @@
 import type { UUID } from "crypto";
+import type { Account } from "./accounts";
 import { Service } from "./base/services";
-import { Account } from "./accounts";
+import type { Project } from "./projects";
 
 export type Participation = {
   account: Account;
@@ -27,12 +28,14 @@ export type CreateTeamData = {
 };
 
 export class TeamsService extends Service {
-  async participation(id: UUID) {
-    return this.api.get<Participation>(`/teams/${id}`).then((res) => res.data);
+  async participations(id: UUID) {
+    return this.api
+      .get<Participation[]>(`/teams/${id}/participations`)
+      .then((res) => res.data);
   }
 
-  async participations() {
-    return this.api.get<Participation[]>(`/teams`).then((res) => res.data);
+  async projects(id: UUID) {
+    return this.api.get<Project[]>(`/teams/${id}/projects`).then((res) => res.data);
   }
 
   async create(data: CreateTeamData) {

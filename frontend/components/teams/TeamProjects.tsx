@@ -1,13 +1,13 @@
-import { Project } from "@/services/projects";
-import { Role, Team } from "@/services/teams";
 import clsx from "clsx";
 import Link from "next/link";
 import { FaPlus } from "react-icons/fa6";
+import type { Project } from "@/services/projects";
+import { Role, type Team } from "@/services/teams";
 
 interface Props {
   team: Team;
   role: Role;
-  projects: Omit<Project, "team">[];
+  projects: Project[];
 }
 
 export default function TeamProjects({ team, role, projects }: Props) {

@@ -1,11 +1,11 @@
+import { UUID } from "crypto";
 import { Service } from "./base/services";
-import type { Team } from "./teams";
 
 export type Project = {
   id: number;
   title: string;
   description: string;
-  team: Team;
+  team: UUID;
 };
 
 export class ProjectsService extends Service {

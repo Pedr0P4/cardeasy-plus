@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 
 import java.util.List;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -38,13 +40,15 @@ public class Team {
     mappedBy = "team",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private Set<Participation> participations;
+  ) @ToString.Exclude
+  private Set<Participation> participations;
 
   @JsonIgnore
-  @OrderColumn(name = "index")
+  @OrderBy("index")
   @OneToMany(
     mappedBy = "team",
     cascade = CascadeType.ALL,
     fetch = FetchType.LAZY
-  ) private List<Project> projects;
+  ) @ToString.Exclude
+  private List<Project> projects;
 };

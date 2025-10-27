@@ -11,13 +11,13 @@ export default async function HomePage() {
   const projects = await Api.server().projects().all();
 
   const projectsPerTeam = projects.reduce(
-    (prev, { team, ...project }) => {
-      if (prev[team.id]) prev[team.id] = [...prev[team.id], project];
-      else prev[team.id] = [project];
+    (prev, project) => {
+      if (prev[project.team]) prev[project.team] = [...prev[project.team], project];
+      else prev[project.team] = [project];
 
       return prev;
     },
-    {} as Record<UUID, Omit<Project, "team">[]>,
+    {} as Record<UUID, Project[]>,
   );
 
   return (
@@ -38,7 +38,7 @@ export default async function HomePage() {
         </Link>
       </section>
       {participations.map((participation) => {
-        const projects: Omit<Project, "team">[] =
+        const projects: Project[] =
           projectsPerTeam[participation.team.id] ?? [];
 
         return (

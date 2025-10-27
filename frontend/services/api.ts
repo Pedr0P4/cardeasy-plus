@@ -12,9 +12,9 @@ import { AccountsService } from "./accounts";
 import { Axios } from "./base/axios";
 import { client } from "./base/client";
 import { ImagesService } from "./image";
+import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
 import { TeamsService } from "./teams";
-import { ParticipationsService } from "./participations";
 
 export class Api {
   constructor(

@@ -1,6 +1,7 @@
 "use client";
 
 import clsx from "clsx";
+import type { UUID } from "crypto";
 import { redirect, useParams } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
@@ -17,11 +18,13 @@ import Input from "@/components/Input";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CreateTeamData } from "@/services/teams";
-import { UUID } from "crypto";
 
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
-  // TODO - Criar página de criar projeto
+  
+  // TODO - Criar página de criar projeto 
+  // (abaixo dessa linha é só control+c da página de criar time)
+
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<CreateTeamData>({
