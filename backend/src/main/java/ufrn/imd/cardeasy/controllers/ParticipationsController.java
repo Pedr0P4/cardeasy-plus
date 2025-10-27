@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
-import ufrn.imd.cardeasy.models.Team;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.TeamsService;

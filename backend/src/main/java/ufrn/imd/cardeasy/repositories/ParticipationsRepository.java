@@ -71,4 +71,21 @@ extends JpaRepository<Participation, ParticipationId> {
     UUID accountId,
     Integer budgetId
   );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
+      JOIN card_list AS cl
+      ON cl.project_id = pj.id
+      WHERE pt.account_id = ?1
+      AND cl.id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndCardList(
+    UUID accountId,
+    Integer cardListId
+  );
 };

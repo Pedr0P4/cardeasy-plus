@@ -12,7 +12,8 @@ export default async function HomePage() {
 
   const projectsPerTeam = projects.reduce(
     (prev, project) => {
-      if (prev[project.team]) prev[project.team] = [...prev[project.team], project];
+      if (prev[project.team])
+        prev[project.team] = [...prev[project.team], project];
       else prev[project.team] = [project];
 
       return prev;

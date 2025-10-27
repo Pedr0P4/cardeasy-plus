@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.dtos.stage;
 
 import java.sql.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ufrn.imd.cardeasy.models.Stage;
 
@@ -32,6 +31,6 @@ public record StageDTO(
   ) {
     return stages.stream()
       .map(StageDTO::from)
-      .collect(Collectors.toList());
+      .toList();
   };
 };

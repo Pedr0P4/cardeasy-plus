@@ -1,17 +1,12 @@
+import type { UUID } from "crypto";
 import Link from "next/link";
-import {
-  FaDiagramProject,
-  FaHouse,
-  FaUserGroup,
-  FaUsers,
-} from "react-icons/fa6";
+import { FaDiagramProject, FaHouse, FaUsers } from "react-icons/fa6";
 import { Api } from "@/services/api";
-import { UUID } from "crypto";
 
 export default async function ProjectBreadcrumbs({
   params,
 }: Readonly<{
-  params: Promise<{ team: UUID, project: string }>;
+  params: Promise<{ team: UUID; project: string }>;
 }>) {
   const { project: projectId, team: teamId } = await params;
   const project = await Api.server()

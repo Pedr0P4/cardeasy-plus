@@ -1,7 +1,6 @@
 package ufrn.imd.cardeasy.services;
 
 import jakarta.transaction.Transactional;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,11 +88,6 @@ public class ProjectsService {
       !first.getTeam().getId().equals(second.getTeam().getId())
     ) throw new InvalidSwap();
 
-    Collections.swap(
-      first.getTeam().getProjects(),
-      first.getIndex(),
-      second.getIndex()
-    );
 
     Integer firstIndex = first.getIndex();
     Integer secondIndex = second.getIndex();

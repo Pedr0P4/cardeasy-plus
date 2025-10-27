@@ -1,11 +1,5 @@
 import Link from "next/link";
-import {
-  FaDungeon,
-  FaFileContract,
-  FaHouse,
-  FaUserGroup,
-  FaUsers,
-} from "react-icons/fa6";
+import { FaDungeon, FaHouse } from "react-icons/fa6";
 
 export default async function ProjectBreadcrumbs() {
   return (

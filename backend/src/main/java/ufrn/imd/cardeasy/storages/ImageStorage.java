@@ -54,9 +54,9 @@ public abstract class ImageStorage extends FileStorage {
   ) {
     super.validate(file);
 
-    if(file.getContentType() == null) throw new InvalidImageFormat();
-    
     String type = file.getContentType();
+
+    if(type == null) throw new InvalidImageFormat();
     
     Boolean isValid = 
       type.contains("png") ||

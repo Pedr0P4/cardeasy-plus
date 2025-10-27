@@ -5,8 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
+import ufrn.imd.cardeasy.dtos.cardlist.CreateCardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.UpdateCardListDTO;
-import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.models.Role;
@@ -14,89 +14,125 @@ import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
-import ufrn.imd.cardeasy.services.TeamsService;
 
 import java.util.List;
 @RestController
 @RequestMapping("/card-lists")
 public class CardListsController {
-  private final ProjectsService projectsService;
-  private final TeamsService teamsService;
+  private final ProjectsService projects;
   private final ParticipationsService participations;
-  private final CardListsService cardListsService;
+  private final CardListsService cardLists;
 
-  public CardListsController(ProjectsService projectsService,
-                             TeamsService teamsService,
-                             ParticipationsService participations, CardListsService cardListsService) {
-    this.projectsService = projectsService;
-    this.teamsService = teamsService;
+  public CardListsController(
+    ProjectsService projects,                 
+    ParticipationsService participations, 
+    CardListsService cardLists
+  ) {
+    this.projects = projects;
     this.participations = participations;
-    this.cardListsService = cardListsService;
-  }
+    this.cardLists = cardLists;
+  };
 
   @Authenticate
   @PostMapping
-  public ResponseEntity<CardListDTO> create(@AuthenticationPrincipal Account account,
-                                            @RequestBody CardListDTO cardListDTO) {
-    this.projectsService.existsById(cardListDTO.project().id());
-    this.participations.checkAccess(Role.ADMIN,account.getId(),cardListDTO.project().team().id());
+  public ResponseEntity<CardListDTO> create(
+    @AuthenticationPrincipal Account account,
+    @RequestBody CreateCardListDTO body
+  ) {
+    this.projects.existsById(body.project());
 
-    CardList cardList = this.cardListsService.create(cardListDTO.project().id(), cardListDTO.title());
-    return ResponseEntity.status(HttpStatus.CREATED).body(CardListDTO.from(cardList));
-  }
+    this.participations.checkProjectAccess(
+      Role.ADMIN,
+      account.getId(),
+      body.project()
+    );
+
+    CardList cardList = this.cardLists.create(
+      body.project(), 
+      body.title()
+    );
+
+    return ResponseEntity
+      .status(HttpStatus.CREATED)
+      .body(CardListDTO.from(cardList));
+  };
 
   @Authenticate
-  @GetMapping
-  public ResponseEntity<List<CardListDTO>> findAll(@AuthenticationPrincipal Account account,
-                                                   @RequestBody ProjectDTO projectDTO) {
-    this.participations.checkAccess(
+  @GetMapping("/project/{id}")
+  public ResponseEntity<List<CardListDTO>> findAllByProject(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    this.participations.checkProjectAccess(
       account.getId(),
-      projectDTO.team().id()
+      id
     );
-    //Acho melhor checar primeiro pra depois buscar nesse caso específico, mude caso queira e eu sigo.
-    List<CardList> cardLists = this.cardListsService.findAllByProject(projectDTO.id());
-    return ResponseEntity.ok(CardListDTO.from(cardLists));
-  }
+
+    List<CardList> cardLists = this.cardLists.findAllByProject(id);
+    return ResponseEntity.ok(
+      CardListDTO.from(cardLists)
+    );
+  };
 
   @Authenticate
   @GetMapping("/{id}")
-  public ResponseEntity<CardListDTO> findById(@AuthenticationPrincipal Account account,
-                                              @PathVariable Integer id) {
-    CardList cardList = this.cardListsService.findById(id);
-    this.participations.checkAccess(
+  public ResponseEntity<CardListDTO> findById(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    CardList cardList = this.cardLists.findById(id);
+
+    this.participations.checkCardListAccess(
       account.getId(),
-      cardList.getProject().getTeam().getId() //ridículo mas é o que tem que fazer mesmo
+      id
     );
-    return ResponseEntity.ok(CardListDTO.from(cardList));
-  }
+    
+    return ResponseEntity.ok(
+      CardListDTO.from(cardList)
+    );
+  };
+
   @Authenticate
   @PutMapping("/{id}")
-  public ResponseEntity<CardListDTO> update(@AuthenticationPrincipal Account account,
-                                            @PathVariable Integer id, UpdateCardListDTO updateCardListDTO) {
-    CardList cardList = this.cardListsService.findById(id);
-    //provavelmente bom fazer um pra cardlist direto mas eu acho melhor deixar isso pra depois
-    this.participations.checkProjectAccess(
+  public ResponseEntity<CardListDTO> update(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id, 
+    @RequestBody UpdateCardListDTO body
+  ) {
+    this.cardLists.existsById(id);
+    
+    this.participations.checkCardListAccess(
       account.getId(),
-      cardList.getProject().getId());
-    cardList = this.cardListsService.update(id, updateCardListDTO.title());
+      id
+    );
 
-    return ResponseEntity.ok(CardListDTO.from(cardList));
-  }
+    CardList cardList = this.cardLists.update(
+      id, 
+      body.title()
+    );
+
+    return ResponseEntity.ok(
+      CardListDTO.from(cardList)
+    );
+  };
 
   @Authenticate
   @DeleteMapping("/{id}")
-  public ResponseEntity<Void> delete(@AuthenticationPrincipal Account account,
-                                     @PathVariable Integer id) {
-    CardList cardList = this.cardListsService.findById(id);
-    //mude a permission caso necessário.
-    this.participations.checkProjectAccess(
-      Role.OWNER,
+  public ResponseEntity<Void> delete(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    this.cardLists.existsById(id);
+    
+    this.participations.checkCardListAccess(
+      Role.ADMIN,
       account.getId(),
-      cardList.getProject().getId()
+      id
     );
-    this.cardListsService.deleteById(id);
-    return ResponseEntity.noContent().build();
-  }
 
-
-}
+    this.cardLists.deleteById(id);
+    return ResponseEntity
+      .noContent()
+      .build();
+  };
+};

@@ -6,13 +6,10 @@ import { redirect, useParams } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
   FaClipboardList,
-  FaFileContract,
   FaPenClip,
   FaPencil,
   FaPlus,
   FaTriangleExclamation,
-  FaUsers,
-  FaUsersLine,
 } from "react-icons/fa6";
 import Input from "@/components/Input";
 import { Api } from "@/services/api";
@@ -21,8 +18,8 @@ import type { CreateTeamData } from "@/services/teams";
 
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
-  
-  // TODO - Criar página de criar projeto 
+
+  // TODO - Criar página de criar projeto
   // (abaixo dessa linha é só control+c da página de criar time)
 
   const [error, setError] = useState<string>("");

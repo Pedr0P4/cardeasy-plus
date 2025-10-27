@@ -67,6 +67,15 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
+  public Participation findByAccountAndCardList(
+    UUID accountId,
+    Integer cardListId
+  ) {
+    return this.participations
+      .findByAccountAndCardList(accountId, cardListId)
+      .orElseThrow(ParticipationNotFound::new);
+  };
+
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {
     Participation participation = this.findById(accountId, teamId);
 
@@ -156,6 +165,35 @@ public class ParticipationsService {
       Role.MEMBER, 
       accountId, 
       stageId
+    );
+  };
+
+  public Participation checkCardListAccess(
+    Role role, 
+    UUID accountId, 
+    Integer cardListId
+  ) {
+    Participation participation = this.findByAccountAndCardList(
+      accountId,
+      cardListId
+    );
+
+    if (
+      !participation.getRole()
+        .hasAccessOf(role)
+    ) throw new Forbidden();
+
+    return participation;
+  };
+
+  public Participation checkCardListAccess(
+    UUID accountId, 
+    Integer cardListId
+  ) {
+    return this.checkStageAccess(
+      Role.MEMBER, 
+      accountId, 
+      cardListId
     );
   };
 };

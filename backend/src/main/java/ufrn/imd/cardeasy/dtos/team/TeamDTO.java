@@ -2,7 +2,6 @@ package ufrn.imd.cardeasy.dtos.team;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Role;
@@ -38,6 +37,6 @@ public record TeamDTO(
   ) {
     return teams.stream()
       .map(TeamDTO::from)
-      .collect(Collectors.toList());
+      .toList();
   };
 };

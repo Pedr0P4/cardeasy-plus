@@ -14,9 +14,14 @@ public record CardListDTO(
     return new CardListDTO(
       cardList.getId(),
       cardList.getTitle(),
-      ProjectDTO.from(cardList.getProject()));
-  }
+      ProjectDTO.from(cardList.getProject())
+    );
+  };
+
   public static List<CardListDTO> from(List<CardList> cardLists) {
-    return cardLists.stream().map(CardListDTO::from).toList();
-  }
-}
+    return cardLists
+      .stream()
+      .map(CardListDTO::from)
+      .toList();
+  };
+};

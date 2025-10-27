@@ -5,13 +5,10 @@ import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
   FaClipboardList,
-  FaFileContract,
   FaPenClip,
   FaPencil,
   FaPlus,
   FaTriangleExclamation,
-  FaUsers,
-  FaUsersLine,
 } from "react-icons/fa6";
 import Input from "@/components/Input";
 import { Api } from "@/services/api";

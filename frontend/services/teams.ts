@@ -35,7 +35,9 @@ export class TeamsService extends Service {
   }
 
   async projects(id: UUID) {
-    return this.api.get<Project[]>(`/teams/${id}/projects`).then((res) => res.data);
+    return this.api
+      .get<Project[]>(`/teams/${id}/projects`)
+      .then((res) => res.data);
   }
 
   async create(data: CreateTeamData) {

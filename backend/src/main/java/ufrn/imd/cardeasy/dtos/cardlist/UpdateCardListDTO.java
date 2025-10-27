@@ -7,5 +7,4 @@ public record UpdateCardListDTO(
   @NotBlank
   @Size(min = 1, max = 45)
   String title
-){
-}
+) {};

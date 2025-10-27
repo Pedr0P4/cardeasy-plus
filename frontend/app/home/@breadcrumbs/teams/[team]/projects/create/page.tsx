@@ -1,12 +1,6 @@
 import type { UUID } from "crypto";
 import Link from "next/link";
-import {
-  FaFileContract,
-  FaHouse,
-  FaPlus,
-  FaUserGroup,
-  FaUsers,
-} from "react-icons/fa6";
+import { FaHouse, FaPlus, FaUsers } from "react-icons/fa6";
 import { Api } from "@/services/api";
 
 export default async function ProjectBreadcrumbs({

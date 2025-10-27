@@ -13,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
-import jakarta.persistence.OrderColumn;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

@@ -10,7 +10,6 @@ export default async function TeamPage({
 }>) {
   const { team: teamId } = await params;
   const participation = await Api.server().participations().get(teamId);
-  const participations = await Api.server().teams().participations(teamId);
   const projects = await Api.server().teams().projects(teamId);
 
   return (

@@ -1,7 +1,6 @@
 package ufrn.imd.cardeasy.dtos.team;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import ufrn.imd.cardeasy.dtos.account.AccountDTO;
 import ufrn.imd.cardeasy.models.Participation;
@@ -34,6 +33,6 @@ public record ParticipationDTO(
   ) {
     return participations.stream()
       .map(ParticipationDTO::from)
-      .collect(Collectors.toList());
+      .toList();
   };
 };

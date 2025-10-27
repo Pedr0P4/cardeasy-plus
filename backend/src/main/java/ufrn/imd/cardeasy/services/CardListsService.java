@@ -15,43 +15,50 @@ public class CardListsService {
   private final ProjectsRepository projects;
   private final CardListsRepository cardLists;
 
-  public CardListsService(ProjectsRepository projects, CardListsRepository cardLists) {
+  public CardListsService(
+    ProjectsRepository projects, 
+    CardListsRepository cardLists
+  ) {
     this.projects = projects;
     this.cardLists = cardLists;
-  }
+  };
 
   public CardList create(Integer projectId, String title) {
-    Project project = projects.findById(projectId).orElseThrow(ProjectNotFound::new);
+    Project project = projects.findById(projectId)
+      .orElseThrow(ProjectNotFound::new);
+
     CardList cardList = new CardList();
     cardList.setTitle(title);
     cardList.setProject(project);
     cardLists.save(cardList);
+    
     return cardList;
-  }
+  };
 
   public List<CardList> findAllByProject(Integer projectId) {
-    //Caso necessário vocês podem alterar pra só ser ByProject no lugar de Project_Id
-    return cardLists.findAllByProject_Id(projectId);
-  }
+    return this.cardLists.findAllByProject(projectId);
+  };
 
   public CardList findById(Integer id) {
-    return cardLists.findById(id).orElseThrow(CardListNotFound::new);
-  }
+    return this.cardLists.findById(id)
+      .orElseThrow(CardListNotFound::new);
+  };
 
   public CardList update(Integer id, String title) {
-    CardList cardList = findById(id);
+    CardList cardList = this.findById(id);
+
     cardList.setTitle(title);
     cardLists.save(cardList);
+
     return cardList;
-  }
+  };
 
   public void deleteById(Integer id) {
-    //Eu não sei porque que você botou pra ele dar find primeiro no de projects
-    cardLists.deleteById(id);
-  }
+    this.cardLists.deleteById(id);
+  };
 
   public void existsById(Integer id) {
-    if(cardLists.existsById(id)) return;
-    throw new CardListNotFound();
-  }
-}
+    if(!cardLists.existsById(id))
+      throw new CardListNotFound();
+  };
+};
