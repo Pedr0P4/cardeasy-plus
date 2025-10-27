@@ -73,7 +73,7 @@ public class BudgetsController {
   public ResponseEntity<BudgetDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody UpdateBudgetDTO budget
+    @RequestBody @Valid UpdateBudgetDTO budget
   ) {
     this.budgets.existsById(id);
 

@@ -4,11 +4,20 @@ import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
-import { FaTriangleExclamation } from "react-icons/fa6";
+import {
+  FaEnvelope,
+  FaKey,
+  FaPencil,
+  FaRegEnvelope,
+  FaRegUser,
+  FaTriangleExclamation,
+  FaUser,
+} from "react-icons/fa6";
 import Avatar from "@/components/Avatar";
 import Input from "@/components/Input";
-import { type RegisterData, register } from "@/services/accounts";
-import type { ApiErrorResponse } from "@/services/axios";
+import type { RegisterData } from "@/services/accounts";
+import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function RegisterPage() {
   const [error, setError] = useState<string>("");
@@ -24,7 +33,9 @@ export default function RegisterPage() {
     setError("");
     setErrors({});
 
-    const success = await register(data)
+    const success = await Api.client()
+      .accounts()
+      .register(data)
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isValidationError()) setErrors(err.errors);
@@ -33,7 +44,7 @@ export default function RegisterPage() {
         return false;
       });
 
-    if (success) redirect(`/?email=${data.email}`);
+    if (success) redirect(`/login?email=${data.email}`);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -64,18 +75,26 @@ export default function RegisterPage() {
   return (
     <main
       className={clsx(
-        "h-screen w-screen bg-base-100 flex flex-col",
-        "items-center justify-center",
+        "h-screen w-full bg-base-100 flex flex-col",
+        "items-center justify-center not-sm:bg-base-200",
+        "not-sm:justify-start",
       )}
     >
-      <h1 className="text-4xl font-semibold">
+      <h1
+        className={clsx(
+          "text-4xl font-semibold not-sm:py-6",
+          "not-sm:text-2xl not-sm:self-start",
+          "not-sm:px-4 bg-base-100 not-sm:w-full",
+        )}
+      >
         Cardeasy<span className="text-neutral">+</span>
       </h1>
       <form
         onSubmit={onSubmit}
         className={clsx(
           "flex flex-col gap-4 bg-base-200 border-base-300",
-          "rounded-box w-xs border p-4 m-4",
+          "rounded-box w-full not-sm:rounded-none sm:w-xs border",
+          "p-4 m-4 not-sm:m-0",
         )}
       >
         <div className="flex flex-row gap-4 w-full items-center">
@@ -90,6 +109,7 @@ export default function RegisterPage() {
             type="text"
             placeholder="Nome"
             label="Nome"
+            icon={FaUser}
             value={data.name}
             onChange={onChange}
             errors={errors}
@@ -102,6 +122,7 @@ export default function RegisterPage() {
           type="text"
           placeholder="Email"
           label="Email"
+          icon={FaEnvelope}
           value={data.email}
           onChange={onChange}
           errors={errors}
@@ -113,6 +134,7 @@ export default function RegisterPage() {
           type="password"
           placeholder="Senha"
           label="Senha"
+          icon={FaKey}
           value={data.password}
           onChange={onChange}
           errors={errors}
@@ -120,6 +142,7 @@ export default function RegisterPage() {
           hiddenError={!!error}
         />
         <button type="submit" className="btn btn-neutral mt-2">
+          <FaPencil />
           Registrar-se
         </button>
         <p className="text-sm">
@@ -133,7 +156,13 @@ export default function RegisterPage() {
         </p>
       </form>
       {error && (
-        <div role="alert" className="alert alert-error alert-soft w-xs">
+        <div
+          role="alert"
+          className={clsx(
+            "alert alert-error alert-soft w-xs",
+            "not-sm:w-full not-sm:rounded-none",
+          )}
+        >
           <FaTriangleExclamation className="size-4 -mr-1" />
           <span className="first-letter:uppercase">{error}</span>
         </div>

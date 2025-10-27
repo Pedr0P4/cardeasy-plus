@@ -12,7 +12,7 @@ public record UpdateAccountDTO(
 
   @NotBlank
   @Email
-  @Size(min = 0, max = 45)
+  @Size(min = 3, max = 45)
   String email,
   
   @NotBlank

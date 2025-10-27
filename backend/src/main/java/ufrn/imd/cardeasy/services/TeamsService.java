@@ -58,7 +58,7 @@ public class TeamsService {
     participation.setRole(Role.OWNER);
 
     this.participations.save(participation);
-
+    
     return team;
   };
 

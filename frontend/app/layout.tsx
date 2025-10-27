@@ -13,7 +13,9 @@ export default function RootLayout({
 }>) {
   return (
     <html data-theme="synthwave" lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased relative min-h-svh flex flex-col">
+        {children}
+      </body>
     </html>
   );
 }

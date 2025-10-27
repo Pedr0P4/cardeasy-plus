@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.KickDTO;
@@ -46,7 +48,7 @@ public class TeamsController {
   @PostMapping
   public ResponseEntity<TeamDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody CreateTeamDTO team
+    @RequestBody @Valid CreateTeamDTO team
   ) {
     Team created = this.teams.create(
       account.getId(),
@@ -56,7 +58,7 @@ public class TeamsController {
 
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(TeamDTO.from(created));
+      .body(TeamDTO.from(created, 1));
   };
 
   @Authenticate
@@ -96,7 +98,7 @@ public class TeamsController {
   public ResponseEntity<TeamDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id,
-    @RequestBody UpdateTeamDTO team
+    @RequestBody @Valid UpdateTeamDTO team
   ) {
     this.teams.existsById(id);
 
@@ -199,7 +201,7 @@ public class TeamsController {
   @PostMapping("/{id}/kick")
   public ResponseEntity<TeamDTO> kick(
     @AuthenticationPrincipal Account account,
-    @RequestBody KickDTO kick,
+    @RequestBody @Valid KickDTO kick,
     @PathVariable UUID id
   ) {
     this.teams.existsById(id);
