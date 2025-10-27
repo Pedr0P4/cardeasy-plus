@@ -4,7 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import ufrn.imd.cardeasy.models.CardList;
+import ufrn.imd.cardeasy.models.Project;
+
+import java.util.List;
 
 @Repository
 public interface CardListsRepository 
-extends JpaRepository<CardList, Integer> {};
+extends JpaRepository<CardList, Integer> {
+  List<CardList> findAllByProject_Id(Integer projectId);
+};
