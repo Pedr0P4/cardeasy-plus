@@ -39,12 +39,6 @@ public class Card {
   @ToString.Exclude
   private CardList list;
 
-  @OneToMany(
-    mappedBy = "card",
-    cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY
-  ) @ToString.Exclude private Set<Tag> tags;
-
   @ManyToMany
   @JoinTable(
     name = "assignments",
@@ -55,4 +49,7 @@ public class Card {
     }
   ) @ToString.Exclude
   private Set<Participation> assigneds;
+
+  @ManyToMany(mappedBy = "cards") @ToString.Exclude
+  private Set<Tag> tags;
 };
