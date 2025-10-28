@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import type { Participation, Role } from "@/services/participations";
+import { Participation, Role } from "@/services/participations";
 import Avatar from "../Avatar";
 import { useEffect, useState } from "react";
 import { Api } from "@/services/api";
@@ -9,17 +9,19 @@ import { ImageData } from "@/services/image";
 import {
   FaCrow,
   FaCrown,
+  FaGear,
   FaIdBadge,
   FaShield,
   FaShieldHalved,
   FaUserShield,
 } from "react-icons/fa6";
 import { Team } from "@/services/teams";
+import TeamMemberContextMenu from "./TeamMemberContextMenu";
 
 interface Props {
   team: Team;
   participation: Participation;
-  role: Role;
+  viewer: Participation;
 }
 
 const icons = {
@@ -28,7 +30,7 @@ const icons = {
   MEMBER: undefined,
 };
 
-export default function TeamMemberItem({ team, participation }: Props) {
+export default function TeamMemberItem({ team, viewer, participation }: Props) {
   const [avatar, setAvatar] = useState<ImageData>();
 
   useEffect(() => {
@@ -39,7 +41,6 @@ export default function TeamMemberItem({ team, participation }: Props) {
       .catch(() => {});
   }, [participation.account.id]);
 
-  // TODO - Expulsar alguém
   // TODO - Questão do nome grande demais
 
   return (
@@ -48,7 +49,7 @@ export default function TeamMemberItem({ team, participation }: Props) {
         className={clsx(
           "bg-base-200 h-22 flex flex-row",
           "items-center justify-start",
-          "rounded-md px-6 py-4 gap-4",
+          "rounded-md px-6 py-4 gap-4 relative",
         )}
       >
         <div className="not-md:hidden">
@@ -58,7 +59,7 @@ export default function TeamMemberItem({ team, participation }: Props) {
             avatar={avatar}
           />
         </div>
-        <div className="flex flex-col justify-start items-start">
+        <div className="flex flex-col justify-start items-start flex-1">
           <div className="flex flex-row gap-1.5 items-center justify-start">
             {icons[participation.role]}
             <h3 className="text-lg font-semibold">
@@ -69,6 +70,7 @@ export default function TeamMemberItem({ team, participation }: Props) {
             {participation.account.email}
           </p>
         </div>
+        <TeamMemberContextMenu viewer={viewer} participation={participation} />
       </div>
     </li>
   );

@@ -66,7 +66,7 @@ export default async function TeamPage({
           <section className="w-full flex flex-col gap-2 p-6">
             <TeamMembers
               participations={participations}
-              role={participation.role}
+              viewer={participation}
               team={participation.team}
             />
           </section>

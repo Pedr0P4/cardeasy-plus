@@ -41,17 +41,19 @@ export default function Header() {
                 avatar={account.avatar}
               />
             </div>
-            <details
+            <div
               className={clsx(
                 "md:absolute dropdown dropdown-end",
                 "bottom-0 right-0 md:translate-x-1/2 md:translate-y-2",
               )}
             >
-              <summary
+              <button
+                tabIndex={0}
+                type="button"
                 className={clsx("btn btn-md md:btn-xs btn-neutral btn-square")}
               >
                 <FaBars />
-              </summary>
+              </button>
               <ul
                 tabIndex={-1}
                 className={clsx(
@@ -75,7 +77,7 @@ export default function Header() {
                   </button>
                 </li>
               </ul>
-            </details>
+            </div>
           </div>
         </div>
       )}

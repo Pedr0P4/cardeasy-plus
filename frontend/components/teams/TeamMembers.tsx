@@ -4,13 +4,13 @@ import TeamMemberItem from "./TeamMembersItem";
 
 interface Props {
   team: Team;
-  role: Role;
+  viewer: Participation;
   participations: Participation[];
 }
 
 const roles = [Role.OWNER, Role.ADMIN, Role.MEMBER];
 
-export default function TeamMembers({ team, role, participations }: Props) {
+export default function TeamMembers({ team, viewer, participations }: Props) {
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {participations
@@ -19,7 +19,7 @@ export default function TeamMembers({ team, role, participations }: Props) {
           return (
             <TeamMemberItem
               key={`${team.id}-${participation.account.id}`}
-              role={role}
+              viewer={viewer}
               team={team}
               participation={participation}
             />
