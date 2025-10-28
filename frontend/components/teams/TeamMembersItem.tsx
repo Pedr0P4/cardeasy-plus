@@ -41,7 +41,10 @@ export default function TeamMemberItem({ team, viewer, participation }: Props) {
       .catch(() => {});
   }, [participation.account.id]);
 
-  // TODO - Questão do nome grande demais
+  // TODO - Tem que ver a questão dos nome grande demais,
+  // sugestão de solução, colocar [...] no final.
+  // Por exemplo: Lucas Marcel Sil...
+  // Quebra de linha não parece legal.
 
   return (
     <li className="w-full" tabIndex={-1}>

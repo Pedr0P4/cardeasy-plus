@@ -29,6 +29,16 @@ export default function TeamMemberContextMenu({
 
   // TODO - Completar métodos
 
+  const onPromoteToAdmin = () => {};
+  const onDemoteToMember = () => {};
+  const onTransferOwnership = () => {};
+  const onKick = () => {};
+
+  // Embora eu tenha colocado separado aqui,
+  // na prática o onExit é um caso específico do
+  // on kick
+  const onExit = () => {};
+
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 
   return (
@@ -44,21 +54,25 @@ export default function TeamMemberContextMenu({
           <>
             {level >= 2 ? (
               <li>
-                <button type="button">
+                <button type="button" onClick={onPromoteToAdmin}>
                   <FaArrowUp />
                   Promover à administrador
                 </button>
               </li>
             ) : (
               <li>
-                <button type="button">
+                <button type="button" onClick={onDemoteToMember}>
                   <FaArrowDown />
                   Rebaixar à membro
                 </button>
               </li>
             )}
             <li>
-              <button type="button" className="text-primary">
+              <button
+                type="button"
+                onClick={onTransferOwnership}
+                className="text-primary"
+              >
                 <FaArrowRightArrowLeft />
                 Tramsferir pose
               </button>
@@ -67,7 +81,7 @@ export default function TeamMemberContextMenu({
         )}
         {level >= 1 && !same && (
           <li>
-            <button type="button" className="text-primary">
+            <button type="button" onClick={onKick} className="text-primary">
               <FaGavel />
               Expulsar do time
             </button>
@@ -75,7 +89,7 @@ export default function TeamMemberContextMenu({
         )}
         {same && !isOnwer && (
           <li>
-            <button type="button" className="text-primary">
+            <button type="button" onClick={onExit} className="text-primary">
               <FaDoorOpen />
               Sair do time
             </button>
