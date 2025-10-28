@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import clsx from "clsx";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { Project } from "@/services/projects";
@@ -34,13 +34,11 @@ export default function TeamProjects({
   role,
   projects: _projects,
 }: Props) {
-  const canAddProject = [Role.ADMIN, Role.OWNER].includes(role);
+  const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
   const [isMounted, setIsMounted] = useState(false);
   const [projects, setProjects] = useState(
     _projects.sort((a, b) => a.index - b.index),
   );
-
-  // TODO - Só pode mover administrador/dono
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -88,7 +86,7 @@ export default function TeamProjects({
           />
         );
       })}
-      {canAddProject && (
+      {isAdmin && (
         <li className="w-full">
           <Link
             href={`/home/teams/${team.id}/projects/create`}
@@ -105,7 +103,7 @@ export default function TeamProjects({
     </ul>
   );
 
-  if (isMounted)
+  if (isMounted && isAdmin)
     return (
       <DndContext
         sensors={sensors}
@@ -117,6 +115,9 @@ export default function TeamProjects({
           items={projects.map((p) => p.id)}
           strategy={rectSortingStrategy}
         >
+          <p className="-mt-1 mb-2 font-thin">
+            Segure, espere um pouco e depois arraste para mudar a ordem.
+          </p>
           {content}
         </SortableContext>
       </DndContext>
