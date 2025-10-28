@@ -11,8 +11,6 @@ interface Props {
 const roles = [Role.OWNER, Role.ADMIN, Role.MEMBER];
 
 export default function TeamMembers({ team, role, participations }: Props) {
-  // TODO - Adicionar kick
-
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {participations

@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
 import Link from "next/link";
-import type { Team } from "@/services/participations";
+import type { Team } from "@/services/teams";
 import type { Project } from "@/services/projects";
 
 interface Props {

@@ -1,7 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import type { Participation, Role, Team } from "@/services/participations";
+import type { Participation, Role } from "@/services/participations";
 import Avatar from "../Avatar";
 import { useEffect, useState } from "react";
 import { Api } from "@/services/api";
@@ -14,6 +14,7 @@ import {
   FaShieldHalved,
   FaUserShield,
 } from "react-icons/fa6";
+import { Team } from "@/services/teams";
 
 interface Props {
   team: Team;
@@ -39,6 +40,7 @@ export default function TeamMemberItem({ team, participation }: Props) {
   }, [participation.account.id]);
 
   // TODO - Expulsar alguém
+  // TODO - Questão do nome grande demais
 
   return (
     <li className="w-full" tabIndex={-1}>
