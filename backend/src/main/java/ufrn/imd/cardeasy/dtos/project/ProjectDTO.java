@@ -8,6 +8,7 @@ import ufrn.imd.cardeasy.models.Project;
 
 public record ProjectDTO(
   Integer id,
+  Long index,
   String title,
   String description,
   UUID team,
@@ -18,6 +19,7 @@ public record ProjectDTO(
   ) {
     return new ProjectDTO(
       project.getId(),
+      project.getIndex(),
       project.getTitle(),
       project.getDescription(),
       project.getTeam().getId(),

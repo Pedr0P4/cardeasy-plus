@@ -26,7 +26,7 @@ public class CardList {
   private Integer id;
 
   @Column(nullable = false)
-  private Integer index;
+  private Long index;
 
   @Column(nullable = false)
   private String title;

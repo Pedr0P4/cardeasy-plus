@@ -101,7 +101,7 @@ export default function CreateTeamPage() {
         />
         <button type="submit" className="btn btn-neutral">
           <FaPencil />
-          Registrar-se
+          Criar
         </button>
       </form>
       {error && (
