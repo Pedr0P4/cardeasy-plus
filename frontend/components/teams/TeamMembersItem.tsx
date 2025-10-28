@@ -6,7 +6,14 @@ import Avatar from "../Avatar";
 import { useEffect, useState } from "react";
 import { Api } from "@/services/api";
 import { ImageData } from "@/services/image";
-import { FaCrow, FaCrown } from "react-icons/fa6";
+import {
+  FaCrow,
+  FaCrown,
+  FaIdBadge,
+  FaShield,
+  FaShieldHalved,
+  FaUserShield,
+} from "react-icons/fa6";
 
 interface Props {
   team: Team;
@@ -14,10 +21,11 @@ interface Props {
   role: Role;
 }
 
-// const icons = {
-//   "OWNER": FaCrown,
-//   "ADMIN": Fa
-// };
+const icons = {
+  OWNER: <FaCrown className="size-5 mb-0.5 text-warning" />,
+  ADMIN: <FaShieldHalved className="size-5 mb-0.5 text-neutral" />,
+  MEMBER: undefined,
+};
 
 export default function TeamMemberItem({ team, participation }: Props) {
   const [avatar, setAvatar] = useState<ImageData>();
@@ -30,11 +38,13 @@ export default function TeamMemberItem({ team, participation }: Props) {
       .catch(() => {});
   }, [participation.account.id]);
 
+  // TODO - Expulsar alguém
+
   return (
     <li className="w-full" tabIndex={-1}>
       <div
         className={clsx(
-          "btn h-22 flex flex-row",
+          "bg-base-200 h-22 flex flex-row",
           "items-center justify-start",
           "rounded-md px-6 py-4 gap-4",
         )}
@@ -47,10 +57,12 @@ export default function TeamMemberItem({ team, participation }: Props) {
           />
         </div>
         <div className="flex flex-col justify-start items-start">
-          <h3 className="text-lg font-semibold">
-            <FaCrown />
-            {participation.account.name}
-          </h3>
+          <div className="flex flex-row gap-1.5 items-center justify-start">
+            {icons[participation.role]}
+            <h3 className="text-lg font-semibold">
+              {participation.account.name}
+            </h3>
+          </div>
           <p className="font-light -mt-1 text-start">
             {participation.account.email}
           </p>

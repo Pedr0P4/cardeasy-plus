@@ -1,6 +1,7 @@
 import type { UUID } from "crypto";
 import type { Account } from "./accounts";
 import { Service } from "./base/services";
+import { Team } from "./teams";
 
 export type Participation = {
   account: Account;
@@ -13,18 +14,6 @@ export enum Role {
   ADMIN = "ADMIN",
   MEMBER = "MEMBER",
 }
-
-export type Team = {
-  id: UUID;
-  title: string;
-  description: string;
-  participations: number;
-};
-
-export type CreateTeamData = {
-  title: string;
-  description: string;
-};
 
 export class ParticipationsService extends Service {
   async get(id: UUID) {

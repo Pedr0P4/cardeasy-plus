@@ -8,6 +8,7 @@ import TabsContext from "@/components/tabs/context/tabsContex";
 import TabButton from "@/components/tabs/TabButton";
 import { Role } from "@/services/teams";
 import TeamMembers from "@/components/teams/TeamMembers";
+import TeamConfiguration from "@/components/teams/TeamConfiguration";
 
 export default async function TeamPage({
   params,
@@ -24,7 +25,7 @@ export default async function TeamPage({
     <main
       className={clsx(
         "h-full w-full bg-base-100 flex flex-col",
-        "items-center justify-center",
+        "items-center justify-start flex-1",
       )}
     >
       <TabsContext initial="projects">
@@ -72,7 +73,12 @@ export default async function TeamPage({
         </Tab>
         {isRole && (
           <Tab name="config">
-            <section className="w-full flex flex-col gap-2 p-6"></section>
+            <section className="w-full h-full flex flex-1 flex-col gap-2">
+              <TeamConfiguration
+                role={participation.role}
+                team={participation.team}
+              />
+            </section>
           </Tab>
         )}
       </TabsContext>
