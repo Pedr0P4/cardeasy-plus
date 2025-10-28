@@ -17,9 +17,9 @@ export default async function TeamSection({ team, role, projects }: Props) {
       <Link
         href={`/home/teams/${team.id}`}
         className={clsx(
-          "btn btn-soft flex flex-row",
+          "btn btn-ghost flex flex-row",
           "gap-2 items-center justify-start",
-          "mr-auto btn-neutral",
+          "mr-auto",
         )}
       >
         <h1 className="font-bold text-xl">{team.title}</h1>

@@ -2338,3 +2338,10 @@ org.h2.jdbc.JdbcSQLNonTransientConnectionException: Database is already closed (
 	at org.apache.tomcat.util.threads.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:493)
 	at org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:63)
 	at java.base/java.lang.Thread.run(Thread.java:1583)
+2025-10-27 20:33:15.659511-03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "  SELECT MIN(pj.index) AS min,\000a  MAX(pj.index) AS max,\000a  [*]FROM project AS pj\000a  WHERE pj.team_id = ?\000a"; expected "*, INTERSECTS (, NOT, EXISTS, UNIQUE, INTERSECTS"; SQL statement:
+  SELECT MIN(pj.index) AS min,
+  MAX(pj.index) AS max,
+  FROM project AS pj
+  WHERE pj.team_id = ?
+ [42001-232]
