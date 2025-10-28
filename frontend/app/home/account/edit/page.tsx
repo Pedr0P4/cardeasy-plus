@@ -100,7 +100,7 @@ export default function EditAccountPage() {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaUserPen className="size-8" />
+        <FaUserPen className="size-6" />
         Editar conta
       </h1>
       <form

@@ -12,7 +12,8 @@ public record TeamDTO(
   String title,
   String description,
   Integer participations,
-  Role role
+  Role role,
+  String code
 ) {
   public static TeamDTO from(Project project) {
     return TeamDTO.from(project.getTeam());
@@ -28,7 +29,8 @@ public record TeamDTO(
       team.getTitle(),
       team.getDescription(),
       participations,
-      Role.ADMIN
+      Role.ADMIN,
+      team.getCode()
     );
   };
 

@@ -21,7 +21,7 @@ export default function Header() {
   };
 
   return (
-    <header className="navbar bg-base-300 shadow-sm px-6 py-4 z-10">
+    <header className="navbar bg-base-300 shadow-sm px-6 py-4">
       <div className="flex-1">
         <p className="text-2xl font-semibold">
           Cardeasy<span className="text-neutral">+</span>

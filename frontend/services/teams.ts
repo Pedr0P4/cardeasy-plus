@@ -20,6 +20,7 @@ export type Team = {
   title: string;
   description: string;
   participations: number;
+  code?: string;
 };
 
 export type CreateTeamData = {
@@ -30,6 +31,10 @@ export type CreateTeamData = {
 export type UpdateTeamData = {
   title: string;
   description: string;
+};
+
+export type GeneratedCode = {
+  code: string;
 };
 
 export class TeamsService extends Service {
@@ -55,6 +60,16 @@ export class TeamsService extends Service {
 
   async delete(id: UUID) {
     return this.api.delete(`/teams/${id}`);
+  }
+
+  async deleteCode(id: UUID) {
+    return this.api.delete(`/teams/${id}/code`);
+  }
+
+  async generateCode(id: UUID) {
+    return this.api
+      .post<GeneratedCode>(`/teams/${id}/code/generate`)
+      .then((res) => res.data.code);
   }
 
   async join(code: string) {

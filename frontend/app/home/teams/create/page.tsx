@@ -63,7 +63,7 @@ export default function CreateTeamPage() {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaPlus className="size-8" />
+        <FaPlus className="size-6" />
         Criar novo time
       </h1>
       <form
