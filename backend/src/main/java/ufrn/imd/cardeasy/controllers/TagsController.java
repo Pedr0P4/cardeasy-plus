@@ -38,7 +38,7 @@ public class TagsController {
 
   @Authenticate
   @PostMapping
-  public ResponseEntity<Tag> create(
+  public ResponseEntity<TagDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateTagDTO tag
   ){
@@ -53,7 +53,7 @@ public class TagsController {
 
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(newTag);
+      .body(TagDTO.from(newTag));
   }
 
   @Authenticate
