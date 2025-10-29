@@ -36,7 +36,7 @@ public class CardService {
             .orElseThrow(CardListNotFound::new);
 
         Card card = new Card();
-        card.setIndex(0);
+        card.setIndex(0l);
         card.setTitle(title);
         card.setList(list);
         card.setDescription(description);
