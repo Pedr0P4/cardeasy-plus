@@ -45,6 +45,9 @@ export default function TeamMemberItem({ team, viewer, participation }: Props) {
   // sugestão de solução, colocar [...] no final.
   // Por exemplo: Lucas Marcel Sil...
   // Quebra de linha não parece legal.
+  if ((null !== participation.account.name) && participation.account.name.length>=33) {
+    participation.account.name = participation.account.name.substring(0,30).concat("...");
+  }
 
   return (
     <li className="w-full" tabIndex={-1}>
