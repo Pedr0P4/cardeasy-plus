@@ -3,7 +3,6 @@ package ufrn.imd.cardeasy.repositories;
 import java.util.List;
 import java.util.UUID;
 
-import org.antlr.v4.runtime.misc.Interval;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,8 +31,8 @@ extends JpaRepository<Project, Integer> {
   @Query(
     // language=sql
     value = """
-      SELECT MIN(pj.index) AS min, 
-      MAX(pj.index) AS max 
+      SELECT COALESCE(MIN(pj.index), 0) AS min, 
+      COALESCE(MAX(pj.index), 0) AS max 
       FROM project AS pj
       WHERE pj.team_id = ?1
     """,
