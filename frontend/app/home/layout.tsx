@@ -20,7 +20,7 @@ export default async function TeamsLayout({
     return (
       <>
         <AccountStoreInitializer account={account} />
-        <div className="flex flex-col w-full sticky top-0">
+        <div className="flex flex-col w-full sticky top-0 z-20">
           {" "}
           <Header />
           {breadcrumbs}

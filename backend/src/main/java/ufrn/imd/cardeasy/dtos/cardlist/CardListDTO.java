@@ -7,12 +7,14 @@ import java.util.List;
 
 public record CardListDTO(
   Integer id,
+  Long index,
   String title,
   ProjectDTO project
 ) {
   public static CardListDTO from(CardList cardList) {
     return new CardListDTO(
       cardList.getId(),
+      cardList.getIndex(),
       cardList.getTitle(),
       ProjectDTO.from(cardList.getProject())
     );

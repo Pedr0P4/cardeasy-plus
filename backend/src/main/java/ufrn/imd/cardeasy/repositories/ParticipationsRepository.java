@@ -12,7 +12,7 @@ import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.models.ParticipationId;
 
 @Repository
-public interface ParticipationsRepository 
+public interface ParticipationsRepository
 extends JpaRepository<Participation, ParticipationId> {
   @Query(
     // language=sql
@@ -87,5 +87,23 @@ extends JpaRepository<Participation, ParticipationId> {
   ) public Optional<Participation> findByAccountAndCardList(
     UUID accountId,
     Integer cardListId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
+      JOIN tag AS tg
+      ON tg.project_id = pj.id
+      WHERE pt.account_id = ?1
+      AND tg.id = ?2
+    """,
+    nativeQuery = true
+  )
+  public Optional<Participation> findByAccountAndTag(
+    UUID accountId,
+    Integer tagId
   );
 };

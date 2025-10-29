@@ -14,6 +14,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import java.util.List;
+import java.util.Set;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -27,7 +29,7 @@ public class Project {
   private Integer id;
 
   @Column(nullable = false)
-  private Integer index;
+  private Long index;
 
   @Column(nullable = false)
   private String title;
@@ -40,7 +42,7 @@ public class Project {
   @ManyToOne(fetch = FetchType.LAZY)
   @ToString.Exclude
   private Team team;
-  
+
   @JoinColumn(name = "budget_id", nullable = true)
   @OneToOne(
     fetch = FetchType.LAZY,
@@ -56,7 +58,7 @@ public class Project {
     fetch = FetchType.LAZY
   ) @ToString.Exclude
   private List<Stage> stages;
-  
+
   @OrderBy("index")
   @OneToMany(
     mappedBy = "project",
@@ -64,4 +66,12 @@ public class Project {
     fetch = FetchType.LAZY
   ) @ToString.Exclude
   private List<CardList> lists;
+
+  @OneToMany(
+    mappedBy = "project",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true,
+    fetch = FetchType.LAZY
+  ) @ToString.Exclude
+  private Set<Tag> tags;
 };

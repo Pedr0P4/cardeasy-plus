@@ -3,11 +3,13 @@ package ufrn.imd.cardeasy.repositories;
 import java.util.List;
 import java.util.UUID;
 
+import org.antlr.v4.runtime.misc.Interval;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.models.Project;
 
 @Repository
@@ -25,6 +27,19 @@ extends JpaRepository<Project, Integer> {
   ) public void deleteByTeamAndId(
     UUID teamId,
     Integer id
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT MIN(pj.index) AS min, 
+      MAX(pj.index) AS max 
+      FROM project AS pj
+      WHERE pj.team_id = ?1
+    """,
+    nativeQuery = true
+  ) public IntervalDTO getIndexIntervalByTeam(
+    UUID teamId
   );
 
   @Query(

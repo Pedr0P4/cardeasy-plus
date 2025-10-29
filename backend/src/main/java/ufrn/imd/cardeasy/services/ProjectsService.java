@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.transaction.Transactional;
+import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.errors.InvalidSwap;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
@@ -37,8 +37,15 @@ public class ProjectsService {
     Team team = this.teams.findById(teamId)
       .orElseThrow(TeamNotFound::new);
 
+    IntervalDTO interval = this.projects.getIndexIntervalByTeam(teamId);
+
     Project project = new Project();
-    project.setIndex(team.getProjects().size());
+    
+    if(interval.min() > 1) 
+      project.setIndex(interval.min() - 1);
+    else 
+      project.setIndex(interval.max() + 1);
+    
     project.setTeam(team);
     project.setTitle(title);
     project.setDescription(description);
@@ -89,15 +96,15 @@ public class ProjectsService {
     if (
       !first.getTeam().getId().equals(second.getTeam().getId())
     ) throw new InvalidSwap();
-
-
-    Integer firstIndex = first.getIndex();
-    Integer secondIndex = second.getIndex();
+    
+    Long firstIndex = first.getIndex();
+    Long secondIndex = second.getIndex();
 
     first.setIndex(secondIndex);
     second.setIndex(firstIndex);
 
-    this.projects.save(first);
-    this.projects.save(second);
+    this.projects.saveAll(
+      List.of(first, second)
+    );
   };
 };

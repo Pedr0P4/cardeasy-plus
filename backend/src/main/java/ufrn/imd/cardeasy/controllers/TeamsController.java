@@ -141,6 +141,7 @@ public class TeamsController {
     this.teams.existsById(id);
 
     this.participations.checkAccess(
+      Role.ADMIN,
       account.getId(), 
       id
     );

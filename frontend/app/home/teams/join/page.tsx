@@ -57,7 +57,7 @@ export default function CreateTeamPage() {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaDungeon className="size-8" />
+        <FaDungeon className="size-6" />
         Entrar por código
       </h1>
       <form

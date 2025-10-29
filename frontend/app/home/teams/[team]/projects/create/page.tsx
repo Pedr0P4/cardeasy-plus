@@ -14,19 +14,17 @@ import {
 import Input from "@/components/Input";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import type { CreateTeamData } from "@/services/teams";
+import type { CreateProjectData } from "@/services/projects";
 
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
 
-  // TODO - Criar página de criar projeto
-  // (abaixo dessa linha é só control+c da página de criar time)
-
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [data, setData] = useState<CreateTeamData>({
+  const [data, setData] = useState<CreateProjectData>({
     title: "",
     description: "",
+    team,
   });
 
   const onSubmit = async (e: FormEvent) => {
@@ -34,8 +32,8 @@ export default function CreateProjectPage() {
     setError("");
     setErrors({});
 
-    const team = await Api.client()
-      .teams()
+    const project = await Api.client()
+      .projects()
       .create(data)
       .catch((err: ApiErrorResponse) => {
         if (err.isValidationError()) setErrors(err.errors);
@@ -44,7 +42,7 @@ export default function CreateProjectPage() {
         return undefined;
       });
 
-    if (team) redirect(`/home/teams/${team.id}`);
+    if (project) redirect(`/home/teams/${team}/projects/${project.id}`);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -69,8 +67,8 @@ export default function CreateProjectPage() {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaPlus className="size-8" />
-        Criar novo time
+        <FaPlus className="size-6" />
+        Criar novo projeto
       </h1>
       <form
         onSubmit={onSubmit}
@@ -107,7 +105,7 @@ export default function CreateProjectPage() {
         />
         <button type="submit" className="btn btn-neutral">
           <FaPencil />
-          Registrar-se
+          Criar
         </button>
       </form>
       {error && (

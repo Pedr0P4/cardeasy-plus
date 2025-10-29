@@ -28,7 +28,7 @@ export default async function HomePage() {
         "items-center justify-center gap-6 p-6",
       )}
     >
-      <section className="w-full flex flex-row gap-2">
+      <section className="w-full flex flex-row flex-wrap gap-2">
         <Link href="/home/teams/create" className="btn btn-neutral">
           <FaPlus />
           Criar novo time

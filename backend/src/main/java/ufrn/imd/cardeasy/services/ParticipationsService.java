@@ -29,7 +29,7 @@ public class ParticipationsService {
   };
 
   public Participation findById(
-    UUID accountId, 
+    UUID accountId,
     UUID teamId
   ) {
     ParticipationId id = new ParticipationId();
@@ -50,7 +50,7 @@ public class ParticipationsService {
   };
 
   public Participation findByAccountAndStage(
-    UUID accountId, 
+    UUID accountId,
     Integer stageId
   ) {
     return this.participations
@@ -76,12 +76,21 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
+  public Participation findByAccountAndTag(
+    UUID accountId,
+    Integer tagId
+  ){
+    return this.participations
+      .findByAccountAndTag(accountId, tagId)
+      .orElseThrow(ParticipationNotFound::new);
+  }
+
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {
     Participation participation = this.findById(accountId, teamId);
 
-    if (!participation.getRole().hasAccessOf(role)) 
+    if (!participation.getRole().hasAccessOf(role))
       throw new Forbidden();
-    
+
     return participation;
   };
 
@@ -95,26 +104,26 @@ public class ParticipationsService {
       projectId
     );
 
-    if (!participation.getRole().hasAccessOf(role)) 
+    if (!participation.getRole().hasAccessOf(role))
       throw new Forbidden();
-    
+
     return participation;
   };
 
   public Participation checkProjectAccess(
-    UUID accountId, 
+    UUID accountId,
     Integer projectId
   ) {
     return this.checkProjectAccess(
-      Role.MEMBER, 
-      accountId, 
+      Role.MEMBER,
+      accountId,
       projectId
     );
   };
 
   public Participation checkStageAccess(
-    Role role, 
-    UUID accountId, 
+    Role role,
+    UUID accountId,
     Integer stageId
   ) {
     Participation participation = this.findByAccountAndStage(
@@ -122,26 +131,26 @@ public class ParticipationsService {
       stageId
     );
 
-    if (!participation.getRole().hasAccessOf(role)) 
+    if (!participation.getRole().hasAccessOf(role))
       throw new Forbidden();
-    
+
     return participation;
   };
 
   public Participation checkStageAccess(
-    UUID accountId, 
+    UUID accountId,
     Integer stageId
   ) {
     return this.checkStageAccess(
-      Role.MEMBER, 
-      accountId, 
+      Role.MEMBER,
+      accountId,
       stageId
     );
   };
 
   public Participation checkBudgetAccess(
-    Role role, 
-    UUID accountId, 
+    Role role,
+    UUID accountId,
     Integer budgetId
   ) {
     Participation participation = this.findByAccountAndBudget(
@@ -158,19 +167,19 @@ public class ParticipationsService {
   };
 
   public Participation checkBudgetAccess(
-    UUID accountId, 
+    UUID accountId,
     Integer stageId
   ) {
     return this.checkStageAccess(
-      Role.MEMBER, 
-      accountId, 
+      Role.MEMBER,
+      accountId,
       stageId
     );
   };
 
   public Participation checkCardListAccess(
-    Role role, 
-    UUID accountId, 
+    Role role,
+    UUID accountId,
     Integer cardListId
   ) {
     Participation participation = this.findByAccountAndCardList(
@@ -187,13 +196,38 @@ public class ParticipationsService {
   };
 
   public Participation checkCardListAccess(
-    UUID accountId, 
+    UUID accountId,
     Integer cardListId
   ) {
     return this.checkStageAccess(
-      Role.MEMBER, 
-      accountId, 
+      Role.MEMBER,
+      accountId,
       cardListId
     );
   };
+
+  public Participation checkTagAccess(
+    Role role,
+    UUID accountId,
+    Integer tagId
+  ){
+    Participation participation = this.findByAccountAndTag(accountId, tagId);
+    if(
+      !participation.getRole()
+        .hasAccessOf(role)
+    ) throw new Forbidden();
+
+    return participation;
+  }
+
+  public Participation checkTagAccess(
+    UUID accountId,
+    Integer tagId
+  ){
+    return this.checkTagAccess(
+      Role.MEMBER,
+      accountId,
+      tagId
+    );
+  }
 };
