@@ -1,10 +1,12 @@
 package ufrn.imd.cardeasy.services;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import jakarta.transaction.Transactional;
 import ufrn.imd.cardeasy.errors.InvalidSwap;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
