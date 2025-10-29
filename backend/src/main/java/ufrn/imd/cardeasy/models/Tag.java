@@ -36,7 +36,7 @@ public class Tag {
   @JoinTable(
     name = "tag_card",
     joinColumns = @JoinColumn(name = "tag_id"),
-    inverseJoinColumns = @JoinColumn(name = "card_id")
+    inverseJoinColumns = @JoinColumn(name = "card_id", nullable = true)
   ) @ToString.Exclude
   private Set<Card> cards;
 };
