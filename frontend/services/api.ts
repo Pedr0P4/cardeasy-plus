@@ -15,6 +15,7 @@ import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
 import { TeamsService } from "./teams";
+import { BudgetsService } from "./budgets";
 
 export class Api {
   constructor(
@@ -85,6 +86,14 @@ export class Api {
 
   public projects() {
     return new ProjectsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public budgets() {
+    return new BudgetsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,

@@ -5,9 +5,11 @@ import java.sql.Date;
 import jakarta.validation.constraints.*;
 
 public record UpdateBudgetDTO(
+  @NotNull
   @Min(0)
   Double minValue,
 
+  @NotNull
   @Min(0)
   Double maxValue,
 

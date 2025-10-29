@@ -19,7 +19,7 @@ export default async function TeamPage({
   const participation = await Api.server().participations().get(teamId);
   const participations = await Api.server().teams().participations(teamId);
   const projects = await Api.server().teams().projects(teamId);
-  const isRole = participation.role === Role.OWNER;
+  const isOwner = participation.role === Role.OWNER;
 
   return (
     <main
@@ -46,7 +46,7 @@ export default async function TeamPage({
             <TabButton name="members">
               <FaUserGroup className="size-4 me-2" /> Membros
             </TabButton>
-            {isRole && (
+            {isOwner && (
               <TabButton name="config">
                 <FaGear className="size-4 me-2" /> Configurações
               </TabButton>
@@ -71,7 +71,7 @@ export default async function TeamPage({
             />
           </section>
         </Tab>
-        {isRole && (
+        {isOwner && (
           <Tab name="config">
             <section className="w-full h-full flex flex-1 flex-col gap-2">
               <TeamConfiguration
