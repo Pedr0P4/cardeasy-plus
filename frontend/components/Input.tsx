@@ -5,6 +5,7 @@ import {
   type ChangeEvent,
   type DetailedHTMLProps,
   type InputHTMLAttributes,
+  SelectHTMLAttributes,
   type TextareaHTMLAttributes,
   useId,
 } from "react";
@@ -22,6 +23,12 @@ interface TextareaProps
     HTMLTextAreaElement
   > {}
 
+interface SelectProps
+  extends DetailedHTMLProps<
+    SelectHTMLAttributes<HTMLSelectElement>,
+    HTMLSelectElement
+  > {}
+
 type Props = {
   optional?: boolean;
   onChangeOptional?: (event: ChangeEvent<HTMLInputElement>) => void;
@@ -34,6 +41,9 @@ type Props = {
   | ({
       type: "textarea";
     } & TextareaProps)
+  | ({
+      type: "select";
+    } & SelectProps)
   | InputProps
 );
 
@@ -98,6 +108,21 @@ export default function Input({
               )}
               {...(props as TextareaProps)}
             />
+          </label>
+        ) : type === "select" ? (
+          <label
+            className={clsx("select w-full", message && "validator", className)}
+            aria-invalid={message ? true : undefined}
+          >
+            {Icon && <Icon className={clsx(message && "text-error")} />}
+            <select
+              id={inputId}
+              aria-invalid={message ? true : undefined}
+              name={name}
+              disabled={disabled}
+              className={clsx("!ml-0 !pl-0.5", className)}
+              {...(props as SelectProps)}
+            />{" "}
           </label>
         ) : (
           <label
