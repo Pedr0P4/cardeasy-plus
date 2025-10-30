@@ -14,6 +14,7 @@ import Tab from "@/components/tabs/Tab";
 import TabButton from "@/components/tabs/TabButton";
 import { Api } from "@/services/api";
 import { Role } from "@/services/teams";
+import Link from "next/link";
 
 export default async function ProjectPage({
   params,
@@ -102,7 +103,9 @@ export default async function ProjectPage({
           <section className="w-full flex flex-col gap-2 p-6"></section>
         </Tab>
         <Tab name="stages">
-          <section className="w-full flex flex-col gap-2 p-6"></section>
+          <section className="w-full flex flex-col gap-2 p-6">
+            <Link href={`/home/teams/${teamId}/projects/${projectId}/stages/add`}>Adicionar etapa</Link>
+          </section>
         </Tab>
         {isAdmin && (
           <Tab name="config">
