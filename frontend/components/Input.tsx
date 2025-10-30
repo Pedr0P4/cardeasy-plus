@@ -5,11 +5,12 @@ import {
   type ChangeEvent,
   type DetailedHTMLProps,
   type InputHTMLAttributes,
-  SelectHTMLAttributes,
+  type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
   useId,
 } from "react";
 import type { IconType } from "react-icons";
+import DateInput, { type DateInputProps } from "./DateInput";
 
 interface InputProps
   extends DetailedHTMLProps<
@@ -30,7 +31,9 @@ interface SelectProps
   > {}
 
 type Props = {
+  name?: string;
   optional?: boolean;
+  disabled?: boolean;
   onChangeOptional?: (event: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   error?: string;
@@ -44,6 +47,11 @@ type Props = {
   | ({
       type: "select";
     } & SelectProps)
+  | ({
+      type: "day";
+      selected?: Date;
+      onSelect: (date: Date) => void;
+    } & DateInputProps)
   | InputProps
 );
 
@@ -124,6 +132,14 @@ export default function Input({
               {...(props as SelectProps)}
             />{" "}
           </label>
+        ) : type === "day" ? (
+          <DateInput
+            id={inputId}
+            icon={Icon}
+            disabled={disabled}
+            message={message}
+            {...(props as DateInputProps)}
+          />
         ) : (
           <label
             className={clsx("input w-full", message && "validator", className)}

@@ -1,7 +1,7 @@
 import type { UUID } from "crypto";
 import type { Account } from "./accounts";
 import { Service } from "./base/services";
-import { Team } from "./teams";
+import type { Team } from "./teams";
 
 export type Participation = {
   account: Account;

@@ -1,14 +1,14 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import { FaDiagramProject, FaGear, FaUserGroup } from "react-icons/fa6";
+import TabsContext from "@/components/tabs/context/tabsContex";
+import Tab from "@/components/tabs/Tab";
+import TabButton from "@/components/tabs/TabButton";
+import TeamConfiguration from "@/components/teams/TeamConfiguration";
+import TeamMembers from "@/components/teams/TeamMembers";
 import TeamProjects from "@/components/teams/TeamProjects";
 import { Api } from "@/services/api";
-import { FaDiagramProject, FaGear, FaUserGroup } from "react-icons/fa6";
-import Tab from "@/components/tabs/Tab";
-import TabsContext from "@/components/tabs/context/tabsContex";
-import TabButton from "@/components/tabs/TabButton";
 import { Role } from "@/services/teams";
-import TeamMembers from "@/components/teams/TeamMembers";
-import TeamConfiguration from "@/components/teams/TeamConfiguration";
 
 export default async function TeamPage({
   params,

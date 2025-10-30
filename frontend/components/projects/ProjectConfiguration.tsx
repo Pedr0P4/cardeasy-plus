@@ -1,8 +1,8 @@
-import { Project } from "@/services/projects";
-import { Role } from "@/services/teams";
 import clsx from "clsx";
-import EditProjectFormSection from "./EditProjectFormSection";
+import type { Project } from "@/services/projects";
+import type { Role } from "@/services/teams";
 import BudgetFormSection from "./BudgetFormSection";
+import EditProjectFormSection from "./EditProjectFormSection";
 
 interface Props {
   project: Project;

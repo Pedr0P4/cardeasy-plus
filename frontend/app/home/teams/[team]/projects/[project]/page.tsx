@@ -1,10 +1,6 @@
-import TabsContext from "@/components/tabs/context/tabsContex";
-import Tab from "@/components/tabs/Tab";
-import TabButton from "@/components/tabs/TabButton";
-import { Api } from "@/services/api";
-import { Role } from "@/services/teams";
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import { format } from "date-fns";
 import {
   FaCalendarDay,
   FaCalendarDays,
@@ -12,8 +8,12 @@ import {
   FaTimeline,
   FaTrello,
 } from "react-icons/fa6";
-import { format } from "date-fns";
 import ProjectConfiguration from "@/components/projects/ProjectConfiguration";
+import TabsContext from "@/components/tabs/context/tabsContex";
+import Tab from "@/components/tabs/Tab";
+import TabButton from "@/components/tabs/TabButton";
+import { Api } from "@/services/api";
+import { Role } from "@/services/teams";
 
 export default async function ProjectPage({
   params,

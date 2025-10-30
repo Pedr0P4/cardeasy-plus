@@ -1,4 +1,3 @@
-import { Participation, Role } from "@/services/teams";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -7,6 +6,7 @@ import {
   FaGavel,
   FaGear,
 } from "react-icons/fa6";
+import { type Participation, Role } from "@/services/teams";
 
 interface Props {
   viewer: Participation;

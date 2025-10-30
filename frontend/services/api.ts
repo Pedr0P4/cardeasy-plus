@@ -11,11 +11,11 @@ import {
 import { AccountsService } from "./accounts";
 import { Axios } from "./base/axios";
 import { client } from "./base/client";
+import { BudgetsService } from "./budgets";
 import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
 import { TeamsService } from "./teams";
-import { BudgetsService } from "./budgets";
 
 export class Api {
   constructor(

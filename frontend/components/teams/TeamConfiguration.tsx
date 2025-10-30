@@ -1,5 +1,5 @@
-import { Role, Team } from "@/services/teams";
 import clsx from "clsx";
+import type { Role, Team } from "@/services/teams";
 import EditTeamFormSection from "./EditTeamFormSection";
 import InviteCodeTeamFormSection from "./InviteCodeTeamFormSection";
 

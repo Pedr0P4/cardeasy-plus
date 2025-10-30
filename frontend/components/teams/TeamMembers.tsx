@@ -1,5 +1,5 @@
+import type { Participation } from "@/services/participations";
 import { Role, type Team } from "@/services/teams";
-import { Participation } from "@/services/participations";
 import TeamMemberItem from "./TeamMembersItem";
 
 interface Props {

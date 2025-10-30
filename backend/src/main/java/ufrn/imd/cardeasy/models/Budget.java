@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import java.sql.Date;
 import lombok.Data;
@@ -34,7 +35,8 @@ public class Budget {
   @Column(nullable = true)
   private Date deadline;
 
-  @OneToOne(mappedBy = "budget", fetch = FetchType.LAZY)
+  @JoinColumn(name = "project_id", nullable = false)
+  @OneToOne(fetch = FetchType.LAZY)
   @ToString.Exclude
   private Project project;
 };

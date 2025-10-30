@@ -1,11 +1,7 @@
 "use client";
 
 import clsx from "clsx";
-import { Participation, Role } from "@/services/participations";
-import Avatar from "../Avatar";
 import { useEffect, useState } from "react";
-import { Api } from "@/services/api";
-import { ImageData } from "@/services/image";
 import {
   FaCrow,
   FaCrown,
@@ -15,7 +11,11 @@ import {
   FaShieldHalved,
   FaUserShield,
 } from "react-icons/fa6";
-import { Team } from "@/services/teams";
+import { Api } from "@/services/api";
+import type { ImageData } from "@/services/image";
+import { type Participation, Role } from "@/services/participations";
+import type { Team } from "@/services/teams";
+import Avatar from "../Avatar";
 import TeamMemberContextMenu from "./TeamMemberContextMenu";
 
 interface Props {
@@ -45,8 +45,13 @@ export default function TeamMemberItem({ team, viewer, participation }: Props) {
   // sugestão de solução, colocar [...] no final.
   // Por exemplo: Lucas Marcel Sil...
   // Quebra de linha não parece legal.
-  if ((null !== participation.account.name) && participation.account.name.length>=33) {
-    participation.account.name = participation.account.name.substring(0,30).concat("...");
+  if (
+    null !== participation.account.name &&
+    participation.account.name.length >= 33
+  ) {
+    participation.account.name = participation.account.name
+      .substring(0, 30)
+      .concat("...");
   }
 
   return (

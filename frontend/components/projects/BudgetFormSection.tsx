@@ -1,12 +1,10 @@
 "use client";
 
-import { Api } from "@/services/api";
-import { ApiErrorResponse } from "@/services/base/axios";
-import { Role } from "@/services/teams";
 import clsx from "clsx";
 import { redirect } from "next/navigation";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
 import {
+  FaCalendarDay,
   FaCheck,
   FaClipboardList,
   FaCoins,
@@ -20,9 +18,12 @@ import {
   FaTriangleExclamation,
   FaX,
 } from "react-icons/fa6";
+import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
+import type { UpdateBudgetData } from "@/services/budgets";
+import { type Project, UpdateProjectData } from "@/services/projects";
+import { Role } from "@/services/teams";
 import Input from "../Input";
-import { Project, UpdateProjectData } from "@/services/projects";
-import { UpdateBudgetData } from "@/services/budgets";
 
 interface Props {
   project: Project;
@@ -32,6 +33,7 @@ export default function BudgetFormSection({ project }: Props) {
   const [hasBudget, setHasBudget] = useState<boolean>(!!project.budget);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
+  const [withDeadline, setWithDeadline] = useState(!!project.budget?.deadline);
   const [data, setData] = useState<UpdateBudgetData>({
     currency: project.budget?.currency ?? "BRL",
     minValue: project.budget?.minValue ?? 0,
@@ -39,13 +41,27 @@ export default function BudgetFormSection({ project }: Props) {
     deadline: project.budget?.deadline,
   });
 
-  // TODO - Colocar o input de data (deadline)
-  // TODO - Alterar input de quantia (estou pensando em receber como texto msm
-  // e formatar dentro), lembrar do numeric keyboard
-  // TODO - Ver questão de formatação dos erros
+  const formatter = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: data.currency,
+    minimumFractionDigits: 2,
+  });
+
+  const formattedMinValue = useMemo(
+    () => formatter.format(data.minValue),
+    [data.minValue, formatter],
+  );
+  const formattedMaxValue = useMemo(
+    () => formatter.format(data.maxValue),
+    [data.minValue, formatter],
+  );
 
   const onAddBudget = () => {
     setHasBudget(true);
+  };
+
+  const onChangeWithDeadline = (e: ChangeEvent<HTMLInputElement>) => {
+    setWithDeadline(e.target.checked);
   };
 
   const onDeleteBudget = async (e: FormEvent) => {
@@ -59,8 +75,8 @@ export default function BudgetFormSection({ project }: Props) {
     }
 
     const success = await Api.client()
-      .projects()
-      .delete(project.id)
+      .budgets()
+      .delete(project.budget.id)
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isErrorResponse()) setError(err.error);
@@ -68,7 +84,10 @@ export default function BudgetFormSection({ project }: Props) {
         return false;
       });
 
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
+    if (success) {
+      setHasBudget(false);
+      redirect(`/home/teams/${project.team}/projects/${project.id}`);
+    }
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -79,9 +98,13 @@ export default function BudgetFormSection({ project }: Props) {
     let success = false;
 
     if (project?.budget) {
+      console.log(withDeadline);
       success = await Api.client()
         .budgets()
-        .update(project.budget.id, data)
+        .update(project.budget.id, {
+          ...data,
+          deadline: withDeadline ? data.deadline : undefined,
+        })
         .then(() => true)
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -92,7 +115,11 @@ export default function BudgetFormSection({ project }: Props) {
     } else {
       success = await Api.client()
         .budgets()
-        .create({ ...data, project: project.id })
+        .create({
+          ...data,
+          deadline: withDeadline ? data.deadline : undefined,
+          project: project.id,
+        })
         .then(() => true)
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -110,6 +137,27 @@ export default function BudgetFormSection({ project }: Props) {
       ...data,
       [e.target.name]: e.target.value,
     }));
+
+  const onChangeDeadline = (date?: Date) =>
+    setData((data) => ({
+      ...data,
+      deadline: date ? date.getTime() : undefined,
+    }));
+
+  const onChangeCurrency = (e: ChangeEvent<HTMLInputElement>) => {
+    const digits = e.target.value.replace(/\D/g, "");
+    if (!digits) {
+      setData((data) => ({
+        ...data,
+        [e.target.name]: 0,
+      }));
+    } else {
+      setData((data) => ({
+        ...data,
+        [e.target.name]: parseFloat(digits) / 100,
+      }));
+    }
+  };
 
   return (
     <>
@@ -168,24 +216,41 @@ export default function BudgetFormSection({ project }: Props) {
             </Input>
             <Input
               name="minValue"
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="Verba mínima"
               label="Verba mínima"
               icon={FaCoins}
-              value={data.minValue}
-              onChange={onChange}
+              value={formattedMinValue}
+              onChange={onChangeCurrency}
               errors={errors}
               error={error}
               hiddenError={!!error}
             />
             <Input
               name="maxValue"
-              type="number"
+              type="text"
+              inputMode="numeric"
               placeholder="Verba máxima"
               label="Verba máxima"
               icon={FaCoins}
-              value={data.maxValue}
-              onChange={onChange}
+              value={formattedMaxValue}
+              onChange={onChangeCurrency}
+              errors={errors}
+              error={error}
+              hiddenError={!!error}
+            />
+            <Input
+              name="deadline"
+              type="day"
+              optional
+              disabled={!withDeadline}
+              onChangeOptional={onChangeWithDeadline}
+              placeholder="Prazo de conclusão"
+              label="Com prazo de conclusão"
+              icon={FaCalendarDay}
+              selected={data.deadline ? new Date(data.deadline) : undefined}
+              onSelect={onChangeDeadline}
               errors={errors}
               error={error}
               hiddenError={!!error}
@@ -245,8 +310,8 @@ export default function BudgetFormSection({ project }: Props) {
         <div
           role="alert"
           className={clsx(
-            "alert alert-error alert-soft w-xs",
-            "not-sm:w-full not-sm:rounded-none",
+            "alert alert-error alert-soft",
+            "w-full rounded-none sm:px-6",
           )}
         >
           <FaTriangleExclamation className="size-4 -mr-1" />

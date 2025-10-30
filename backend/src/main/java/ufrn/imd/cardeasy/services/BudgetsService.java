@@ -4,6 +4,7 @@ import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ufrn.imd.cardeasy.errors.BudgetNotFound;
+import ufrn.imd.cardeasy.errors.MaxSmallerThanMin;
 import ufrn.imd.cardeasy.errors.ProjectBudgetAlreadyExists;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.models.Budget;
@@ -38,6 +39,9 @@ public class BudgetsService {
 
     if (project.getBudget() != null) 
       throw new ProjectBudgetAlreadyExists();
+    
+    if(minValue > maxValue) 
+      throw new MaxSmallerThanMin();
 
     Budget budget = new Budget();
     budget.setMinValue(minValue);
@@ -66,6 +70,10 @@ public class BudgetsService {
     Date deadline
   ) {
     Budget budget = this.findById(id);
+
+    if(minValue > maxValue) 
+      throw new MaxSmallerThanMin();
+
     budget.setMinValue(minValue);
     budget.setMaxValue(maxValue);
     budget.setCurrency(currency);

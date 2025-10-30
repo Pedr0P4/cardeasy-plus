@@ -1,12 +1,9 @@
 "use client";
 
-import { Api } from "@/services/api";
-import { ApiErrorResponse } from "@/services/base/axios";
-import { Role, Team, UpdateTeamData } from "@/services/teams";
 import clsx from "clsx";
-import { UUID } from "crypto";
+import type { UUID } from "crypto";
 import { redirect } from "next/navigation";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
   FaClipboardList,
   FaFloppyDisk,
@@ -15,6 +12,9 @@ import {
   FaTriangleExclamation,
   FaUsersGear,
 } from "react-icons/fa6";
+import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
+import { Role, type Team, type UpdateTeamData } from "@/services/teams";
 import Input from "../Input";
 
 interface Props {
@@ -146,8 +146,8 @@ export default function EditTeamFormSection({ team, role }: Props) {
         <div
           role="alert"
           className={clsx(
-            "alert alert-error alert-soft w-xs",
-            "not-sm:w-full not-sm:rounded-none",
+            "alert alert-error alert-soft",
+            "w-full rounded-none sm:px-6",
           )}
         >
           <FaTriangleExclamation className="size-4 -mr-1" />
