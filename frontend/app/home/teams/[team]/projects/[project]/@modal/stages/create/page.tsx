@@ -1,10 +1,10 @@
 import type { UUID } from "crypto";
-import { Api } from "@/services/api";
 import Link from "next/link";
 import { FaX } from "react-icons/fa6";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
+import { Api } from "@/services/api";
 
-export default async function AddStageModal({
+export default async function CreateStageModal({
   params,
 }: Readonly<{
   params: Promise<{ team: UUID; project: string }>;
@@ -20,7 +20,7 @@ export default async function AddStageModal({
   return (
     <dialog open className="modal">
       <div className="modal-box flex flex-col gap-4">
-        <CloseButtonParallelRoute/>
+        <CloseButtonParallelRoute />
       </div>
     </dialog>
   );

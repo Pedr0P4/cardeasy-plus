@@ -21,8 +21,7 @@ import {
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { UpdateBudgetData } from "@/services/budgets";
-import { type Project, UpdateProjectData } from "@/services/projects";
-import { Role } from "@/services/teams";
+import type { Project } from "@/services/projects";
 import Input from "../Input";
 
 interface Props {

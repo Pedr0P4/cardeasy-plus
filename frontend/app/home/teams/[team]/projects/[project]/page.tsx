@@ -1,6 +1,7 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import { format } from "date-fns";
+import Link from "next/link";
 import {
   FaCalendarDay,
   FaCalendarDays,
@@ -9,12 +10,12 @@ import {
   FaTrello,
 } from "react-icons/fa6";
 import ProjectConfiguration from "@/components/projects/ProjectConfiguration";
+import ProjectStages from "@/components/projects/ProjectStages";
 import TabsContext from "@/components/tabs/context/tabsContex";
 import Tab from "@/components/tabs/Tab";
 import TabButton from "@/components/tabs/TabButton";
 import { Api } from "@/services/api";
 import { Role } from "@/services/teams";
-import Link from "next/link";
 
 export default async function ProjectPage({
   params,
@@ -28,9 +29,10 @@ export default async function ProjectPage({
     .projects()
     .get(Number.parseInt(projectId, 10));
 
-  // TODO - Remover budget
-  // TODO - Adicionar budget
-  // TODO - Editar budget
+  const stages = await Api.server()
+    .projects()
+    .stages(Number.parseInt(projectId, 10));
+
   // TODO - Adicionar stage
   // TODO - Editar stage
   // TODO - Remover stage
@@ -104,7 +106,11 @@ export default async function ProjectPage({
         </Tab>
         <Tab name="stages">
           <section className="w-full flex flex-col gap-2 p-6">
-            <Link href={`/home/teams/${teamId}/projects/${projectId}/stages/add`}>Adicionar etapa</Link>
+            <ProjectStages
+              project={project}
+              role={participation.role}
+              stages={stages}
+            />
           </section>
         </Tab>
         {isAdmin && (
