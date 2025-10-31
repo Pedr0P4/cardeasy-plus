@@ -1,4 +1,4 @@
-export default function ProjectLayout({
+export default function TeamLayout({
   children,
   modal,
 }: Readonly<{

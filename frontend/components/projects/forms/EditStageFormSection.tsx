@@ -1,53 +1,53 @@
 "use client";
 
 import clsx from "clsx";
-import type { UUID } from "crypto";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
 import {
+  FaCalendarDay,
   FaClipboardList,
   FaFloppyDisk,
   FaPenClip,
+  FaPenRuler,
   FaTrash,
   FaTriangleExclamation,
-  FaUsersGear,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { Role, type Team, type UpdateTeamData } from "@/services/teams";
-import Input from "../Input";
+import type { Project } from "@/services/projects";
+import type { Stage, UpdateStageDTO } from "@/services/stages";
+import Input from "../../Input";
 
 interface Props {
-  team: Team;
-  role: Role;
+  project: Project;
+  stage: Stage;
 }
 
-export default function EditTeamFormSection({ team, role }: Props) {
-  const isOwner = role === Role.OWNER;
-
+export default function EditStageFormSection({ project, stage }: Props) {
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [data, setData] = useState<UpdateTeamData>({
-    title: team.title,
-    description: team.description,
+  const [withExpectedEndIn, setWithExpectedEndIn] = useState(
+    !!stage.expectedEndIn,
+  );
+  const [data, setData] = useState<UpdateStageDTO>({
+    name: stage.name,
+    current: stage.current,
+    description: stage.description,
+    expectedStartIn: stage.expectedStartIn,
+    expectedEndIn: stage.expectedEndIn,
   });
 
-  const onDeleteTeam = async (e: FormEvent) => {
-    e.preventDefault();
+  const onDeleteStage = async () => {
     setError("");
     setErrors({});
 
     const success = await Api.client()
-      .teams()
-      .delete(team.id as UUID)
+      .stages()
+      .delete(stage.id)
       .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      });
+      .catch(() => false);
 
-    if (success) redirect("/home");
+    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -56,8 +56,11 @@ export default function EditTeamFormSection({ team, role }: Props) {
     setErrors({});
 
     const success = await Api.client()
-      .teams()
-      .update(team.id as UUID, data)
+      .stages()
+      .update(stage?.id, {
+        ...data,
+        expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+      })
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isValidationError()) setErrors(err.errors);
@@ -66,14 +69,30 @@ export default function EditTeamFormSection({ team, role }: Props) {
         return false;
       });
 
-    if (success) redirect(`/home/teams/${team.id}`);
+    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
   };
+
+  const onChangeExpectedStartIn = (date?: Date) =>
+    setData((data) => ({
+      ...data,
+      expectedStartIn: date ? date.getTime() : undefined,
+    }));
+
+  const onChangeExpectedEndIn = (date?: Date) =>
+    setData((data) => ({
+      ...data,
+      expectedEndIn: date ? date.getTime() : undefined,
+    }));
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
       ...data,
       [e.target.name]: e.target.value,
     }));
+
+  const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
+    setWithExpectedEndIn(e.target.checked);
+  };
 
   return (
     <>
@@ -85,8 +104,8 @@ export default function EditTeamFormSection({ team, role }: Props) {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaUsersGear className="size-6" />
-        Editar time
+        <FaPenRuler className="size-6" />
+        Editar etapa
       </h1>
       <div
         className={clsx(
@@ -100,12 +119,12 @@ export default function EditTeamFormSection({ team, role }: Props) {
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
-            name="title"
+            name="name"
             type="text"
-            placeholder="Título"
-            label="Título"
+            placeholder="Nome"
+            label="Nome"
             icon={FaPenClip}
-            value={data.title}
+            value={data.name}
             onChange={onChange}
             errors={errors}
             error={error}
@@ -124,21 +143,50 @@ export default function EditTeamFormSection({ team, role }: Props) {
             error={error}
             hiddenError={!!error}
           />
+          <Input
+            name="expectedStartIn"
+            type="day"
+            placeholder="Expectativa de início"
+            label="Expectativa de início"
+            icon={FaCalendarDay}
+            selected={
+              data.expectedStartIn ? new Date(data.expectedStartIn) : undefined
+            }
+            onSelect={onChangeExpectedStartIn}
+            errors={errors}
+            error={error}
+            hiddenError={!!error}
+          />
+          <Input
+            name="expectedEndIn"
+            type="day"
+            placeholder="Expectativa de termino"
+            label="Expectativa de termino"
+            onChangeOptional={onChangeWithExpectedEndIn}
+            optional
+            disabled={!withExpectedEndIn}
+            icon={FaCalendarDay}
+            selected={
+              data.expectedEndIn ? new Date(data.expectedEndIn) : undefined
+            }
+            onSelect={onChangeExpectedEndIn}
+            errors={errors}
+            error={error}
+            hiddenError={!!error}
+          />
           <div className="flex flex-row flex-wrap gap-4">
             <button type="submit" className="btn btn-neutral">
               <FaFloppyDisk />
               Salvar alterações
             </button>
-            {isOwner && (
-              <button
-                onClick={onDeleteTeam}
-                type="button"
-                className="btn btn-soft btn-primary"
-              >
-                <FaTrash />
-                Apagar time
-              </button>
-            )}
+            <button
+              onClick={onDeleteStage}
+              type="button"
+              className="btn btn-soft btn-primary"
+            >
+              <FaTrash />
+              Apagar etapa
+            </button>
           </div>
         </form>
       </div>

@@ -10,20 +10,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ufrn.imd.cardeasy.errors.ExpectedEndIsBeforeStart;
+import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.StageNotFound;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Stage;
+import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.StagesRepository;
 
 @Service
 @RequiredArgsConstructor
 public class StagesService {
+  private ProjectsRepository projects;
   private StagesRepository stages;
 
   @Autowired
   public StagesService(
+    ProjectsRepository projects,
     StagesRepository stages
   ) {
+    this.projects = projects;
     this.stages = stages;
   };
 
@@ -34,16 +40,22 @@ public class StagesService {
     Date expectedStartIn,
     Date expectedEndIn
   ) {
-    Project project = new Project();
-    project.setId(projectId);
+    Project project = this.projects.findById(projectId)
+      .orElseThrow(ProjectNotFound::new);
+
+    if(
+      expectedEndIn != null && 
+      expectedStartIn.compareTo(expectedEndIn) > 0
+    ) throw new ExpectedEndIsBeforeStart();
 
     Stage stage = new Stage();
     stage.setProject(project);
     stage.setName(name);
+    stage.setCurrent(project.getStages().size() <= 0);
     stage.setDescription(description);
     stage.setExpectedStartIn(expectedStartIn);
     stage.setExpectedEndIn(expectedEndIn);
-
+    
     this.stages.save(stage);
 
     return stage;

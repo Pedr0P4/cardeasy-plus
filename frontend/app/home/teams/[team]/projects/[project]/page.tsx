@@ -1,14 +1,7 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import { format } from "date-fns";
-import Link from "next/link";
-import {
-  FaCalendarDay,
-  FaCalendarDays,
-  FaGear,
-  FaTimeline,
-  FaTrello,
-} from "react-icons/fa6";
+import { FaCalendarDays, FaGear, FaTrello } from "react-icons/fa6";
 import ProjectConfiguration from "@/components/projects/ProjectConfiguration";
 import ProjectStages from "@/components/projects/ProjectStages";
 import TabsContext from "@/components/tabs/context/tabsContex";
@@ -32,11 +25,6 @@ export default async function ProjectPage({
   const stages = await Api.server()
     .projects()
     .stages(Number.parseInt(projectId, 10));
-
-  // TODO - Adicionar stage
-  // TODO - Editar stage
-  // TODO - Remover stage
-  // TODO - Visualizar stage
 
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(participation.role);
 

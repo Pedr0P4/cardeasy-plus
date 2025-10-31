@@ -59,6 +59,7 @@ export default function Header() {
                 className={clsx(
                   "menu dropdown-content bg-base-300",
                   "rounded-box z-50 mt-1.5 w-52 p-2 shadow-sm",
+                  "border border-base-content",
                 )}
               >
                 <li>

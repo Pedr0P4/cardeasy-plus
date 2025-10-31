@@ -1,5 +1,6 @@
 "use client";
 
+import type { UUID } from "node:crypto";
 import clsx from "clsx";
 import { redirect } from "next/navigation";
 import { type ChangeEvent, type FormEvent, useState } from "react";
@@ -7,39 +8,37 @@ import {
   FaClipboardList,
   FaFloppyDisk,
   FaPenClip,
-  FaPenRuler,
   FaTrash,
   FaTriangleExclamation,
+  FaUsersGear,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import type { Project, UpdateProjectData } from "@/services/projects";
-import { Role } from "@/services/teams";
-import Input from "../Input";
+import { Role, type Team, type UpdateTeamData } from "@/services/teams";
+import Input from "../../Input";
 
 interface Props {
-  project: Project;
+  team: Team;
   role: Role;
 }
 
-export default function EditProjectFormSection({ project, role }: Props) {
+export default function EditTeamFormSection({ team, role }: Props) {
   const isOwner = role === Role.OWNER;
 
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [data, setData] = useState<UpdateProjectData>({
-    title: project.title,
-    description: project.description,
+  const [data, setData] = useState<UpdateTeamData>({
+    title: team.title,
+    description: team.description,
   });
 
-  const onDeleteProject = async (e: FormEvent) => {
-    e.preventDefault();
+  const onDeleteTeam = async () => {
     setError("");
     setErrors({});
 
     const success = await Api.client()
-      .projects()
-      .delete(project.id)
+      .teams()
+      .delete(team.id as UUID)
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isErrorResponse()) setError(err.error);
@@ -47,7 +46,7 @@ export default function EditProjectFormSection({ project, role }: Props) {
         return false;
       });
 
-    if (success) redirect(`/home/team/${project.team}`);
+    if (success) redirect("/home");
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -56,8 +55,8 @@ export default function EditProjectFormSection({ project, role }: Props) {
     setErrors({});
 
     const success = await Api.client()
-      .projects()
-      .update(project.id, data)
+      .teams()
+      .update(team.id as UUID, data)
       .then(() => true)
       .catch((err: ApiErrorResponse) => {
         if (err.isValidationError()) setErrors(err.errors);
@@ -66,7 +65,7 @@ export default function EditProjectFormSection({ project, role }: Props) {
         return false;
       });
 
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
+    if (success) redirect(`/home/teams/${team.id}`);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -85,8 +84,8 @@ export default function EditProjectFormSection({ project, role }: Props) {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaPenRuler className="size-6" />
-        Editar projeto
+        <FaUsersGear className="size-6" />
+        Editar time
       </h1>
       <div
         className={clsx(
@@ -131,12 +130,12 @@ export default function EditProjectFormSection({ project, role }: Props) {
             </button>
             {isOwner && (
               <button
-                onClick={onDeleteProject}
+                onClick={onDeleteTeam}
                 type="button"
                 className="btn btn-soft btn-primary"
               >
                 <FaTrash />
-                Apagar projeto
+                Apagar time
               </button>
             )}
           </div>

@@ -19,7 +19,6 @@ import Avatar from "../Avatar";
 import TeamMemberContextMenu from "./TeamMemberContextMenu";
 
 interface Props {
-  team: Team;
   participation: Participation;
   viewer: Participation;
 }
@@ -30,7 +29,7 @@ const icons = {
   MEMBER: undefined,
 };
 
-export default function TeamMemberItem({ team, viewer, participation }: Props) {
+export default function TeamMemberItem({ viewer, participation }: Props) {
   const [avatar, setAvatar] = useState<ImageData>();
 
   useEffect(() => {
@@ -40,19 +39,6 @@ export default function TeamMemberItem({ team, viewer, participation }: Props) {
       .then((res) => setAvatar(res))
       .catch(() => {});
   }, [participation.account.id]);
-
-  // TODO - Tem que ver a questão dos nome grande demais,
-  // sugestão de solução, colocar [...] no final.
-  // Por exemplo: Lucas Marcel Sil...
-  // Quebra de linha não parece legal.
-  if (
-    null !== participation.account.name &&
-    participation.account.name.length >= 33
-  ) {
-    participation.account.name = participation.account.name
-      .substring(0, 30)
-      .concat("...");
-  }
 
   return (
     <li className="w-full" tabIndex={-1}>
@@ -70,14 +56,14 @@ export default function TeamMemberItem({ team, viewer, participation }: Props) {
             avatar={avatar}
           />
         </div>
-        <div className="flex flex-col justify-start items-start flex-1">
-          <div className="flex flex-row gap-1.5 items-center justify-start">
+        <div className="flex flex-col justify-start items-start flex-1 overflow-hidden">
+          <div className="flex flex-row gap-1.5 items-center justify-start w-full">
             {icons[participation.role]}
-            <h3 className="text-lg font-semibold">
+            <h3 className="text-lg font-semibold truncate w-full pr-8 text-start">
               {participation.account.name}
             </h3>
           </div>
-          <p className="font-light -mt-1 text-start">
+          <p className="font-light -mt-1 text-start truncate w-full pr-8 text-start">
             {participation.account.email}
           </p>
         </div>

@@ -6,12 +6,8 @@ import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
 import {
   FaCalendarDay,
   FaCheck,
-  FaClipboardList,
   FaCoins,
-  FaDollarSign,
   FaFloppyDisk,
-  FaPenClip,
-  FaPenRuler,
   FaPiggyBank,
   FaPlus,
   FaTrash,
@@ -22,7 +18,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { UpdateBudgetData } from "@/services/budgets";
 import type { Project } from "@/services/projects";
-import Input from "../Input";
+import Input from "../../Input";
 
 interface Props {
   project: Project;
@@ -52,7 +48,7 @@ export default function BudgetFormSection({ project }: Props) {
   );
   const formattedMaxValue = useMemo(
     () => formatter.format(data.maxValue),
-    [data.minValue, formatter],
+    [data.maxValue, formatter],
   );
 
   const onAddBudget = () => {
@@ -63,8 +59,7 @@ export default function BudgetFormSection({ project }: Props) {
     setWithDeadline(e.target.checked);
   };
 
-  const onDeleteBudget = async (e: FormEvent) => {
-    e.preventDefault();
+  const onDeleteBudget = async () => {
     setError("");
     setErrors({});
 

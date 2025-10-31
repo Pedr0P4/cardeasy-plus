@@ -2,24 +2,18 @@
 
 import clsx from "clsx";
 import type { UUID } from "crypto";
-import { redirect } from "next/navigation";
-import { ChangeEvent, type FormEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import {
   FaArrowsRotate,
-  FaClipboardList,
-  FaCopy,
   FaEnvelopeOpenText,
-  FaFloppyDisk,
   FaHashtag,
-  FaPenClip,
   FaTrash,
   FaTriangleExclamation,
-  FaUsersGear,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { Role, type Team, UpdateTeamData } from "@/services/teams";
-import Input from "../Input";
+import type { Team } from "@/services/teams";
+import Input from "../../Input";
 
 interface Props {
   team: Team;
@@ -29,8 +23,7 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>(team?.code ?? "");
 
-  const onDeleteCode = async (e: FormEvent) => {
-    e.preventDefault();
+  const onDeleteCode = async () => {
     setError("");
 
     const success = await Api.client()

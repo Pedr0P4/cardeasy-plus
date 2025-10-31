@@ -1,3 +1,5 @@
+"use client";
+
 import clsx from "clsx";
 import { DayPicker, type DayPickerProps } from "react-day-picker";
 import { ptBR } from "react-day-picker/locale";
@@ -18,12 +20,11 @@ export default function DateInput({
   icon: Icon,
   ...props
 }: DateInputProps) {
-  console.log(selected);
   return (
     <>
       <button
         type="button"
-        popoverTarget="rdp-popover"
+        popoverTarget={`${props.id}-popover`}
         style={{ anchorName: "--rdp" } as React.CSSProperties}
         className={clsx("input w-full", message && "validator", className)}
         aria-invalid={message ? true : undefined}
@@ -33,8 +34,8 @@ export default function DateInput({
       </button>
       <div
         popover="auto"
-        id="rdp-popover"
-        className="dropdown"
+        id={`${props.id}-popover`}
+        className="dropdown dropdown-top"
         style={{ positionAnchor: "--rdp" } as React.CSSProperties}
       >
         <DayPicker

@@ -10,7 +10,7 @@ export default function CloseButtonParallelRoute() {
     <button
       type="button"
       onClick={() => router.back()}
-      className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
+      className="btn btn-sm btn-circle absolute right-4 top-4 z-20"
     >
       <FaX />
     </button>

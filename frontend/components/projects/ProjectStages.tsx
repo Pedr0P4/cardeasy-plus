@@ -23,6 +23,7 @@ export default function ProjectStages({ project, stages, role }: Props) {
           return (
             <ProjectStageItem
               key={`stage-${stage.id}`}
+              project={project}
               stage={stage}
               role={role}
             />
@@ -33,8 +34,9 @@ export default function ProjectStages({ project, stages, role }: Props) {
           <Link
             href={`/home/teams/${project.team}/projects/${project.id}/stages/create`}
             className={clsx(
-              "btn btn-soft btn-neutral min-h-22 h-min flex flex-row",
+              "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
               "items-center justify-center rounded-md px-6 py-4",
+              "font-bold text-lg",
             )}
           >
             <FaPlus />

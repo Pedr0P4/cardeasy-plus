@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import type { Role, Team } from "@/services/teams";
-import EditTeamFormSection from "./EditTeamFormSection";
-import InviteCodeTeamFormSection from "./InviteCodeTeamFormSection";
+import EditTeamFormSection from "./forms/EditTeamFormSection";
+import InviteCodeTeamFormSection from "./forms/InviteCodeTeamFormSection";
 
 interface Props {
   team: Team;

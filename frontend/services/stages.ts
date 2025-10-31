@@ -13,16 +13,16 @@ export type CreateStageDTO = {
   project: number;
   name: string;
   description: string;
-  expectedStartIn: number;
-  expectedEndIn: number;
+  expectedStartIn?: number;
+  expectedEndIn?: number;
 };
 
 export type UpdateStageDTO = {
-  project: number;
   name: string;
+  current: boolean;
   description: string;
-  expectedStartIn: number;
-  expectedEndIn: number;
+  expectedStartIn?: number;
+  expectedEndIn?: number;
 };
 
 export class StagesService extends Service {
@@ -40,5 +40,9 @@ export class StagesService extends Service {
 
   async update(id: number, data: UpdateStageDTO) {
     return this.api.put<Stage>(`/stages/${id}`, data).then((res) => res.data);
+  }
+
+  async delete(id: number) {
+    return this.api.delete(`/stages/${id}`);
   }
 }

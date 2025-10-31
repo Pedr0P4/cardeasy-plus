@@ -5,5 +5,11 @@
   "editor.defaultFormatter": "biomejs.biome",
   "biome.lsp.bin": "./frontend/node_modules/.bin/biome",
   "biome.configurationPath": "./frontend/biome.json",
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.biome": "explicit",
+    "source.organizeImports.biome": "explicit",
+    "source.removeUnusedImports": "explicit",
+    "source.biome": "explicit"
+  }
 }
