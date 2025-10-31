@@ -1,3 +1,4 @@
+import { Api } from "@/services/api";
 import { Participation, Role } from "@/services/teams";
 import {
   FaArrowDown,
@@ -7,6 +8,8 @@ import {
   FaGavel,
   FaGear,
 } from "react-icons/fa6";
+import type { UpdateParticipationData } from "@/services/participations";
+import { useState } from "react";
 
 interface Props {
   viewer: Participation;
@@ -27,9 +30,18 @@ export default function TeamMemberContextMenu({
   const same = viewer.account.id === participation.account.id;
   const level = levels[viewer.role] - levels[participation.role];
 
+  const promoteData: UpdateParticipationData = {
+    accountId: participation.account.id,
+    teamId: participation.team.id,
+    role: Role.ADMIN
+  };
+
   // TODO - Completar métodos
 
-  const onPromoteToAdmin = () => {};
+  const onPromoteToAdmin = () => {
+
+    Api.client().participations().update(promoteData);
+  };
   const onDemoteToMember = () => {};
   const onTransferOwnership = () => {};
   const onKick = () => {};

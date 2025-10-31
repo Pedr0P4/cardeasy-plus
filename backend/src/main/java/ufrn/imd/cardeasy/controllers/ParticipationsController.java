@@ -2,35 +2,33 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import lombok.RequiredArgsConstructor;
 import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
+import ufrn.imd.cardeasy.dtos.team.UpdateParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.AccountsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.TeamsService;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/participations")
 public class ParticipationsController {
-  private ParticipationsService participations;
-  private TeamsService teams;
-
-  @Autowired
-  public ParticipationsController(
-    ParticipationsService participations,
-    TeamsService teams
-  ) {
-    this.participations = participations;
-    this.teams = teams;
-  };
+  private final ParticipationsService participations;
+  private final TeamsService teams;
+  private final AccountsService accounts;
 
   @Authenticate
   @GetMapping
@@ -55,7 +53,7 @@ public class ParticipationsController {
     this.teams.existsById(id);
 
     Participation participation = this.participations.checkAccess(
-      account.getId(), 
+      account.getId(),
       id
     );
 
@@ -63,4 +61,20 @@ public class ParticipationsController {
       ParticipationDTO.from(participation)
     );
   };
+
+  @Authenticate
+  @PutMapping
+  public ResponseEntity<ParticipationDTO> update(
+    @AuthenticationPrincipal Account account,
+    @RequestBody UpdateParticipationDTO participation
+  ){
+    this.teams.existsById(participation.teamId());
+    this.accounts.existsById(participation.accountId());
+    this.participations.checkAccess(account.getId(), participation.teamId());
+    Participation updated = this.participations.update(participation.accountId(), participation.teamId(), participation.role());
+
+    return ResponseEntity.ok(
+      ParticipationDTO.from(updated)
+    );
+  }
 };

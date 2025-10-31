@@ -9,6 +9,12 @@ export type Participation = {
   role: Role;
 };
 
+export type UpdateParticipationData = {
+  accountId: UUID;
+  teamId: UUID,
+  role: Role
+};
+
 export enum Role {
   OWNER = "OWNER",
   ADMIN = "ADMIN",
@@ -25,6 +31,12 @@ export class ParticipationsService extends Service {
   async all() {
     return this.api
       .get<Participation[]>(`/participations`)
+      .then((res) => res.data);
+  }
+
+  async update(data: UpdateProjectData) {
+    return this.api
+      .put<Participation>(`/participations`, data)
       .then((res) => res.data);
   }
 }
