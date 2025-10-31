@@ -8,9 +8,9 @@ import {
   FaGavel,
   FaGear,
 } from "react-icons/fa6";
-import type { UpdateParticipationData, DeleteParticipationData } from "@/services/participations";
 import { useState } from "react";
 import { ApiErrorResponse } from "@/services/base/axios";
+import { useRouter } from "next/navigation";
 
 interface Props {
   viewer: Participation;
@@ -33,6 +33,7 @@ export default function TeamMemberContextMenu({
 
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string,string>>();
+  const router = useRouter();
 
   // TODO - Completar métodos
 
@@ -55,6 +56,8 @@ export default function TeamMemberContextMenu({
         else if(err.isErrorResponse()) setError(err.error);
         else setError("Erro inesperado!");
     });
+
+    router.refresh();
   };
 
   const onDemoteToMember = async () => {
@@ -76,6 +79,8 @@ export default function TeamMemberContextMenu({
         else if(err.isErrorResponse()) setError(err.error);
         else setError("Erro inesperado!");
       });
+
+    router.refresh();
   };
 
   const onTransferOwnership = async () => {
@@ -110,6 +115,8 @@ export default function TeamMemberContextMenu({
         else if(err.isErrorResponse()) setError(err.error);
         else setError("Erro inesperado!");
       });
+
+    router.refresh();
   };
 
   const onKick = async () => {
@@ -130,6 +137,8 @@ export default function TeamMemberContextMenu({
         else if(err.isErrorResponse()) setError(err.error);
         else setError("Erro inesperado!");
       });
+
+    router.refresh();
   };
 
   // Embora eu tenha colocado separado aqui,
@@ -148,6 +157,8 @@ export default function TeamMemberContextMenu({
         else if(err.isErrorResponse()) setError(err.error);
         else setError("Erro inesperado!");
       });
+
+    router.push('/home');
   };
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
