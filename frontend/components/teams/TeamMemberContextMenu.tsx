@@ -8,8 +8,9 @@ import {
   FaGavel,
   FaGear,
 } from "react-icons/fa6";
-import type { UpdateParticipationData } from "@/services/participations";
+import type { UpdateParticipationData, DeleteParticipationData } from "@/services/participations";
 import { useState } from "react";
+import { ApiErrorResponse } from "@/services/base/axios";
 
 interface Props {
   viewer: Participation;
@@ -30,26 +31,124 @@ export default function TeamMemberContextMenu({
   const same = viewer.account.id === participation.account.id;
   const level = levels[viewer.role] - levels[participation.role];
 
-  const promoteData: UpdateParticipationData = {
-    accountId: participation.account.id,
-    teamId: participation.team.id,
-    role: Role.ADMIN
-  };
+  const [error, setError] = useState<string>("");
+  const [errors, setErrors] = useState<Record<string,string>>();
 
   // TODO - Completar métodos
 
-  const onPromoteToAdmin = () => {
+  const onPromoteToAdmin = async () => {
+    setError("");
+    setErrors(undefined);
 
-    Api.client().participations().update(promoteData);
+    if(participation.role == Role.ADMIN){
+      setError("Participante já é administrador!");
+      return;
+    }
+
+    await Api.client()
+      .participations().update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: Role.ADMIN
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+    });
   };
-  const onDemoteToMember = () => {};
-  const onTransferOwnership = () => {};
-  const onKick = () => {};
+
+  const onDemoteToMember = async () => {
+    setError("");
+    setErrors(undefined);
+
+    if(participation.role == Role.MEMBER){
+      setError("Participante já é membro!");
+      return;
+    }
+
+    await Api.client()
+      .participations().update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: Role.MEMBER
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+  };
+
+  const onTransferOwnership = async () => {
+    setError("");
+    setErrors(undefined);
+
+    if(viewer.role != Role.OWNER){
+      setError("Usuário não possui posse!");
+      return;
+    }
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: viewer.role
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: viewer.account.id,
+        teamId: viewer.team.id,
+        role: participation.role
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+  };
+
+  const onKick = async () => {
+    setError("");
+    setErrors(undefined);
+
+    if(viewer.role != Role.ADMIN && viewer.role != Role.OWNER){
+      setError("Você não possui permissão para expulsar" + participation.account.name);
+      return;
+    }
+
+    await Api.client()
+      .participations().delete({
+        accountId: participation.account.id,
+        teamId: participation.team.id
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+  };
 
   // Embora eu tenha colocado separado aqui,
   // na prática o onExit é um caso específico do
   // on kick
-  const onExit = () => {};
+  const onExit = async () => {
+    setError("");
+    setErrors(undefined);
+
+    await Api.client()
+      .participations().delete({
+        accountId: viewer.account.id,
+        teamId: viewer.team.id
+      }).catch((err: ApiErrorResponse) => {
+        if(err.isValidationError()) setErrors(err.errors);
+        else if(err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+  };
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 

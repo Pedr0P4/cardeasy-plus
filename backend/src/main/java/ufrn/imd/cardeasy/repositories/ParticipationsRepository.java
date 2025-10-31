@@ -18,6 +18,19 @@ extends JpaRepository<Participation, ParticipationId> {
     // language=sql
     value = """
       SELECT pt.* FROM participation AS pt
+      WHERE pt.account_id = ?1
+      AND pt.team_id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
       JOIN project AS pj
       ON pj.team_id = pt.team_id
       WHERE pt.account_id = ?1
@@ -101,8 +114,7 @@ extends JpaRepository<Participation, ParticipationId> {
       AND tg.id = ?2
     """,
     nativeQuery = true
-  )
-  public Optional<Participation> findByAccountAndTag(
+  ) public Optional<Participation> findByAccountAndTag(
     UUID accountId,
     Integer tagId
   );

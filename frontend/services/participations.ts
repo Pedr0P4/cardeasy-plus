@@ -10,10 +10,15 @@ export type Participation = {
 };
 
 export type UpdateParticipationData = {
-  accountId: UUID;
+  accountId: UUID,
   teamId: UUID,
   role: Role
 };
+
+export type DeleteParticipationData = {
+  accountId: UUID,
+  teamId: UUID
+}
 
 export enum Role {
   OWNER = "OWNER",
@@ -34,9 +39,13 @@ export class ParticipationsService extends Service {
       .then((res) => res.data);
   }
 
-  async update(data: UpdateProjectData) {
+  async update(data: UpdateParticipationData) {
     return this.api
-      .put<Participation>(`/participations`, data)
+      .put<Participation>('/participations', data)
       .then((res) => res.data);
+  }
+
+  async delete(data: DeleteParticipationData) {
+    return this.api.delete('/participations', { data });
   }
 }

@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
+import ufrn.imd.cardeasy.dtos.team.DeleteParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
@@ -76,5 +78,21 @@ public class ParticipationsController {
     return ResponseEntity.ok(
       ParticipationDTO.from(updated)
     );
+  }
+
+  @Authenticate
+  @DeleteMapping
+  public ResponseEntity<Void> delete(
+    @AuthenticationPrincipal Account account,
+    @RequestBody DeleteParticipationDTO participationToDelete
+  ){
+    this.teams.existsById(participationToDelete.teamId());
+    this.accounts.existsById(participationToDelete.accountId());
+    this.participations.checkAccess(account.getId(), participationToDelete.teamId());
+    this.participations.deleteByAccountAndTeam(participationToDelete.accountId(), participationToDelete.teamId());
+
+    return ResponseEntity
+      .noContent()
+      .build();
   }
 };

@@ -97,6 +97,16 @@ public class ParticipationsService {
     return p;
   }
 
+  public void deleteByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  ){
+    Participation p = this.participations
+      .findByAccountAndTeam(accountId, teamId)
+      .orElseThrow(ParticipationNotFound::new);
+    this.participations.deleteById(p.getId());
+  }
+
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {
     Participation participation = this.findById(accountId, teamId);
 
