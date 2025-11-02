@@ -1,14 +1,9 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import { format } from "date-fns";
-import {
-  FaCalendarDay,
-  FaCalendarDays,
-  FaGear,
-  FaTimeline,
-  FaTrello,
-} from "react-icons/fa6";
+import { FaCalendarDays, FaGear, FaTrello } from "react-icons/fa6";
 import ProjectConfiguration from "@/components/projects/ProjectConfiguration";
+import ProjectStages from "@/components/projects/ProjectStages";
 import TabsContext from "@/components/tabs/context/tabsContex";
 import Tab from "@/components/tabs/Tab";
 import TabButton from "@/components/tabs/TabButton";
@@ -27,13 +22,9 @@ export default async function ProjectPage({
     .projects()
     .get(Number.parseInt(projectId, 10));
 
-  // TODO - Remover budget
-  // TODO - Adicionar budget
-  // TODO - Editar budget
-  // TODO - Adicionar stage
-  // TODO - Editar stage
-  // TODO - Remover stage
-  // TODO - Visualizar stage
+  const stages = await Api.server()
+    .projects()
+    .stages(Number.parseInt(projectId, 10));
 
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(participation.role);
 
@@ -102,7 +93,13 @@ export default async function ProjectPage({
           <section className="w-full flex flex-col gap-2 p-6"></section>
         </Tab>
         <Tab name="stages">
-          <section className="w-full flex flex-col gap-2 p-6"></section>
+          <section className="w-full flex flex-col gap-2 p-6">
+            <ProjectStages
+              project={project}
+              role={participation.role}
+              stages={stages}
+            />
+          </section>
         </Tab>
         {isAdmin && (
           <Tab name="config">

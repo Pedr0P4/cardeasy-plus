@@ -51,7 +51,13 @@ public class Project {
   ) @ToString.Exclude
   private Budget budget;
 
-  @OrderBy("expected_start_in")
+  @OrderBy("""
+    CASE WHEN state = 'STARTED' THEN 0 
+    WHEN state = 'PLANNED' THEN 1 
+    WHEN state = 'FINISHED' THEN 2 
+    ELSE 3 END ASC, 
+    expected_start_in ASC
+  """)
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,

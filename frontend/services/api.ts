@@ -15,6 +15,7 @@ import { BudgetsService } from "./budgets";
 import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
+import { StagesService } from "./stages";
 import { TeamsService } from "./teams";
 
 export class Api {
@@ -94,6 +95,14 @@ export class Api {
 
   public budgets() {
     return new BudgetsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public stages() {
+    return new StagesService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,

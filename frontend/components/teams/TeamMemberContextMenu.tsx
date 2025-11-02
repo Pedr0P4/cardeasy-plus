@@ -1,3 +1,5 @@
+import clsx from "clsx";
+import type { MouseEvent } from "react";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -29,15 +31,28 @@ export default function TeamMemberContextMenu({
 
   // TODO - Completar métodos
 
-  const onPromoteToAdmin = () => {};
-  const onDemoteToMember = () => {};
-  const onTransferOwnership = () => {};
-  const onKick = () => {};
+  const onPromoteToAdmin = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+  };
+
+  const onDemoteToMember = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+  };
+
+  const onTransferOwnership = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+  };
+
+  const onKick = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+  };
 
   // Embora eu tenha colocado separado aqui,
   // na prática o onExit é um caso específico do
   // on kick
-  const onExit = () => {};
+  const onExit = (e: MouseEvent<HTMLButtonElement>) => {
+    e.currentTarget.blur();
+  };
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 
@@ -48,7 +63,11 @@ export default function TeamMemberContextMenu({
       </button>
       <ul
         tabIndex={-1}
-        className="dropdown-content menu bg-base-100 rounded-box z-1 w-64 p-2 shadow-sm"
+        className={clsx(
+          "dropdown-content menu bg-base-100",
+          "rounded-box z-1 w-64 p-2 shadow-sm",
+          "border border-base-content",
+        )}
       >
         {isOnwer && !same && (
           <>

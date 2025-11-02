@@ -4,7 +4,6 @@ import {
   closestCenter,
   DndContext,
   type DragEndEvent,
-  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -91,8 +90,9 @@ export default function TeamProjects({
           <Link
             href={`/home/teams/${team.id}/projects/create`}
             className={clsx(
-              "btn btn-soft btn-neutral min-h-22 h-min flex flex-row",
+              "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
               "items-center justify-center rounded-md px-6 py-4",
+              "font-bold text-lg",
             )}
           >
             <FaPlus />

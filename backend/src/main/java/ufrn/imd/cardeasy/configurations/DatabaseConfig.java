@@ -33,6 +33,7 @@ public class DatabaseConfig {
     config.setMaximumPoolSize(10);
     config.setMinimumIdle(2);
     config.setPoolName("h2-pool");
+
     return new HikariDataSource(config);
   };
 };

@@ -2,10 +2,10 @@ package ufrn.imd.cardeasy.dtos.stage;
 
 import java.sql.Date;
 
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import ufrn.imd.cardeasy.models.StageState;
 
 public record UpdateStageDTO(  
   @NotBlank
@@ -13,14 +13,12 @@ public record UpdateStageDTO(
   String name,
 
   @NotNull
-  Boolean current,
+  StageState state,
   
   @Size(min = 0, max = 45)
   String description,
   
-  @FutureOrPresent
+  @NotNull
   Date expectedStartIn,
-
-  @FutureOrPresent
   Date expectedEndIn
 ) {};

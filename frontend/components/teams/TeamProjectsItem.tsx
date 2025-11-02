@@ -42,11 +42,11 @@ export default function TeamProjectsItem({ team, project }: Props) {
           className={clsx(
             "btn min-h-22 h-min flex flex-col",
             "items-start justify-start",
-            "rounded-md px-6 py-4 touch-none",
+            "rounded-md px-6 py-4 touch-none gap-2",
           )}
           {...listeners}
         >
-          <h3 className="text-lg font-semibold">{project.title}</h3>
+          <h3 className="text-lg font-semibold text-start">{project.title}</h3>
           <p className="font-light -mt-1 text-start">{project.description}</p>
         </div>
       ) : (
@@ -55,11 +55,11 @@ export default function TeamProjectsItem({ team, project }: Props) {
           className={clsx(
             "btn min-h-22 h-min flex flex-col",
             "items-start justify-start",
-            "rounded-md px-6 py-4 touch-none",
+            "rounded-md px-6 py-4 touch-none gap-2",
           )}
           {...listeners}
         >
-          <h3 className="text-lg font-semibold">{project.title}</h3>
+          <h3 className="text-lg font-semibold text-start">{project.title}</h3>
           <p className="font-light -mt-1 text-start">{project.description}</p>
         </Link>
       )}

@@ -21,7 +21,5 @@ public record CreateBudgetDTO(
   @NotBlank
   @Size(min = 1, max = 45)
   String currency,
-
-  @FutureOrPresent
   Date deadline
 ) {};

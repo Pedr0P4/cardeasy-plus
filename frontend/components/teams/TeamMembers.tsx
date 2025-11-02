@@ -20,7 +20,6 @@ export default function TeamMembers({ team, viewer, participations }: Props) {
             <TeamMemberItem
               key={`${team.id}-${participation.account.id}`}
               viewer={viewer}
-              team={team}
               participation={participation}
             />
           );

@@ -4,11 +4,14 @@ import java.sql.Date;
 import java.util.List;
 
 import ufrn.imd.cardeasy.models.Stage;
+import ufrn.imd.cardeasy.models.StageState;
+import ufrn.imd.cardeasy.models.StageStatus;
 
 public record StageDTO(
   Integer id,
   String name,
-  Boolean current,
+  StageState state,
+  StageStatus status,
   String description,
   Date expectedStartIn,
   Date expectedEndIn
@@ -19,7 +22,8 @@ public record StageDTO(
     return new StageDTO(
       stage.getId(),
       stage.getName(),
-      stage.getCurrent(),
+      stage.getState(),
+      stage.getStatus(),
       stage.getDescription(),
       stage.getExpectedStartIn(),
       stage.getExpectedEndIn()
