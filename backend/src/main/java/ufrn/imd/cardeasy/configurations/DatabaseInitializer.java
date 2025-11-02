@@ -35,7 +35,9 @@ public class DatabaseInitializer {
     if (this.data != null && !this.data.isEmpty()) {
       Resource resource = this.resolver.getResource(this.data);
       DatabasePopulator databasePopulator = new ResourceDatabasePopulator(resource);
-      DatabasePopulatorUtils.execute(databasePopulator, this.source);
+      try {
+        DatabasePopulatorUtils.execute(databasePopulator, this.source);
+      } catch (Exception e) {};
     };
   };
 };

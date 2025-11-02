@@ -27,6 +27,7 @@ public class CardList {
 
   @Column(nullable = false)
   private Long index;
+  // TODO - Criar com o index certo
 
   @Column(nullable = false)
   private String title;

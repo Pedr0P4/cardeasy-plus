@@ -1,7 +1,12 @@
 "use client";
 
 import type React from "react";
-import { useCallback, useState } from "react";
+import {
+  type Dispatch,
+  type SetStateAction,
+  useCallback,
+  useState,
+} from "react";
 import { createContext } from "use-context-selector";
 
 interface Props {
@@ -11,7 +16,7 @@ interface Props {
 
 interface TabsContext {
   tab: string;
-  setTab: (tab: string) => void;
+  setTab: Dispatch<SetStateAction<string>>;
 }
 
 export const tabsContext = createContext<TabsContext>({} as TabsContext);
@@ -19,7 +24,10 @@ export const tabsContext = createContext<TabsContext>({} as TabsContext);
 export default function TabsContext({ initial, children }: Props) {
   const [tab, setTab] = useState(initial);
 
-  const _setTab = useCallback((tab: string) => setTab(tab), []);
+  const _setTab: Dispatch<SetStateAction<string>> = useCallback(
+    (tab) => setTab(tab),
+    [],
+  );
 
   return (
     <tabsContext.Provider

@@ -16,49 +16,55 @@ import ufrn.imd.cardeasy.repositories.TagsRepository;
 @Service
 @RequiredArgsConstructor
 public class TagsService {
-  private final TagsRepository tags;
-  private final ProjectsRepository projects;
+  private TagsRepository tags;
+  private ProjectsRepository projects;
 
   public Tag create(
     Integer projectId,
     String content
-  ){
-    Project project = this.projects.findById(projectId).orElseThrow(ProjectNotFound::new);
+  ) {
+    Project project = this.projects.findById(projectId)
+      .orElseThrow(ProjectNotFound::new);
+    
     Tag tag = new Tag();
     tag.setProject(project);
     tag.setContent(content);
 
     this.tags.save(tag);
     return tag;
-  }
+  };
 
-  public Tag findById(Integer id){
+  public Tag findById(Integer id) {
     return tags.findById(id)
       .orElseThrow(TagNotFound::new);
-  }
+  };
 
-  public List<Tag> findAllByAccountAndProject(UUID accountId, Integer projectId){
+  public List<Tag> findAllByAccountAndProject(
+    UUID accountId, 
+    Integer projectId
+  ){
     return this.tags.findAllByAccountAndProject(accountId, projectId);
-  }
+  };
 
   public Tag update(
     Integer id,
     String content
-  ){
-    Tag tag = this.tags.findById(id).orElseThrow(TagNotFound::new);
+  ) {
+    Tag tag = this.tags.findById(id)
+      .orElseThrow(TagNotFound::new);
     tag.setContent(content);
 
     tags.save(tag);
     return tag;
-  }
+  };
 
   public void deleteById(Integer id){
     this.findById(id);
     this.tags.deleteById(id);
-  }
+  };
 
   public void existsById(Integer id){
     if(!this.tags.existsById(id))
       throw new TagNotFound();
-  }
-}
+  };
+};

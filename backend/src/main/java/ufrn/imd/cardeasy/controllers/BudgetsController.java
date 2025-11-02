@@ -29,9 +29,9 @@ import ufrn.imd.cardeasy.services.ProjectsService;
 @RestController
 @RequestMapping("/budgets")
 public class BudgetsController {
-  private final ParticipationsService participations;
-  private final ProjectsService projects;
-  private final BudgetsService budgets;
+  private ParticipationsService participations;
+  private ProjectsService projects;
+  private BudgetsService budgets;
 
   @Authenticate
   @PostMapping

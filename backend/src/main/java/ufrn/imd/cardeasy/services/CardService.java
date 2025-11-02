@@ -14,74 +14,68 @@ import ufrn.imd.cardeasy.repositories.CardsRepository;
 
 @Service
 public class CardService {
+  private CardListsRepository cardLists;
+  private CardsRepository cards;
+  
+  @Autowired
+  public CardService(
+    CardListsRepository cardLists,
+    CardsRepository cards
+  ) {
+    this.cardLists = cardLists;
+    this.cards = cards;
+  };
 
-    private CardListsRepository cardListsRepo;
-    private CardsRepository cardRepo;
+  public Card create(
+    Integer cardListId,
+    String title,
+    String description
+  ) {
+    CardList list = cardLists.findById(cardListId)
+      .orElseThrow(CardListNotFound::new);
+
+    Card card = new Card();
+    card.setIndex(0l);
+    card.setTitle(title);
+    card.setList(list);
+    card.setDescription(description);
+
+    this.cards.save(card);
+
+    return card;
+  };
+
+  public Card update(
+    Integer cardId,
+    String title,
+    String description
+  ) {
+    Card card = cards.findById(cardId)
+      .orElseThrow(CardNotFound::new);
     
-    @Autowired
-    public CardService(
-        CardListsRepository cardListsRepo,
-        CardsRepository cardRepo
-    ) {
-        this.cardListsRepo = cardListsRepo;
-        this.cardRepo = cardRepo;
-    }
+    card.setTitle(title);
+    card.setDescription(description);
+    
+    cards.save(card);
 
-    public Card create(
-        Integer cardListId,
-        String title,
-        String description
-    ) {
-        CardList list = cardListsRepo.findById(cardListId)
-            .orElseThrow(CardListNotFound::new);
+    return card;
+  };
 
-        Card card = new Card();
-        card.setIndex(0l);
-        card.setTitle(title);
-        card.setList(list);
-        card.setDescription(description);
+  public void deleteById(Integer id) {
+    this.cards.deleteById(id);
+  };
 
-        this.cardRepo.save(card);
+  public List<Card> findAllByCardList(Integer cardListId) {
+    return this.cards.findAllByCardList(cardListId);
+  };
 
-        return card;
-    }
+  public Card findById(Integer id) {
+    return this.cards.findById(id)
+      .orElseThrow(CardNotFound::new);
+  };
 
-    public Card update(
-        Integer cardId,
-        Integer cardListId,
-        String title,
-        String description
-    ) {
-        Card card = cardRepo.findById(cardId)
-            .orElseThrow(CardNotFound::new);
-        
-        CardList list = cardListsRepo.findById(cardListId)
-            .orElseThrow(CardListNotFound::new);
-        
-        card.setList(list);
-        card.setTitle(title);
-        card.setDescription(description);
-        
-        cardRepo.save(card);
-
-        return card;
-    }
-
-    public void deleteById(Integer id) {
-        this.cardRepo.deleteById(id);
-    }
-
-    public List<Card> findAllByCardList(Integer cardListId) {
-        return this.cardRepo.findAllByCardList(cardListId);
-    }
-
-    public Card findById(Integer cardId) {
-        return this.cardRepo.findById(cardId)
-            .orElseThrow(CardNotFound::new);
-    }
-
-    public void existsById(Integer id) {
-        if(!cardRepo.existsById(id))
-            throw new CardNotFound();
-    }
-}
+  public void existsById(Integer id) {
+    if(!cards.existsById(id))
+      throw new CardNotFound();
+  };
+};

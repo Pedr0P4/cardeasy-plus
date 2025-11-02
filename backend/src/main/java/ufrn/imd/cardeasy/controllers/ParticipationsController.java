@@ -28,9 +28,9 @@ import ufrn.imd.cardeasy.services.TeamsService;
 @RestController
 @RequestMapping("/participations")
 public class ParticipationsController {
-  private final ParticipationsService participations;
-  private final TeamsService teams;
-  private final AccountsService accounts;
+  private ParticipationsService participations;
+  private TeamsService teams;
+  private AccountsService accounts;
 
   @Authenticate
   @GetMapping

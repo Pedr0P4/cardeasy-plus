@@ -1,7 +1,16 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
-import { FaDiagramProject, FaGear, FaUserGroup } from "react-icons/fa6";
-import TabsContext from "@/components/tabs/context/tabsContex";
+import {
+  FaDiagramProject,
+  FaGear,
+  FaSquareCaretDown,
+  FaSquareCaretUp,
+  FaUserGroup,
+} from "react-icons/fa6";
+import Accodition from "@/components/accordition/Accodition";
+import AccoditionButton from "@/components/accordition/AccoditionButton";
+import AccordionContext from "@/components/accordition/context/accoditionContext";
+import TabsContext from "@/components/tabs/context/tabsContext";
 import Tab from "@/components/tabs/Tab";
 import TabButton from "@/components/tabs/TabButton";
 import TeamConfiguration from "@/components/teams/TeamConfiguration";
@@ -35,23 +44,36 @@ export default async function TeamPage({
             "rounded-box w-full rounded-none border m-0 px-2",
           )}
         >
-          <div className="p-4">
-            <h1 className="font-bold text-2xl">{participation.team.title}</h1>
-            <p>{participation.team.description}</p>
-          </div>
-          <div className="tabs tabs-lift">
-            <TabButton name="projects">
-              <FaDiagramProject className="size-4 me-2" /> Projetos
-            </TabButton>
-            <TabButton name="members">
-              <FaUserGroup className="size-4 me-2" /> Membros
-            </TabButton>
-            {isOwner && (
-              <TabButton name="config">
-                <FaGear className="size-4 me-2" /> Configurações
+          <AccordionContext initial={true}>
+            <Accodition>
+              <div className="p-4">
+                <h1 className="font-bold text-2xl">
+                  {participation.team.title}
+                </h1>
+                <p>{participation.team.description}</p>
+              </div>
+            </Accodition>
+            <div className="tabs tabs-lift">
+              <AccoditionButton
+                type="button"
+                role="tab"
+                className="tab"
+                hiddenIcon={<FaSquareCaretUp className="size-4" />}
+                showIcon={<FaSquareCaretDown className="size-4" />}
+              />
+              <TabButton name="projects">
+                <FaDiagramProject className="size-4 me-2" /> Projetos
               </TabButton>
-            )}
-          </div>
+              <TabButton name="members">
+                <FaUserGroup className="size-4 me-2" /> Membros
+              </TabButton>
+              {isOwner && (
+                <TabButton name="config">
+                  <FaGear className="size-4 me-2" /> Configurações
+                </TabButton>
+              )}
+            </div>
+          </AccordionContext>
         </section>
         <Tab name="projects">
           <section className="w-full flex flex-col gap-2 p-6">

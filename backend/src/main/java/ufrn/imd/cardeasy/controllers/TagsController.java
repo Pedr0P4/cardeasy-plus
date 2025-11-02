@@ -31,30 +31,33 @@ import ufrn.imd.cardeasy.services.TagsService;
 @RestController
 @RequestMapping("/tags")
 public class TagsController {
-
-  private final TagsService tags;
-  private final ProjectsService projects;
-  private final ParticipationsService participations;
+  private TagsService tags;
+  private ProjectsService projects;
+  private ParticipationsService participations;
 
   @Authenticate
   @PostMapping
   public ResponseEntity<TagDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateTagDTO tag
+    @RequestBody @Valid CreateTagDTO body
   ){
-    this.projects.existsById(tag.project());
+    this.projects.existsById(body.project());
+
     this.participations.checkProjectAccess(
       Role.ADMIN,
       account.getId(),
-      tag.project()
+      body.project()
     );
 
-    Tag newTag = this.tags.create(tag.project(), tag.content());
+    Tag tag = this.tags.create(
+      body.project(),
+      body.content()
+    );
 
     return ResponseEntity
       .status(HttpStatus.CREATED)
-      .body(TagDTO.from(newTag));
-  }
+      .body(TagDTO.from(tag));
+  };
 
   @Authenticate
   @GetMapping("/{id}")
@@ -63,13 +66,19 @@ public class TagsController {
     @PathVariable Integer id
   ){
     this.tags.existsById(id);
-    this.participations.checkTagAccess(Role.ADMIN, account.getId(), id);
+
+    this.participations.checkTagAccess(
+      Role.ADMIN, 
+      account.getId(), 
+      id
+    );
 
     Tag tag = this.tags.findById(id);
+
     return ResponseEntity.ok(
       TagDTO.from(tag)
     );
-  }
+  };
 
   @Authenticate
   @GetMapping("/project/{id}")
@@ -77,9 +86,13 @@ public class TagsController {
     @AuthenticationPrincipal Account account,
     @PathVariable Integer projectId
   ) {
-    List<Tag> allTags = this.tags.findAllByAccountAndProject(account.getId(), projectId);
+    List<Tag> tags = this.tags.findAllByAccountAndProject(
+      account.getId(), 
+      projectId
+    );
+
     return ResponseEntity.ok(
-      TagDTO.from(allTags)
+      TagDTO.from(tags)
     );
   }
 
@@ -98,7 +111,7 @@ public class TagsController {
     return ResponseEntity.ok(
       TagDTO.from(updated)
     );
-  }
+  };
 
   @Authenticate
   @DeleteMapping("/{id}")
@@ -107,11 +120,17 @@ public class TagsController {
     @PathVariable Integer id
   ){
     this.tags.existsById(id);
-    this.participations.checkTagAccess(Role.ADMIN, account.getId(), id);
+
+    this.participations.checkTagAccess(
+      Role.ADMIN, 
+      account.getId(), 
+      id
+    );
 
     this.tags.deleteById(id);
+    
     return ResponseEntity
       .noContent()
       .build();
-  }
-}
+  };
+};

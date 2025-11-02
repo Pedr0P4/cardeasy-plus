@@ -108,6 +108,25 @@ extends JpaRepository<Participation, ParticipationId> {
       SELECT pt.* FROM participation AS pt
       JOIN project AS pj
       ON pj.team_id = pt.team_id
+      JOIN card_list AS cl
+      ON cl.project_id = pj.id
+      JOIN card AS cd
+      ON cl.id = cd.list_id
+      WHERE pt.account_id = ?1
+      AND cd.id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndCard(
+    UUID accountId,
+    Integer cardId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
       JOIN tag AS tg
       ON tg.project_id = pj.id
       WHERE pt.account_id = ?1

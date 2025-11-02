@@ -77,6 +77,15 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
+  public Participation findByAccountAndCard(
+    UUID accountId,
+    Integer cardId
+  ) {
+    return this.participations
+      .findByAccountAndCard(accountId, cardId)
+      .orElseThrow(ParticipationNotFound::new);
+  };
+
   public Participation findByAccountAndTag(
     UUID accountId,
     Integer tagId
@@ -190,12 +199,12 @@ public class ParticipationsService {
 
   public Participation checkBudgetAccess(
     UUID accountId,
-    Integer stageId
+    Integer budgetId
   ) {
-    return this.checkStageAccess(
+    return this.checkBudgetAccess(
       Role.MEMBER,
       accountId,
-      stageId
+      budgetId
     );
   };
 
@@ -221,10 +230,39 @@ public class ParticipationsService {
     UUID accountId,
     Integer cardListId
   ) {
-    return this.checkStageAccess(
+    return this.checkCardListAccess(
       Role.MEMBER,
       accountId,
       cardListId
+    );
+  };
+
+  public Participation checkCardAccess(
+    Role role,
+    UUID accountId,
+    Integer cardId
+  ) {
+    Participation participation = this.findByAccountAndCard(
+      accountId,
+      cardId
+    );
+
+    if (
+      !participation.getRole()
+        .hasAccessOf(role)
+    ) throw new Forbidden();
+
+    return participation;
+  };
+
+  public Participation checkCardAccess(
+    UUID accountId,
+    Integer cardId
+  ) {
+    return this.checkCardAccess(
+      Role.MEMBER,
+      accountId,
+      cardId
     );
   };
 

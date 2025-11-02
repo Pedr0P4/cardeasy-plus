@@ -12,8 +12,8 @@ import java.util.List;
 
 @Service
 public class CardListsService {
-  private final ProjectsRepository projects;
-  private final CardListsRepository cardLists;
+  private ProjectsRepository projects;
+  private CardListsRepository cardLists;
 
   public CardListsService(
     ProjectsRepository projects, 
@@ -28,6 +28,7 @@ public class CardListsService {
       .orElseThrow(ProjectNotFound::new);
 
     CardList cardList = new CardList();
+    cardList.setIndex(0l);
     cardList.setTitle(title);
     cardList.setProject(project);
     cardLists.save(cardList);

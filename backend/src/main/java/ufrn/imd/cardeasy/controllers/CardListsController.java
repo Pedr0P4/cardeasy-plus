@@ -19,9 +19,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/card-lists")
 public class CardListsController {
-  private final ProjectsService projects;
-  private final ParticipationsService participations;
-  private final CardListsService cardLists;
+  private ProjectsService projects;
+  private ParticipationsService participations;
+  private CardListsService cardLists;
 
   public CardListsController(
     ProjectsService projects,                 

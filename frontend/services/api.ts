@@ -12,6 +12,7 @@ import { AccountsService } from "./accounts";
 import { Axios } from "./base/axios";
 import { client } from "./base/client";
 import { BudgetsService } from "./budgets";
+import { CardListsService } from "./cardLists";
 import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
@@ -103,6 +104,14 @@ export class Api {
 
   public stages() {
     return new StagesService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public cardList() {
+    return new CardListsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,
