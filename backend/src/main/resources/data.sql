@@ -1,5 +1,5 @@
 INSERT INTO ACCOUNT 
-(ID, EMAIL, NAME, PASSWORD)
+(ID, NAME, EMAIL, PASSWORD)
 VALUES
 (UUID '0c8886bc-04c7-48f9-8c72-aa9e7c7ec166', 'Artur', 'artur@gmail.com', '$2a$10$zsAd8uhIJ18jGkLrj19pvOnnxL4Shcua8dI6bDhRlUSQuCq6RZj5W'),
 (UUID 'ee1cb132-e218-4379-a4b7-6b0f67fc7100', 'Eric', 'eric@gmail.com', '$2a$10$lyRUbsMGqIXS7XM7DVmzyez6MhqYxtzcHccWvyZTlK5rTODTQwRvm'),
