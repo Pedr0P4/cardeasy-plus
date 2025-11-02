@@ -1,5 +1,8 @@
+"use client";
+
 import clsx from "clsx";
 import Link from "next/link";
+import { useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import type { Project } from "@/services/projects";
 import type { Stage } from "@/services/stages";
@@ -12,8 +15,15 @@ interface Props {
   role: Role;
 }
 
-export default function ProjectStages({ project, stages, role }: Props) {
+export default function ProjectStages({
+  project,
+  stages: _stages,
+  role,
+}: Props) {
+  const [stages, _] = useState(_stages);
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
+
+  // TODO - Resolver problema do loading ao atualizar
 
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">

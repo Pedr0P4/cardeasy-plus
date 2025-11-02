@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type { Participation } from "@/services/participations";
 import { Role, type Team } from "@/services/teams";
 import TeamMemberItem from "./TeamMembersItem";
@@ -10,7 +13,13 @@ interface Props {
 
 const roles = [Role.OWNER, Role.ADMIN, Role.MEMBER];
 
-export default function TeamMembers({ team, viewer, participations }: Props) {
+export default function TeamMembers({
+  team,
+  viewer,
+  participations: _participations,
+}: Props) {
+  const [participations, _] = useState(_participations);
+
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
       {participations

@@ -1,4 +1,5 @@
 import { Service } from "./base/services";
+import type { Card } from "./cards";
 
 export type CardList = {
   id: number;
@@ -12,7 +13,7 @@ export type CreateCardListData = {
   project: number;
 };
 
-export type UpdateProjectData = {
+export type UpdateCardListData = {
   title: string;
 };
 
@@ -25,7 +26,7 @@ export class CardListsService extends Service {
     return this.api.post<CardList>("/card-lists", data).then((res) => res.data);
   }
 
-  async update(id: number, data: UpdateProjectData) {
+  async update(id: number, data: UpdateCardListData) {
     return this.api
       .put<CardList>(`/card-lists/${id}`, data)
       .then((res) => res.data);
@@ -41,6 +42,12 @@ export class CardListsService extends Service {
         first,
         second,
       })
+      .then((res) => res.data);
+  }
+
+  async cards(id: number) {
+    return this.api
+      .get<Card[]>(`/cards/card-list/${id}`)
       .then((res) => res.data);
   }
 }
