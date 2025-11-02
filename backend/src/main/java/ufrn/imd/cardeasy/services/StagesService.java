@@ -3,6 +3,7 @@ package ufrn.imd.cardeasy.services;
 import lombok.RequiredArgsConstructor;
 
 import java.sql.Date;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +16,7 @@ import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.StageNotFound;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Stage;
+import ufrn.imd.cardeasy.models.StageState;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.StagesRepository;
 
@@ -51,10 +53,15 @@ public class StagesService {
     Stage stage = new Stage();
     stage.setProject(project);
     stage.setName(name);
-    stage.setCurrent(project.getStages().size() <= 0);
     stage.setDescription(description);
     stage.setExpectedStartIn(expectedStartIn);
     stage.setExpectedEndIn(expectedEndIn);
+
+    Date now = new Date(Instant.now().toEpochMilli());
+    if(!expectedStartIn.after(now))
+      stage.setState(StageState.STARTED);
+    else
+      stage.setState(StageState.PLANNED);
     
     this.stages.save(stage);
 
@@ -80,7 +87,7 @@ public class StagesService {
   public Stage update(
     Integer id,
     String name,
-    Boolean current,
+    StageState state,
     String description,
     Date expectedStartIn,
     Date expectedEndIn
@@ -91,13 +98,9 @@ public class StagesService {
     stage.setDescription(description);
     stage.setExpectedStartIn(expectedStartIn);
     stage.setExpectedEndIn(expectedEndIn);
-    stage.setCurrent(current);
+    stage.setState(state);
 
     this.stages.save(stage);
-    if(stage.getCurrent())
-      this.stages.disableCurrentsInProjectExceptById(
-        stage.getId()
-      );
 
     return stage;
   };

@@ -1,9 +1,9 @@
 "use client";
 
 import clsx from "clsx";
-import { differenceInDays, format } from "date-fns";
+import { format } from "date-fns";
 import type { Project } from "@/services/projects";
-import type { Stage } from "@/services/stages";
+import { type Stage, StageStatus } from "@/services/stages";
 import type { Role } from "@/services/teams";
 import ProjectStageContextMenu from "./ProjectStageContextMenu";
 
@@ -13,47 +13,41 @@ interface Props {
   role: Role;
 }
 
-// TODO - Passar essa lógica do estado para o backend
-
-export function getStageBadge(stage: Stage) {
-  if (stage.current) {
-    if (stage.expectedEndIn < 0) {
+export function getStageStatusBadge(status: StageStatus) {
+  switch (status) {
+    case StageStatus.PLANNED:
+      return {
+        text: "planejada",
+      };
+    case StageStatus.RUNNING:
+      return {
+        color: "badge-info",
+        text: "em andamento",
+      };
+    case StageStatus.LATE:
       return {
         color: "badge-accent",
-        text: "atrasado",
+        text: "atrasada",
       };
-    }
-
-    return {
-      color: "badge-info",
-      text: "em andamento",
-    };
-  }
-
-  const current = Date.now();
-  const start = new Date(stage.expectedStartIn);
-  const end = stage.expectedEndIn ? new Date(stage.expectedEndIn) : undefined;
-  const distance = differenceInDays(current, start);
-
-  if (distance >= 1) {
-    return {
-      text: "planejado",
-    };
-  } else if (end) {
-    return {
-      color: "badge-success",
-      text: "encerrado",
-    };
-  } else {
-    return {
-      color: "badge-warning",
-      text: "pendente",
-    };
+    case StageStatus.FINISHED:
+      return {
+        color: "badge-success",
+        text: "encerrada",
+      };
+    case StageStatus.PENDING:
+      return {
+        color: "badge-warning",
+        text: "pendente",
+      };
+    default:
+      return {
+        text: "desconhecida",
+      };
   }
 }
 
 export default function ProjectStageItem({ stage, project, role }: Props) {
-  const badget = getStageBadge(stage);
+  const badget = getStageStatusBadge(stage.status);
 
   return (
     <li className="w-full" tabIndex={-1}>

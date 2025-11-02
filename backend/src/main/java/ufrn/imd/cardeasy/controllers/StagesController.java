@@ -124,7 +124,7 @@ public class StagesController {
     Stage updated = this.stages.update(
       id,
       stage.name(),
-      stage.current(),
+      stage.state(),
       stage.description(),
       stage.expectedStartIn(),
       stage.expectedEndIn()

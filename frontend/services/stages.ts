@@ -1,9 +1,24 @@
 import { Service } from "./base/services";
 
+export enum StageState {
+  PLANNED = "PLANNED",
+  STARTED = "STARTED",
+  FINISHED = "FINISHED",
+}
+
+export enum StageStatus {
+  PLANNED = "PLANNED",
+  RUNNING = "RUNNING",
+  LATE = "LATE",
+  FINISHED = "FINISHED",
+  PENDING = "PENDING",
+}
+
 export type Stage = {
   id: number;
   name: string;
-  current: boolean;
+  state: StageState;
+  status: StageStatus;
   description: string;
   expectedStartIn: number;
   expectedEndIn: number;
@@ -19,7 +34,7 @@ export type CreateStageDTO = {
 
 export type UpdateStageDTO = {
   name: string;
-  current: boolean;
+  state: StageState;
   description: string;
   expectedStartIn?: number;
   expectedEndIn?: number;

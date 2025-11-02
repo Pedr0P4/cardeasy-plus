@@ -17,18 +17,16 @@ export default function ProjectStages({ project, stages, role }: Props) {
 
   return (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {stages
-        .sort((a, b) => a.expectedStartIn - b.expectedStartIn)
-        .map((stage) => {
-          return (
-            <ProjectStageItem
-              key={`stage-${stage.id}`}
-              project={project}
-              stage={stage}
-              role={role}
-            />
-          );
-        })}
+      {stages.map((stage) => {
+        return (
+          <ProjectStageItem
+            key={`stage-${stage.id}`}
+            project={project}
+            stage={stage}
+            role={role}
+          />
+        );
+      })}
       {isAdmin && (
         <li className="w-full">
           <Link

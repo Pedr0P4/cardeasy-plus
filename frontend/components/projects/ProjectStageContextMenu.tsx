@@ -2,10 +2,17 @@ import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type { MouseEvent } from "react";
-import { FaCalendarCheck, FaGear, FaPenRuler, FaTrash } from "react-icons/fa6";
+import {
+  FaCalendarCheck,
+  FaCalendarDay,
+  FaCalendarDays,
+  FaGear,
+  FaPenRuler,
+  FaTrash,
+} from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { Project } from "@/services/projects";
-import type { Stage } from "@/services/stages";
+import { type Stage, StageState } from "@/services/stages";
 import { Role } from "@/services/teams";
 
 interface Props {
@@ -33,13 +40,16 @@ export default function ProjectStageContextMenu({
     if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
   };
 
-  const onMarkAsCurrent = async (e: MouseEvent<HTMLButtonElement>) => {
+  const onChangeState = async (
+    e: MouseEvent<HTMLButtonElement>,
+    state: StageState,
+  ) => {
     e.currentTarget.blur();
 
     const success = await Api.client()
       .stages()
       .update(stage.id, {
-        current: !stage.current,
+        state,
         name: stage.name,
         description: stage.description,
         expectedEndIn: stage.expectedEndIn,
@@ -66,11 +76,36 @@ export default function ProjectStageContextMenu({
           "border border-base-content",
         )}
       >
-        {!stage.current && (
+        {stage.state !== StageState.STARTED && (
           <li>
-            <button onClick={onMarkAsCurrent} type="button">
+            <button
+              onClick={(e) => onChangeState(e, StageState.STARTED)}
+              type="button"
+            >
+              <FaCalendarDay />
+              Definir como iniciada
+            </button>
+          </li>
+        )}
+        {stage.state !== StageState.PLANNED && (
+          <li>
+            <button
+              onClick={(e) => onChangeState(e, StageState.PLANNED)}
+              type="button"
+            >
+              <FaCalendarDays />
+              Definir como planejada
+            </button>
+          </li>
+        )}
+        {stage.state !== StageState.FINISHED && (
+          <li>
+            <button
+              onClick={(e) => onChangeState(e, StageState.FINISHED)}
+              type="button"
+            >
               <FaCalendarCheck />
-              Definir como atual
+              Definir como finalizada
             </button>
           </li>
         )}

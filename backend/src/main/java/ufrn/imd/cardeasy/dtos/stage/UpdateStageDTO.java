@@ -5,6 +5,7 @@ import java.sql.Date;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import ufrn.imd.cardeasy.models.StageState;
 
 public record UpdateStageDTO(  
   @NotBlank
@@ -12,7 +13,7 @@ public record UpdateStageDTO(
   String name,
 
   @NotNull
-  Boolean current,
+  StageState state,
   
   @Size(min = 0, max = 45)
   String description,
