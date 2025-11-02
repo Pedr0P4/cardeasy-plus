@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import ufrn.imd.cardeasy.errors.Forbidden;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.models.Participation;
@@ -83,6 +84,27 @@ public class ParticipationsService {
     return this.participations
       .findByAccountAndTag(accountId, tagId)
       .orElseThrow(ParticipationNotFound::new);
+  }
+
+  public Participation update(
+    UUID accountId,
+    UUID teamId,
+    Role role
+  ){
+    Participation p = this.findById(accountId, teamId);
+    p.setRole(role);
+    this.participations.save(p);
+    return p;
+  }
+
+  public void deleteByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  ){
+    Participation p = this.participations
+      .findByAccountAndTeam(accountId, teamId)
+      .orElseThrow(ParticipationNotFound::new);
+    this.participations.deleteById(p.getId());
   }
 
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {

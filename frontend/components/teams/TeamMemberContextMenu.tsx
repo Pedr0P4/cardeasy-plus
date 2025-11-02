@@ -1,5 +1,6 @@
 import clsx from "clsx";
-import type { MouseEvent } from "react";
+import { useRouter } from "next/navigation";
+import { type MouseEvent, useState } from "react";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -8,6 +9,8 @@ import {
   FaGavel,
   FaGear,
 } from "react-icons/fa6";
+import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import { type Participation, Role } from "@/services/teams";
 
 interface Props {
@@ -29,29 +32,156 @@ export default function TeamMemberContextMenu({
   const same = viewer.account.id === participation.account.id;
   const level = levels[viewer.role] - levels[participation.role];
 
-  // TODO - Completar métodos
+  // TODO - Toast?
 
-  const onPromoteToAdmin = (e: MouseEvent<HTMLButtonElement>) => {
+  const [error, setError] = useState<string>("");
+  const [errors, setErrors] = useState<Record<string, string>>();
+  const router = useRouter();
+
+  const onPromoteToAdmin = async (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+
+    setError("");
+    setErrors(undefined);
+
+    if (participation.role === Role.ADMIN) {
+      setError("Participante já é administrador!");
+      return;
+    }
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: Role.ADMIN,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    router.refresh();
   };
 
-  const onDemoteToMember = (e: MouseEvent<HTMLButtonElement>) => {
+  const onDemoteToMember = async (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+
+    setError("");
+    setErrors(undefined);
+
+    if (participation.role === Role.MEMBER) {
+      setError("Participante já é membro!");
+      return;
+    }
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: Role.MEMBER,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    router.refresh();
   };
 
-  const onTransferOwnership = (e: MouseEvent<HTMLButtonElement>) => {
+  const onTransferOwnership = async (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+
+    setError("");
+    setErrors(undefined);
+
+    if (viewer.role !== Role.OWNER) {
+      setError("Usuário não possui posse!");
+      return;
+    }
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+        role: viewer.role,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    await Api.client()
+      .participations()
+      .update({
+        accountId: viewer.account.id,
+        teamId: viewer.team.id,
+        role: participation.role,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    router.refresh();
   };
 
-  const onKick = (e: MouseEvent<HTMLButtonElement>) => {
+  const onKick = async (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+
+    setError("");
+    setErrors(undefined);
+
+    if (viewer.role !== Role.ADMIN && viewer.role !== Role.OWNER) {
+      setError(
+        "Você não possui permissão para expulsar" + participation.account.name,
+      );
+      return;
+    }
+
+    await Api.client()
+      .participations()
+      .delete({
+        accountId: participation.account.id,
+        teamId: participation.team.id,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    router.refresh();
   };
 
   // Embora eu tenha colocado separado aqui,
   // na prática o onExit é um caso específico do
   // on kick
-  const onExit = (e: MouseEvent<HTMLButtonElement>) => {
+  const onExit = async (e: MouseEvent<HTMLButtonElement>) => {
     e.currentTarget.blur();
+
+    setError("");
+    setErrors(undefined);
+
+    await Api.client()
+      .participations()
+      .delete({
+        accountId: viewer.account.id,
+        teamId: viewer.team.id,
+      })
+      .catch((err: ApiErrorResponse) => {
+        if (err.isValidationError()) setErrors(err.errors);
+        else if (err.isErrorResponse()) setError(err.error);
+        else setError("Erro inesperado!");
+      });
+
+    router.push("/home");
   };
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;

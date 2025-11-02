@@ -1,6 +1,8 @@
 package ufrn.imd.cardeasy.controllers;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,23 +25,13 @@ import ufrn.imd.cardeasy.services.BudgetsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/budgets")
 public class BudgetsController {
-  private ParticipationsService participations;
-  private ProjectsService projects;
-  private BudgetsService budgets;
-
-  @Autowired
-  public BudgetsController(
-    ParticipationsService participations,
-    ProjectsService projects,
-    BudgetsService budgets
-  ) {
-    this.participations = participations;
-    this.projects = projects;
-    this.budgets = budgets;
-  };
+  private final ParticipationsService participations;
+  private final ProjectsService projects;
+  private final BudgetsService budgets;
 
   @Authenticate
   @PostMapping
@@ -78,8 +70,8 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN, 
-      account.getId(), 
+      Role.ADMIN,
+      account.getId(),
       id
     );
 
@@ -105,8 +97,8 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN, 
-      account.getId(), 
+      Role.ADMIN,
+      account.getId(),
       id
     );
 
