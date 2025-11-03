@@ -8,36 +8,61 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-} from "@dnd-kit/sortable";
+import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import { type Participation, Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
-import { Role, type Team } from "@/services/teams";
 import TeamProjectsItem from "./TeamProjectsItem";
 
 interface Props {
-  team: Team;
-  role: Role;
+  participation: Participation;
   projects: Project[];
 }
 
-export default function TeamProjects({
-  team,
-  role,
-  projects: _projects,
-}: Props) {
-  const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
+export default function TeamProjects({ participation, projects }: Props) {
   const [isMounted, setIsMounted] = useState(false);
-  const [projects, setProjects] = useState(
-    _projects.sort((a, b) => a.index - b.index),
+
+  const participationQuery = useQuery({
+    queryKey: ["participations", participation.team.id, "me"],
+    queryFn: () => Api.client().participations().get(participation.team.id),
+    initialData: participation,
+  });
+
+  const isAdmin = [Role.ADMIN, Role.OWNER].includes(
+    participationQuery.data.role,
   );
+
+  const query = useQuery({
+    queryKey: ["participations", participation.team.id, "projects"],
+    queryFn: () => Api.client().teams().projects(participation.team.id),
+    initialData: projects,
+  });
+
+  const queryClient = useQueryClient();
+  const swapMutation = useMutation({
+    mutationFn: async ({
+      first,
+      second,
+    }: {
+      first: number;
+      second: number;
+    }) => {
+      return Api.client().projects().swap(first, second);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id, "projects"],
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -56,39 +81,42 @@ export default function TeamProjects({
     const { active, over } = event;
 
     if (over !== null && active.id !== over.id) {
-      setProjects((projects) => {
-        const oldIndex = projects.findIndex((p) => p.id === active.id);
-        const newIndex = projects.findIndex((p) => p.id === over.id);
+      // setProjects((projects) => {
+      //   const oldIndex = projects.findIndex((p) => p.id === active.id);
+      //   const newIndex = projects.findIndex((p) => p.id === over.id);
 
-        const _oldIndex = projects[oldIndex].index;
-        projects[oldIndex].index = projects[newIndex].index;
-        projects[newIndex].index = _oldIndex;
+      //   const _oldIndex = projects[oldIndex].index;
+      //   projects[oldIndex].index = projects[newIndex].index;
+      //   projects[newIndex].index = _oldIndex;
 
-        const newProjects = arrayMove(projects, oldIndex, newIndex);
-        return newProjects;
+      //   const newProjects = arrayMove(projects, oldIndex, newIndex);
+      //   return newProjects;
+      // });
+
+      swapMutation.mutate({
+        first: active.id as number,
+        second: over.id as number,
       });
-
-      await Api.client()
-        .projects()
-        .swap(active.id as number, over.id as number);
     }
   };
 
   const content = (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {projects.map((project) => {
-        return (
-          <TeamProjectsItem
-            key={`${team.id}-${project.id}`}
-            team={team}
-            project={project}
-          />
-        );
-      })}
+      {query.data
+        .sort((a, b) => a.index - b.index)
+        .map((project) => {
+          return (
+            <TeamProjectsItem
+              key={`${participation.team.id}-${project.id}`}
+              team={participationQuery.data.team}
+              project={project}
+            />
+          );
+        })}
       {isAdmin && (
         <li className="w-full">
           <Link
-            href={`/home/teams/${team.id}/projects/create`}
+            href={`/home/teams/${participation.team.id}/projects/create`}
             className={clsx(
               "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
               "items-center justify-center rounded-md px-6 py-4",
@@ -112,7 +140,7 @@ export default function TeamProjects({
         autoScroll={false}
       >
         <SortableContext
-          items={projects.map((p) => p.id)}
+          items={query.data.map((p) => p.id)}
           strategy={rectSortingStrategy}
         >
           <p className="-mt-1 mb-2 font-thin">

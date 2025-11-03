@@ -1,6 +1,6 @@
 import clsx from "clsx";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
-import CreateStageFormSection from "@/components/projects/forms/CreateStageFormSection";
+import CreateStageFormSection from "@/components/projects/forms/modals/CreateStageFormSection";
 import { Api } from "@/services/api";
 
 export default async function CreateStageModal({

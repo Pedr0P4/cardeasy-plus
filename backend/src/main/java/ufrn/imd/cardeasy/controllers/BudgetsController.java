@@ -1,7 +1,6 @@
 package ufrn.imd.cardeasy.controllers;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,13 +24,23 @@ import ufrn.imd.cardeasy.services.BudgetsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/budgets")
 public class BudgetsController {
   private ParticipationsService participations;
   private ProjectsService projects;
   private BudgetsService budgets;
+  
+  @Autowired
+  public BudgetsController(
+    ParticipationsService participations,
+    ProjectsService projects,
+    BudgetsService budgets
+  ) {
+    this.participations = participations;
+    this.projects = projects;
+    this.budgets = budgets;
+  };
 
   @Authenticate
   @PostMapping

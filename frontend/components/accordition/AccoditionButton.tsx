@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  ButtonHTMLAttributes,
-  DetailedHTMLProps,
-  ReactElement,
-} from "react";
+import type { ButtonHTMLAttributes, DetailedHTMLProps, ReactNode } from "react";
 import useAccordition from "./context/useAccordition";
 
 interface Props
@@ -12,8 +8,8 @@ interface Props
     ButtonHTMLAttributes<HTMLButtonElement>,
     HTMLButtonElement
   > {
-  showIcon: ReactElement;
-  hiddenIcon: ReactElement;
+  showIcon: ReactNode;
+  hiddenIcon: ReactNode;
 }
 
 export default function AccoditionButton({

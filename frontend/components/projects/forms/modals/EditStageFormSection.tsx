@@ -1,8 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, useState } from "react";
 import {
   FaCalendarDay,
   FaClipboardList,
@@ -16,7 +17,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { Project } from "@/services/projects";
 import type { Stage, UpdateStageDTO } from "@/services/stages";
-import Input from "../../Input";
+import Input from "../../../Input";
 
 interface Props {
   project: Project;
@@ -29,48 +30,61 @@ export default function EditStageFormSection({ project, stage }: Props) {
   const [withExpectedEndIn, setWithExpectedEndIn] = useState(
     !!stage.expectedEndIn,
   );
+
   const [data, setData] = useState<UpdateStageDTO>({
     name: stage.name,
-    current: stage.current,
+    state: stage.state,
     description: stage.description,
     expectedStartIn: stage.expectedStartIn,
     expectedEndIn: stage.expectedEndIn,
   });
 
-  const onDeleteStage = async () => {
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .stages()
-      .delete(stage.id)
-      .then(() => true)
-      .catch(() => false);
-
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .stages()
-      .update(stage?.id, {
-        ...data,
-        expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
-      })
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client().stages().delete(stage.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", project.id, "stages"],
       });
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+      router.push(`/home/teams/${project.team}/projects/${project.id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .stages()
+        .update(stage?.id, {
+          ...data,
+          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", project.id, "stages"],
+      });
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+      router.push(`/home/teams/${project.team}/projects/${project.id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const isPending = updateMutation.isPending || deleteMutation.isPending;
 
   const onChangeExpectedStartIn = (date?: Date) =>
     setData((data) => ({
@@ -115,7 +129,13 @@ export default function EditStageFormSection({ project, stage }: Props) {
         )}
       >
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            setErrors({});
+
+            updateMutation.mutate();
+          }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
@@ -175,17 +195,26 @@ export default function EditStageFormSection({ project, stage }: Props) {
             hiddenError={!!error}
           />
           <div className="flex flex-row flex-wrap gap-4">
-            <button type="submit" className="btn btn-neutral">
+            <button
+              disabled={isPending}
+              type="submit"
+              className="btn btn-neutral"
+            >
               <FaFloppyDisk />
               Salvar alterações
             </button>
             <button
-              onClick={onDeleteStage}
+              disabled={isPending}
+              onClick={() => {
+                setError("");
+                setErrors({});
+                deleteMutation.mutate();
+              }}
               type="button"
               className="btn btn-soft btn-primary"
             >
               <FaTrash />
-              Apagar etapa
+              Remover etapa
             </button>
           </div>
         </form>

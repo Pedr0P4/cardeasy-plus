@@ -14,10 +14,11 @@ import TabsContext from "@/components/tabs/context/tabsContext";
 import Tab from "@/components/tabs/Tab";
 import TabButton from "@/components/tabs/TabButton";
 import TeamConfiguration from "@/components/teams/TeamConfiguration";
+import TeamHeader from "@/components/teams/TeamHeader";
 import TeamMembers from "@/components/teams/TeamMembers";
 import TeamProjects from "@/components/teams/TeamProjects";
 import { Api } from "@/services/api";
-import { Role } from "@/services/teams";
+import { Role } from "@/services/participations";
 
 export default async function TeamPage({
   params,
@@ -46,12 +47,7 @@ export default async function TeamPage({
         >
           <AccordionContext initial={true}>
             <Accodition>
-              <div className="p-4">
-                <h1 className="font-bold text-2xl">
-                  {participation.team.title}
-                </h1>
-                <p>{participation.team.description}</p>
-              </div>
+              <TeamHeader participation={participation} />
             </Accodition>
             <div className="tabs tabs-lift">
               <AccoditionButton
@@ -77,29 +73,21 @@ export default async function TeamPage({
         </section>
         <Tab name="projects">
           <section className="w-full flex flex-col gap-2 p-6">
-            <TeamProjects
-              projects={projects}
-              role={participation.role}
-              team={participation.team}
-            />
+            <TeamProjects projects={projects} participation={participation} />
           </section>
         </Tab>
         <Tab name="members">
           <section className="w-full flex flex-col gap-2 p-6">
             <TeamMembers
               participations={participations}
-              viewer={participation}
-              team={participation.team}
+              participation={participation}
             />
           </section>
         </Tab>
         {isOwner && (
           <Tab name="config">
             <section className="w-full h-full flex flex-1 flex-col gap-2">
-              <TeamConfiguration
-                role={participation.role}
-                team={participation.team}
-              />
+              <TeamConfiguration participation={participation} />
             </section>
           </Tab>
         )}

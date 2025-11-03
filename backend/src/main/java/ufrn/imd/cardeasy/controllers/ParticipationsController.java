@@ -3,6 +3,7 @@ package ufrn.imd.cardeasy.controllers;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
 import ufrn.imd.cardeasy.dtos.team.DeleteParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateParticipationDTO;
@@ -24,13 +24,23 @@ import ufrn.imd.cardeasy.services.AccountsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.TeamsService;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/participations")
 public class ParticipationsController {
   private ParticipationsService participations;
   private TeamsService teams;
   private AccountsService accounts;
+
+  @Autowired
+  public ParticipationsController(
+    ParticipationsService participations,
+    TeamsService teams,
+    AccountsService accounts
+  ) {
+    this.participations = participations;
+    this.teams = teams;
+    this.accounts = accounts;
+  };
 
   @Authenticate
   @GetMapping

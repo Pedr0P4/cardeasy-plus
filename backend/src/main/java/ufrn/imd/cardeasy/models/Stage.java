@@ -3,6 +3,8 @@ package ufrn.imd.cardeasy.models;
 import java.sql.Date;
 import java.time.Instant;
 
+import org.hibernate.annotations.Formula;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -22,7 +24,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = {"id"})
 public class Stage {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false)

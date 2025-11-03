@@ -1,8 +1,8 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useMemo, useState } from "react";
+import { type ChangeEvent, useMemo, useState } from "react";
 import {
   FaCalendarDay,
   FaCheck,
@@ -16,7 +16,7 @@ import {
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import type { UpdateBudgetData } from "@/services/budgets";
+import type { Budget, UpdateBudgetData } from "@/services/budgets";
 import type { Project } from "@/services/projects";
 import Input from "../../Input";
 
@@ -36,6 +36,73 @@ export default function BudgetFormSection({ project }: Props) {
     deadline: project.budget?.deadline,
   });
 
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async (budget: Budget) => {
+      return Api.client()
+        .budgets()
+        .delete(budget.id)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (budget: Budget) => {
+      return Api.client()
+        .budgets()
+        .update(budget.id, {
+          ...data,
+          deadline: withDeadline ? data.deadline : undefined,
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const createMutation = useMutation({
+    mutationFn: () => {
+      return Api.client()
+        .budgets()
+        .create({
+          ...data,
+          deadline: withDeadline ? data.deadline : undefined,
+          project: project.id,
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
   const formatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: data.currency,
@@ -46,6 +113,7 @@ export default function BudgetFormSection({ project }: Props) {
     () => formatter.format(data.minValue),
     [data.minValue, formatter],
   );
+
   const formattedMaxValue = useMemo(
     () => formatter.format(data.maxValue),
     [data.maxValue, formatter],
@@ -57,73 +125,6 @@ export default function BudgetFormSection({ project }: Props) {
 
   const onChangeWithDeadline = (e: ChangeEvent<HTMLInputElement>) => {
     setWithDeadline(e.target.checked);
-  };
-
-  const onDeleteBudget = async () => {
-    setError("");
-    setErrors({});
-
-    if (!project.budget) {
-      setHasBudget(false);
-      return;
-    }
-
-    const success = await Api.client()
-      .budgets()
-      .delete(project.budget.id)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      });
-
-    if (success) {
-      setHasBudget(false);
-      redirect(`/home/teams/${project.team}/projects/${project.id}`);
-    }
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setErrors({});
-
-    let success = false;
-
-    if (project?.budget) {
-      console.log(withDeadline);
-      success = await Api.client()
-        .budgets()
-        .update(project.budget.id, {
-          ...data,
-          deadline: withDeadline ? data.deadline : undefined,
-        })
-        .then(() => true)
-        .catch((err: ApiErrorResponse) => {
-          if (err.isValidationError()) setErrors(err.errors);
-          else if (err.isErrorResponse()) setError(err.error);
-          else setError("erro inesperado");
-          return false;
-        });
-    } else {
-      success = await Api.client()
-        .budgets()
-        .create({
-          ...data,
-          deadline: withDeadline ? data.deadline : undefined,
-          project: project.id,
-        })
-        .then(() => true)
-        .catch((err: ApiErrorResponse) => {
-          if (err.isValidationError()) setErrors(err.errors);
-          else if (err.isErrorResponse()) setError(err.error);
-          else setError("erro inesperado");
-          return false;
-        });
-    }
-
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -153,6 +154,11 @@ export default function BudgetFormSection({ project }: Props) {
     }
   };
 
+  const isPending =
+    updateMutation.isPending ||
+    deleteMutation.isPending ||
+    createMutation.isPending;
+
   return (
     <>
       <h1
@@ -175,7 +181,17 @@ export default function BudgetFormSection({ project }: Props) {
       >
         {hasBudget ? (
           <form
-            onSubmit={onSubmit}
+            onSubmit={(e) => {
+              e.preventDefault();
+              setError("");
+              setErrors({});
+
+              if (project?.budget) {
+                updateMutation.mutate(project.budget);
+              } else {
+                createMutation.mutate();
+              }
+            }}
             className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
           >
             <Input
@@ -189,6 +205,7 @@ export default function BudgetFormSection({ project }: Props) {
               errors={errors}
               error={error}
               hiddenError={!!error}
+              disabled={isPending}
             >
               {Intl.supportedValuesOf("currency").map((value) => {
                 const formatter = new Intl.NumberFormat("pt-BR", {
@@ -220,6 +237,7 @@ export default function BudgetFormSection({ project }: Props) {
               errors={errors}
               error={error}
               hiddenError={!!error}
+              disabled={isPending}
             />
             <Input
               name="maxValue"
@@ -233,12 +251,14 @@ export default function BudgetFormSection({ project }: Props) {
               errors={errors}
               error={error}
               hiddenError={!!error}
+              disabled={isPending}
             />
             <Input
               name="deadline"
               type="day"
               optional
-              disabled={!withDeadline}
+              disabled={isPending}
+              hidden={!withDeadline}
               onChangeOptional={onChangeWithDeadline}
               placeholder="Prazo de conclusão"
               label="Com prazo de conclusão"
@@ -250,7 +270,11 @@ export default function BudgetFormSection({ project }: Props) {
               hiddenError={!!error}
             />
             <div className="flex flex-row flex-wrap gap-4">
-              <button type="submit" className="btn btn-neutral">
+              <button
+                disabled={isPending}
+                type="submit"
+                className="btn btn-neutral"
+              >
                 {project.budget ? (
                   <>
                     <FaFloppyDisk />
@@ -264,7 +288,20 @@ export default function BudgetFormSection({ project }: Props) {
                 )}
               </button>
               <button
-                onClick={onDeleteBudget}
+                disabled={isPending}
+                onClick={() => {
+                  setError("");
+                  setErrors({});
+
+                  if (!project.budget) {
+                    setHasBudget(false);
+                    return;
+                  }
+
+                  deleteMutation.mutate(project.budget, {
+                    onSuccess: () => setHasBudget(false),
+                  });
+                }}
                 type="button"
                 className="btn btn-soft btn-primary"
               >

@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import ufrn.imd.cardeasy.dtos.tag.CreateTagDTO;
 import ufrn.imd.cardeasy.dtos.tag.TagDTO;
 import ufrn.imd.cardeasy.dtos.tag.UpdateTagDTO;
@@ -27,13 +27,23 @@ import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 import ufrn.imd.cardeasy.services.TagsService;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/tags")
 public class TagsController {
   private TagsService tags;
   private ProjectsService projects;
   private ParticipationsService participations;
+
+  @Autowired
+  public TagsController(
+    TagsService tags,
+    ProjectsService projects,
+    ParticipationsService participations
+  ) {
+    this.tags = tags;
+    this.projects = projects;
+    this.participations = participations;
+  };
 
   @Authenticate
   @PostMapping

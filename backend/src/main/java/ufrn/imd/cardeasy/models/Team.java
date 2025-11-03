@@ -38,7 +38,8 @@ public class Team {
   @OneToMany(
     mappedBy = "team",
     cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY
+    fetch = FetchType.LAZY,
+    orphanRemoval = true
   ) @ToString.Exclude
   private Set<Participation> participations;
 
@@ -47,7 +48,8 @@ public class Team {
   @OneToMany(
     mappedBy = "team",
     cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY
+    fetch = FetchType.LAZY,
+    orphanRemoval = true
   ) @ToString.Exclude
   private List<Project> projects;
 };

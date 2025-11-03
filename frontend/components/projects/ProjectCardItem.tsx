@@ -2,8 +2,8 @@
 
 import clsx from "clsx";
 import type { Card } from "@/services/cards";
+import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
-import type { Role } from "@/services/teams";
 
 interface Props {
   project: Project;
@@ -12,6 +12,7 @@ interface Props {
 }
 
 export default function ProjectCardItem({ card, project, role }: Props) {
+  // TODO - Terminar card item
   return (
     <li className="w-full min-h overflow-hidden" tabIndex={-1}>
       <div

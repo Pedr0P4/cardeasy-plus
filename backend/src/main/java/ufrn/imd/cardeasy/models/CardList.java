@@ -22,7 +22,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = {"id"})
 public class CardList {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false)
@@ -36,7 +36,7 @@ public class CardList {
   @ManyToOne(fetch = FetchType.LAZY)
   private Project project;
 
-  @OrderBy("index ASC")
+  @OrderBy("index")
   @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
   @ToString.Exclude
   private List<Card> cards;

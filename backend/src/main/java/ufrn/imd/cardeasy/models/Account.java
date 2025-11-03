@@ -37,7 +37,12 @@ public class Account implements UserDetails {
   @Column(nullable = false)
   private String password;
 
-  @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @OneToMany(
+    mappedBy = "account", 
+    orphanRemoval = true, 
+    cascade = CascadeType.ALL, 
+    fetch = FetchType.LAZY
+  )
   @ToString.Exclude
   private Set<Participation> participations;
 

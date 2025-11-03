@@ -1,8 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, useState } from "react";
 import {
   FaCalendarDay,
   FaClipboardList,
@@ -15,7 +16,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { Project } from "@/services/projects";
 import type { CreateStageDTO } from "@/services/stages";
-import Input from "../../Input";
+import Input from "../../../Input";
 
 interface Props {
   project: Project;
@@ -31,26 +32,34 @@ export default function CreateStageFormSection({ project }: Props) {
     description: "",
   });
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setErrors({});
-
-    const stage = await Api.client()
-      .stages()
-      .create({
-        ...data,
-        expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return undefined;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .stages()
+        .create({
+          ...data,
+          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", project.id, "stages"],
       });
-
-    if (stage) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+      router.push(`/home/teams/${project.team}/projects/${project.id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   const onChangeExpectedStartIn = (date?: Date) =>
     setData((data) => ({
@@ -95,7 +104,13 @@ export default function CreateStageFormSection({ project }: Props) {
         )}
       >
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            setErrors({});
+
+            createMutation.mutate();
+          }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
@@ -155,7 +170,11 @@ export default function CreateStageFormSection({ project }: Props) {
             hiddenError={!!error}
           />
           <div className="flex flex-row flex-wrap gap-4">
-            <button type="submit" className="btn btn-neutral">
+            <button
+              disabled={createMutation.isPending}
+              type="submit"
+              className="btn btn-neutral"
+            >
               <FaPencil />
               Criar
             </button>

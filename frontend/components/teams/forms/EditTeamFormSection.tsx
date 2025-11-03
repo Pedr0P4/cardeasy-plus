@@ -1,9 +1,9 @@
 "use client";
 
-import type { UUID } from "node:crypto";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, useState } from "react";
 import {
   FaClipboardList,
   FaFloppyDisk,
@@ -14,7 +14,8 @@ import {
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { Role, type Team, type UpdateTeamData } from "@/services/teams";
+import { Role } from "@/services/participations";
+import type { Team, UpdateTeamData } from "@/services/teams";
 import Input from "../../Input";
 
 interface Props {
@@ -32,41 +33,54 @@ export default function EditTeamFormSection({ team, role }: Props) {
     description: team.description,
   });
 
-  const onDeleteTeam = async () => {
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .teams()
-      .delete(team.id as UUID)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .teams()
+        .delete(team.id)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participations"] });
+      queryClient.removeQueries({ queryKey: ["participations", team.id] });
+      queryClient.removeQueries({
+        queryKey: ["participations", team.id, "me"],
       });
+      router.push("/home");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) redirect("/home");
-  };
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .teams()
+        .update(team.id, data)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
+      router.push(`/home/teams/${team.id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .teams()
-      .update(team.id as UUID, data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      });
-
-    if (success) redirect(`/home/teams/${team.id}`);
-  };
+  const isPending = updateMutation.isPending || deleteMutation.isPending;
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
@@ -95,7 +109,13 @@ export default function EditTeamFormSection({ team, role }: Props) {
         )}
       >
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            setErrors({});
+
+            updateMutation.mutate();
+          }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
@@ -109,6 +129,7 @@ export default function EditTeamFormSection({ team, role }: Props) {
             errors={errors}
             error={error}
             hiddenError={!!error}
+            disabled={isPending}
           />
           <Input
             name="description"
@@ -122,15 +143,25 @@ export default function EditTeamFormSection({ team, role }: Props) {
             errors={errors}
             error={error}
             hiddenError={!!error}
+            disabled={isPending}
           />
           <div className="flex flex-row flex-wrap gap-4">
-            <button type="submit" className="btn btn-neutral">
+            <button
+              disabled={isPending}
+              type="submit"
+              className="btn btn-neutral"
+            >
               <FaFloppyDisk />
               Salvar alterações
             </button>
             {isOwner && (
               <button
-                onClick={onDeleteTeam}
+                disabled={isPending}
+                onClick={() => {
+                  setError("");
+                  setErrors({});
+                  deleteMutation.mutate();
+                }}
                 type="button"
                 className="btn btn-soft btn-primary"
               >

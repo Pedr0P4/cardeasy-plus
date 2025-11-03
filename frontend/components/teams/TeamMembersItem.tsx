@@ -2,19 +2,10 @@
 
 import clsx from "clsx";
 import { useEffect, useState } from "react";
-import {
-  FaCrow,
-  FaCrown,
-  FaGear,
-  FaIdBadge,
-  FaShield,
-  FaShieldHalved,
-  FaUserShield,
-} from "react-icons/fa6";
+import { FaCrown, FaShieldHalved } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ImageData } from "@/services/image";
-import { type Participation, Role } from "@/services/participations";
-import type { Team } from "@/services/teams";
+import type { Participation } from "@/services/participations";
 import Avatar from "../Avatar";
 import TeamMemberContextMenu from "./TeamMemberContextMenu";
 

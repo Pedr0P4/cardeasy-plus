@@ -1,8 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
-import { type FormEvent, useState } from "react";
+import { useState } from "react";
 import {
   FaArrowsRotate,
   FaEnvelopeOpenText,
@@ -23,37 +24,49 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>(team?.code ?? "");
 
-  const onDeleteCode = async () => {
-    setError("");
+  const queryClient = useQueryClient();
+  const deleteCodeMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .teams()
+        .deleteCode(team.id as UUID)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
+      setCode("");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    const success = await Api.client()
-      .teams()
-      .deleteCode(team.id as UUID)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      });
+  const generateCodeMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .teams()
+        .generateCode(team.id as UUID)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: (code) => {
+      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
+      setCode(code);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) setCode("");
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-
-    const code = await Api.client()
-      .teams()
-      .generateCode(team.id as UUID)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return "";
-      });
-
-    if (code) setCode(code);
-  };
+  const isPending =
+    deleteCodeMutation.isPending || generateCodeMutation.isPending;
 
   return (
     <>
@@ -76,7 +89,10 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
         )}
       >
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            generateCodeMutation.mutate();
+          }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
@@ -89,14 +105,23 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
             value={code}
             error={error}
             hiddenError={!!error}
+            disabled={isPending}
           />
           <div className="flex flex-row flex-wrap gap-4">
-            <button type="submit" className="btn btn-neutral">
+            <button
+              disabled={isPending}
+              type="submit"
+              className="btn btn-neutral"
+            >
               <FaArrowsRotate />
               Gerar código
             </button>
             <button
-              onClick={onDeleteCode}
+              disabled={isPending}
+              onClick={() => {
+                setError("");
+                deleteCodeMutation.mutate();
+              }}
               type="button"
               className="btn btn-soft btn-primary"
             >

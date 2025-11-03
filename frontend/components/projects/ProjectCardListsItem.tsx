@@ -1,26 +1,31 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FaPlus } from "react-icons/fa6";
+import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
-import type { Card } from "@/services/cards";
+import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
-import type { Role } from "@/services/teams";
 import ProjectCardItem from "./ProjectCardItem";
 
 interface Props {
   project: Project;
   cardList: CardList;
   role: Role;
-  cards: Card[];
 }
 
 export default function ProjectCardListsItem({
   cardList,
-  cards,
   project,
   role,
 }: Props) {
+  const query = useQuery({
+    queryKey: ["projects", project.id, "card-lists", cardList.id, "cards"],
+    queryFn: () => Api.client().cardList().cards(cardList.id),
+    initialData: [],
+  });
+
   return (
     <li className="min-w-3xs min-h-[20rem] overflow-hidden" tabIndex={-1}>
       <div
@@ -37,7 +42,7 @@ export default function ProjectCardListsItem({
           {cardList.title}
         </h4>
         <ul className="flex flex-1 flex-col w-full gap-1">
-          {cards.map((card) => {
+          {query.data.map((card) => {
             return (
               <ProjectCardItem
                 key={`card-${card.id}`}

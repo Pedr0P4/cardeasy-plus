@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import ufrn.imd.cardeasy.errors.Forbidden;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
@@ -89,32 +90,35 @@ public class ParticipationsService {
   public Participation findByAccountAndTag(
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     return this.participations
       .findByAccountAndTag(accountId, tagId)
       .orElseThrow(ParticipationNotFound::new);
-  }
+  };
 
   public Participation update(
     UUID accountId,
     UUID teamId,
     Role role
-  ){
-    Participation p = this.findById(accountId, teamId);
-    p.setRole(role);
-    this.participations.save(p);
-    return p;
-  }
+  ) {
+    Participation participation = this.findById(accountId, teamId);
+    participation.setRole(role);
+    this.participations.save(participation);
+    return participation;
+  };
 
+  @Transactional
   public void deleteByAccountAndTeam(
     UUID accountId,
     UUID teamId
-  ){
-    Participation p = this.participations
+  ) {
+    Participation participation = this.participations
       .findByAccountAndTeam(accountId, teamId)
       .orElseThrow(ParticipationNotFound::new);
-    this.participations.deleteById(p.getId());
-  }
+    
+    this.participations.deleteAssignmentsByAccountAndTeam(accountId, teamId);
+    this.participations.deleteById(participation.getId());
+  };
 
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {
     Participation participation = this.findById(accountId, teamId);
@@ -270,7 +274,7 @@ public class ParticipationsService {
     Role role,
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     Participation participation = this.findByAccountAndTag(accountId, tagId);
     if(
       !participation.getRole()
@@ -278,16 +282,16 @@ public class ParticipationsService {
     ) throw new Forbidden();
 
     return participation;
-  }
+  };
 
   public Participation checkTagAccess(
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     return this.checkTagAccess(
       Role.MEMBER,
       accountId,
       tagId
     );
-  }
+  };
 };

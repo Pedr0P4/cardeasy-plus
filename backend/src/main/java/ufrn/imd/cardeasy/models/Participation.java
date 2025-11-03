@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.models;
 
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -38,7 +39,10 @@ public class Participation {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @ManyToMany(mappedBy = "assigneds")
+  @ManyToMany(
+    mappedBy = "assigneds",
+    fetch = FetchType.LAZY
+  )
   @ToString.Exclude
   private Set<Card> assignments;
 };

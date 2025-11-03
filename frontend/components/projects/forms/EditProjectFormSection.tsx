@@ -1,8 +1,9 @@
 "use client";
 
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { type ChangeEvent, useState } from "react";
 import {
   FaClipboardList,
   FaFloppyDisk,
@@ -13,8 +14,8 @@ import {
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import { Role } from "@/services/participations";
 import type { Project, UpdateProjectData } from "@/services/projects";
-import { Role } from "@/services/teams";
 import Input from "../../Input";
 
 interface Props {
@@ -32,41 +33,56 @@ export default function EditProjectFormSection({ project, role }: Props) {
     description: project.description,
   });
 
-  const onDeleteProject = async () => {
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .projects()
-      .delete(project.id)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .projects()
+        .delete(project.id)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", project.team, "projects"],
       });
+      queryClient.removeQueries({ queryKey: ["projects", project.id] });
+      router.push(`/home/teams/${project.team}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) redirect(`/home/team/${project.team}`);
-  };
-
-  const onSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setErrors({});
-
-    const success = await Api.client()
-      .projects()
-      .update(project.id, data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .projects()
+        .update(project.id, data)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", project.team, "projects"],
       });
+      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+      router.push(`/home/teams/${project.team}/projects/${project.id}`);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
+  const isPending = updateMutation.isPending || deleteMutation.isPending;
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
@@ -95,7 +111,12 @@ export default function EditProjectFormSection({ project, role }: Props) {
         )}
       >
         <form
-          onSubmit={onSubmit}
+          onSubmit={(e) => {
+            e.preventDefault();
+            setError("");
+            setErrors({});
+            updateMutation.mutate();
+          }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
@@ -109,6 +130,7 @@ export default function EditProjectFormSection({ project, role }: Props) {
             errors={errors}
             error={error}
             hiddenError={!!error}
+            disabled={isPending}
           />
           <Input
             name="description"
@@ -122,15 +144,25 @@ export default function EditProjectFormSection({ project, role }: Props) {
             errors={errors}
             error={error}
             hiddenError={!!error}
+            disabled={isPending}
           />
           <div className="flex flex-row flex-wrap gap-4">
-            <button type="submit" className="btn btn-neutral">
+            <button
+              disabled={isPending}
+              type="submit"
+              className="btn btn-neutral"
+            >
               <FaFloppyDisk />
               Salvar alterações
             </button>
             {isOwner && (
               <button
-                onClick={onDeleteProject}
+                disabled={isPending}
+                onClick={() => {
+                  setError("");
+                  setErrors({});
+                  deleteMutation.mutate();
+                }}
                 type="button"
                 className="btn btn-soft btn-primary"
               >

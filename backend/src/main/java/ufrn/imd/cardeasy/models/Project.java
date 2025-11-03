@@ -25,7 +25,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = { "id" })
 public class Project {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false)
@@ -51,17 +51,11 @@ public class Project {
   ) @ToString.Exclude
   private Budget budget;
 
-  @OrderBy("""
-    CASE WHEN state = 'STARTED' THEN 0 
-    WHEN state = 'PLANNED' THEN 1 
-    WHEN state = 'FINISHED' THEN 2 
-    ELSE 3 END ASC, 
-    expected_start_in ASC
-  """)
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY
+    fetch = FetchType.LAZY,
+    orphanRemoval = true
   ) @ToString.Exclude
   private List<Stage> stages;
 
@@ -69,7 +63,8 @@ public class Project {
   @OneToMany(
     mappedBy = "project",
     cascade = CascadeType.ALL,
-    fetch = FetchType.LAZY
+    fetch = FetchType.LAZY,
+    orphanRemoval = true
   ) @ToString.Exclude
   private List<CardList> lists;
 

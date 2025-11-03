@@ -33,6 +33,7 @@ interface SelectProps
 type Props = {
   name?: string;
   optional?: boolean;
+  hidden?: boolean;
   disabled?: boolean;
   onChangeOptional?: (event: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
@@ -66,12 +67,14 @@ export default function Input({
   disabled,
   onChangeOptional = () => {},
   hiddenError = false,
+  hidden,
   type,
   ...props
 }: Props) {
   const inputId = useId();
   const checkboxId = useId();
 
+  hidden = hidden !== undefined ? hidden : disabled;
   const message = error ? error : errors ? errors[name] : error;
 
   return (
@@ -93,7 +96,7 @@ export default function Input({
           <span className={clsx(!optional && "pl-0.5")}>{label}</span>
         </label>
       )}
-      {(!optional || !disabled) &&
+      {(!optional || !hidden) &&
         (type === "textarea" ? (
           <label className="relative">
             {Icon && (

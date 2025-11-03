@@ -1,19 +1,7 @@
 import type { UUID } from "crypto";
-import type { Account } from "./accounts";
 import { Service } from "./base/services";
+import type { Participation } from "./participations";
 import type { Project } from "./projects";
-
-export type Participation = {
-  account: Account;
-  team: Team;
-  role: Role;
-};
-
-export enum Role {
-  OWNER = "OWNER",
-  ADMIN = "ADMIN",
-  MEMBER = "MEMBER",
-}
 
 export type Team = {
   id: UUID;

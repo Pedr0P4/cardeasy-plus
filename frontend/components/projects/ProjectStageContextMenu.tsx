@@ -1,7 +1,8 @@
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import type { MouseEvent } from "react";
 import {
   FaCalendarCheck,
   FaCalendarDay,
@@ -11,9 +12,9 @@ import {
   FaTrash,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import { type Stage, StageState } from "@/services/stages";
-import { Role } from "@/services/teams";
 
 interface Props {
   project: Project;
@@ -27,39 +28,43 @@ export default function ProjectStageContextMenu({
   stage,
 }: Props) {
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(role);
+  const queryClient = useQueryClient();
 
-  const onDeleteStage = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client().stages().delete(stage.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", project.id, "stages"],
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    const success = await Api.client()
-      .stages()
-      .delete(stage.id)
-      .then(() => true)
-      .catch(() => false);
-
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
-
-  const onChangeState = async (
-    e: MouseEvent<HTMLButtonElement>,
-    state: StageState,
-  ) => {
-    e.currentTarget.blur();
-
-    const success = await Api.client()
-      .stages()
-      .update(stage.id, {
+  const updateStateMutation = useMutation({
+    mutationFn: async (state: StageState) => {
+      return Api.client().stages().update(stage.id, {
         state,
         name: stage.name,
         description: stage.description,
         expectedEndIn: stage.expectedEndIn,
         expectedStartIn: stage.expectedStartIn,
-      })
-      .then(() => true)
-      .catch(() => false);
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["projects", project.id, "stages"],
+      });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    if (success) redirect(`/home/teams/${project.team}/projects/${project.id}`);
-  };
+  const isPending = updateStateMutation.isPending || deleteMutation.isPending;
 
   if (!isAdmin) return null;
 
@@ -79,7 +84,11 @@ export default function ProjectStageContextMenu({
         {stage.state !== StageState.STARTED && (
           <li>
             <button
-              onClick={(e) => onChangeState(e, StageState.STARTED)}
+              disabled={isPending}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                updateStateMutation.mutate(StageState.STARTED);
+              }}
               type="button"
             >
               <FaCalendarDay />
@@ -90,7 +99,11 @@ export default function ProjectStageContextMenu({
         {stage.state !== StageState.PLANNED && (
           <li>
             <button
-              onClick={(e) => onChangeState(e, StageState.PLANNED)}
+              disabled={isPending}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                updateStateMutation.mutate(StageState.PLANNED);
+              }}
               type="button"
             >
               <FaCalendarDays />
@@ -101,7 +114,11 @@ export default function ProjectStageContextMenu({
         {stage.state !== StageState.FINISHED && (
           <li>
             <button
-              onClick={(e) => onChangeState(e, StageState.FINISHED)}
+              disabled={isPending}
+              onClick={(e) => {
+                e.currentTarget.blur();
+                updateStateMutation.mutate(StageState.FINISHED);
+              }}
               type="button"
             >
               <FaCalendarCheck />
@@ -120,7 +137,11 @@ export default function ProjectStageContextMenu({
         </li>
         <li>
           <button
-            onClick={onDeleteStage}
+            disabled={isPending}
+            onClick={(e) => {
+              e.currentTarget.blur();
+              deleteMutation.mutate();
+            }}
             type="button"
             className="text-primary"
           >

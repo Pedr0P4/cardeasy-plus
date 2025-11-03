@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +31,7 @@ public class CardsController {
   private ParticipationsService participations;
   private CardService cards; 
 
+  @Autowired
   public CardsController (
     ParticipationsService participations,
     CardService cards

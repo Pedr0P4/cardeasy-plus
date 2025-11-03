@@ -1,7 +1,5 @@
 package ufrn.imd.cardeasy.services;
 
-import lombok.RequiredArgsConstructor;
-
 import java.sql.Date;
 import java.time.Instant;
 import java.util.List;
@@ -21,7 +19,6 @@ import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.StagesRepository;
 
 @Service
-@RequiredArgsConstructor
 public class StagesService {
   private ProjectsRepository projects;
   private StagesRepository stages;

@@ -3,9 +3,9 @@ package ufrn.imd.cardeasy.services;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import lombok.RequiredArgsConstructor;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TagNotFound;
 import ufrn.imd.cardeasy.models.Project;
@@ -14,10 +14,18 @@ import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.TagsRepository;
 
 @Service
-@RequiredArgsConstructor
 public class TagsService {
   private TagsRepository tags;
   private ProjectsRepository projects;
+
+  @Autowired
+  public TagsService(
+    TagsRepository tags,
+    ProjectsRepository projects
+  ) {
+    this.tags = tags;
+    this.projects = projects;
+  };
 
   public Tag create(
     Integer projectId,

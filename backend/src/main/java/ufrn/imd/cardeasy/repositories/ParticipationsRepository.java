@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,20 @@ import ufrn.imd.cardeasy.models.ParticipationId;
 @Repository
 public interface ParticipationsRepository
 extends JpaRepository<Participation, ParticipationId> {
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      DELETE FROM assignments AS ag
+      WHERE ag.account_id = ?1
+      AND ag.team_id = ?2
+    """,
+    nativeQuery = true
+  ) public void deleteAssignmentsByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  );
+
   @Query(
     // language=sql
     value = """

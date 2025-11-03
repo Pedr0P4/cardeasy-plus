@@ -1,6 +1,8 @@
+"use client";
+
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { type MouseEvent, useState } from "react";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -11,7 +13,7 @@ import {
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { type Participation, Role } from "@/services/teams";
+import { type Participation, Role } from "@/services/participations";
 
 interface Props {
   viewer: Participation;
@@ -33,156 +35,144 @@ export default function TeamMemberContextMenu({
   const level = levels[viewer.role] - levels[participation.role];
 
   // TODO - Toast?
+  // TODO - Rever transição de posse
 
-  const [error, setError] = useState<string>("");
-  const [errors, setErrors] = useState<Record<string, string>>();
   const router = useRouter();
-
-  const onPromoteToAdmin = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
-
-    setError("");
-    setErrors(undefined);
-
-    if (participation.role === Role.ADMIN) {
-      setError("Participante já é administrador!");
-      return;
-    }
-
-    await Api.client()
-      .participations()
-      .update({
-        accountId: participation.account.id,
-        teamId: participation.team.id,
-        role: Role.ADMIN,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+  const queryClient = useQueryClient();
+  const promoteToAdminMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .participations()
+        .update({
+          accountId: participation.account.id,
+          teamId: participation.team.id,
+          role: Role.ADMIN,
+        })
+        .catch((err: ApiErrorResponse) => {
+          // if (err.isValidationError()) setErrors(err.errors);
+          // else if (err.isErrorResponse()) setError(err.error);
+          // else setError("Erro inesperado!");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id],
       });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    router.refresh();
-  };
-
-  const onDemoteToMember = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
-
-    setError("");
-    setErrors(undefined);
-
-    if (participation.role === Role.MEMBER) {
-      setError("Participante já é membro!");
-      return;
-    }
-
-    await Api.client()
-      .participations()
-      .update({
-        accountId: participation.account.id,
-        teamId: participation.team.id,
-        role: Role.MEMBER,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+  const demoteToMemberMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .participations()
+        .update({
+          accountId: participation.account.id,
+          teamId: participation.team.id,
+          role: Role.MEMBER,
+        })
+        .catch((err: ApiErrorResponse) => {
+          // if (err.isValidationError()) setErrors(err.errors);
+          // else if (err.isErrorResponse()) setError(err.error);
+          // else setError("Erro inesperado!");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id],
       });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    router.refresh();
-  };
-
-  const onTransferOwnership = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
-
-    setError("");
-    setErrors(undefined);
-
-    if (viewer.role !== Role.OWNER) {
-      setError("Usuário não possui posse!");
-      return;
-    }
-
-    await Api.client()
-      .participations()
-      .update({
-        accountId: participation.account.id,
-        teamId: participation.team.id,
-        role: viewer.role,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+  const transferOwnershipMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .participations()
+        .update({
+          accountId: participation.account.id,
+          teamId: participation.team.id,
+          role: viewer.role,
+        })
+        .catch((err: ApiErrorResponse) => {
+          // if (err.isValidationError()) setErrors(err.errors);
+          // else if (err.isErrorResponse()) setError(err.error);
+          // else setError("Erro inesperado!");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id],
       });
-
-    await Api.client()
-      .participations()
-      .update({
-        accountId: viewer.account.id,
-        teamId: viewer.team.id,
-        role: participation.role,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id, "me"],
       });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    router.refresh();
-  };
-
-  const onKick = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
-
-    setError("");
-    setErrors(undefined);
-
-    if (viewer.role !== Role.ADMIN && viewer.role !== Role.OWNER) {
-      setError(
-        "Você não possui permissão para expulsar" + participation.account.name,
-      );
-      return;
-    }
-
-    await Api.client()
-      .participations()
-      .delete({
-        accountId: participation.account.id,
-        teamId: participation.team.id,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+  const kickMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .participations()
+        .delete({
+          accountId: participation.account.id,
+          teamId: participation.team.id,
+        })
+        .catch((err: ApiErrorResponse) => {
+          // if (err.isValidationError()) setErrors(err.errors);
+          // else if (err.isErrorResponse()) setError(err.error);
+          // else setError("Erro inesperado!");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["participations", participation.team.id],
       });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
-    router.refresh();
-  };
-
-  // Embora eu tenha colocado separado aqui,
-  // na prática o onExit é um caso específico do
-  // on kick
-  const onExit = async (e: MouseEvent<HTMLButtonElement>) => {
-    e.currentTarget.blur();
-
-    setError("");
-    setErrors(undefined);
-
-    await Api.client()
-      .participations()
-      .delete({
-        accountId: viewer.account.id,
-        teamId: viewer.team.id,
-      })
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("Erro inesperado!");
+  const exitMutation = useMutation({
+    mutationFn: async () => {
+      return Api.client()
+        .participations()
+        .delete({
+          accountId: viewer.account.id,
+          teamId: viewer.team.id,
+        })
+        .catch((err: ApiErrorResponse) => {
+          // if (err.isValidationError()) setErrors(err.errors);
+          // else if (err.isErrorResponse()) setError(err.error);
+          // else setError("Erro inesperado!");
+          throw err;
+        });
+    },
+    onSuccess: () => {
+      queryClient.removeQueries({
+        queryKey: ["participations", participation.team.id],
       });
-
-    router.push("/home");
-  };
+      queryClient.removeQueries({
+        queryKey: ["participations", participation.team.id, "me"],
+      });
+      router.push("/home");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 
@@ -203,14 +193,26 @@ export default function TeamMemberContextMenu({
           <>
             {level >= 2 ? (
               <li>
-                <button type="button" onClick={onPromoteToAdmin}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    promoteToAdminMutation.mutate();
+                  }}
+                >
                   <FaArrowUp />
                   Promover à administrador
                 </button>
               </li>
             ) : (
               <li>
-                <button type="button" onClick={onDemoteToMember}>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.currentTarget.blur();
+                    demoteToMemberMutation.mutate();
+                  }}
+                >
                   <FaArrowDown />
                   Rebaixar à membro
                 </button>
@@ -219,7 +221,10 @@ export default function TeamMemberContextMenu({
             <li>
               <button
                 type="button"
-                onClick={onTransferOwnership}
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  transferOwnershipMutation.mutate();
+                }}
                 className="text-primary"
               >
                 <FaArrowRightArrowLeft />
@@ -230,7 +235,14 @@ export default function TeamMemberContextMenu({
         )}
         {level >= 1 && !same && (
           <li>
-            <button type="button" onClick={onKick} className="text-primary">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.currentTarget.blur();
+                kickMutation.mutate();
+              }}
+              className="text-primary"
+            >
               <FaGavel />
               Expulsar do time
             </button>
@@ -238,7 +250,14 @@ export default function TeamMemberContextMenu({
         )}
         {same && !isOnwer && (
           <li>
-            <button type="button" onClick={onExit} className="text-primary">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.currentTarget.blur();
+                exitMutation.mutate();
+              }}
+              className="text-primary"
+            >
               <FaDoorOpen />
               Sair do time
             </button>
