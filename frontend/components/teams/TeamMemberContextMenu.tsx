@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -33,6 +34,7 @@ export default function TeamMemberContextMenu({
   const isOnwer = viewer.role === Role.OWNER;
   const same = viewer.account.id === participation.account.id;
   const level = levels[viewer.role] - levels[participation.role];
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO - Toast?
 
@@ -57,7 +59,8 @@ export default function TeamMemberContextMenu({
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -83,7 +86,8 @@ export default function TeamMemberContextMenu({
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -108,7 +112,8 @@ export default function TeamMemberContextMenu({
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -133,7 +138,8 @@ export default function TeamMemberContextMenu({
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -161,7 +167,8 @@ export default function TeamMemberContextMenu({
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -169,6 +176,7 @@ export default function TeamMemberContextMenu({
   });
 
   const isPending =
+    isLoading ||
     exitMutation.isPending ||
     kickMutation.isPending ||
     transferOwnershipMutation.isPending ||
@@ -199,6 +207,7 @@ export default function TeamMemberContextMenu({
                   disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
+                    setIsLoading(true);
                     promoteToAdminMutation.mutate();
                   }}
                 >
@@ -213,6 +222,7 @@ export default function TeamMemberContextMenu({
                   disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
+                    setIsLoading(true);
                     demoteToMemberMutation.mutate();
                   }}
                 >
@@ -227,6 +237,7 @@ export default function TeamMemberContextMenu({
                 disabled={isPending}
                 onClick={(e) => {
                   e.currentTarget.blur();
+                  setIsLoading(true);
                   transferOwnershipMutation.mutate();
                 }}
                 className="text-primary"
@@ -244,6 +255,7 @@ export default function TeamMemberContextMenu({
               disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
+                setIsLoading(true);
                 kickMutation.mutate();
               }}
               className="text-primary"
@@ -260,6 +272,7 @@ export default function TeamMemberContextMenu({
               disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
+                setIsLoading(true);
                 exitMutation.mutate();
               }}
               className="text-primary"

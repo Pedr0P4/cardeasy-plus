@@ -13,19 +13,23 @@ import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Team;
+import ufrn.imd.cardeasy.repositories.BudgetsRepository;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.TeamsRepository;
 
 @Service
 public class ProjectsService {
+  private BudgetsRepository budgets;
   private ProjectsRepository projects;
   private TeamsRepository teams;
 
   @Autowired
   public ProjectsService(
+    BudgetsRepository budgets,
     ProjectsRepository projects, 
     TeamsRepository teams
   ) {
+    this.budgets = budgets;
     this.projects = projects;
     this.teams = teams;
   };
@@ -79,8 +83,10 @@ public class ProjectsService {
     return project;
   };
 
+  @Transactional
   public void deleteById(Integer id) {
-    this.findById(id);
+    this.existsById(id);
+    this.budgets.deleteByProject(id);
     this.projects.deleteById(id);
   };
 

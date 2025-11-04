@@ -3,7 +3,12 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import { redirect, useParams } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaClipboardList,
   FaPenClip,
@@ -19,7 +24,7 @@ import type { CreateProjectData } from "@/services/projects";
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<CreateProjectData>({
@@ -32,20 +37,20 @@ export default function CreateProjectPage() {
     e.preventDefault();
     setError("");
     setErrors({});
-    setIsLoading(true);
 
-    const project = await Api.client()
-      .projects()
-      .create(data)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return undefined;
-      })
-      .finally(() => setIsLoading(false));
+    startTransition(async () => {
+      const project = await Api.client()
+        .projects()
+        .create(data)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          return undefined;
+        });
 
-    if (project) redirect(`/home/teams/${team}/projects/${project.id}`);
+      if (project) redirect(`/home/teams/${team}/projects/${project.id}`);
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>

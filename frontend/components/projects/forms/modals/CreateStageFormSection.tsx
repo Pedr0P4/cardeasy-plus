@@ -59,6 +59,7 @@ export default function CreateStageFormSection({ project }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 

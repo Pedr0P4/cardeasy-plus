@@ -91,7 +91,7 @@ public class TeamsService {
   };
 
   public void deleteById(UUID id) {
-    this.findById(id);
+    this.existsById(id);
     this.teams.deleteById(id);
   };
 

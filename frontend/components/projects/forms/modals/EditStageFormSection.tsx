@@ -57,6 +57,7 @@ export default function EditStageFormSection({ project, stage }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
@@ -84,6 +85,7 @@ export default function EditStageFormSection({ project, stage }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 

@@ -52,6 +52,7 @@ export default function CreateCardListFormSection({ project }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 

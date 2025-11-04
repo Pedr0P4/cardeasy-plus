@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
-import { useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import {
   FaArrowsRotate,
   FaEnvelopeOpenText,
@@ -18,9 +18,15 @@ import Input from "../../Input";
 
 interface Props {
   team: Team;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function InviteCodeTeamFormSection({ team }: Props) {
+export default function InviteCodeTeamFormSection({
+  team,
+  isLoading,
+  setIsLoading,
+}: Props) {
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>(team?.code ?? "");
 
@@ -40,7 +46,8 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -62,7 +69,8 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -70,7 +78,7 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
   });
 
   const isPending =
-    deleteCodeMutation.isPending || generateCodeMutation.isPending;
+    isLoading || deleteCodeMutation.isPending || generateCodeMutation.isPending;
 
   return (
     <>

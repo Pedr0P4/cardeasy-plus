@@ -72,6 +72,7 @@ export default function EditCardFormSection({
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
@@ -113,6 +114,7 @@ export default function EditCardFormSection({
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 

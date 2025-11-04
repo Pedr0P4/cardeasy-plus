@@ -57,13 +57,13 @@ export default function BudgetFormSection({
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
           setHasBudget(false);
-          setIsLoading(false);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -80,14 +80,14 @@ export default function BudgetFormSection({
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-          setIsLoading(false);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -105,14 +105,14 @@ export default function BudgetFormSection({
         })
         .then(() => {
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-          setIsLoading(false);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);

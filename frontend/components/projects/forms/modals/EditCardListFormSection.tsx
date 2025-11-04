@@ -51,6 +51,7 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
@@ -79,6 +80,7 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
