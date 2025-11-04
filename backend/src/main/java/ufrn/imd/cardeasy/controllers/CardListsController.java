@@ -5,9 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CreateCardListDTO;
+import ufrn.imd.cardeasy.dtos.cardlist.SwapCardListsDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.UpdateCardListDTO;
+import ufrn.imd.cardeasy.dtos.project.SwapProjectsDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.models.Role;
@@ -135,6 +139,34 @@ public class CardListsController {
     this.cardLists.deleteById(id);
     return ResponseEntity
       .noContent()
+      .build();
+  };
+
+  @Authenticate
+  @PostMapping("/swap")
+  public ResponseEntity<Void> swap(
+    @AuthenticationPrincipal Account account,
+    @RequestBody @Valid SwapCardListsDTO body
+  ) {
+    this.cardLists.existsById(body.first());
+    this.cardLists.existsById(body.second());
+    
+    this.participations.checkCardListAccess(
+      account.getId(),
+      body.first()
+    );
+
+    this.participations.checkCardListAccess(
+      account.getId(),
+      body.second()
+    );
+    
+    this.cardLists.swap(
+      body.first(),
+      body.second()
+    );
+
+    return ResponseEntity.ok()
       .build();
   };
 };

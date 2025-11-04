@@ -37,12 +37,10 @@ export class CardListsService extends Service {
   }
 
   async swap(first: number, second: number) {
-    return this.api
-      .post<CardList>("/card-lists/swap", {
-        first,
-        second,
-      })
-      .then((res) => res.data);
+    return this.api.post("/card-lists/swap", {
+      first,
+      second,
+    });
   }
 
   async cards(id: number) {

@@ -35,7 +35,6 @@ export default function TeamMemberContextMenu({
   const level = levels[viewer.role] - levels[participation.role];
 
   // TODO - Toast?
-  // TODO - Rever transição de posse
 
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -44,8 +43,8 @@ export default function TeamMemberContextMenu({
       return Api.client()
         .participations()
         .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
           role: Role.ADMIN,
         })
         .catch((err: ApiErrorResponse) => {
@@ -70,8 +69,8 @@ export default function TeamMemberContextMenu({
       return Api.client()
         .participations()
         .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
           role: Role.MEMBER,
         })
         .catch((err: ApiErrorResponse) => {
@@ -94,12 +93,8 @@ export default function TeamMemberContextMenu({
   const transferOwnershipMutation = useMutation({
     mutationFn: async () => {
       return Api.client()
-        .participations()
-        .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
-          role: viewer.role,
-        })
+        .teams()
+        .transfer(participation.team.id, participation.account.id)
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
@@ -125,8 +120,8 @@ export default function TeamMemberContextMenu({
       return Api.client()
         .participations()
         .delete({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
@@ -149,9 +144,8 @@ export default function TeamMemberContextMenu({
     mutationFn: async () => {
       return Api.client()
         .participations()
-        .delete({
-          accountId: viewer.account.id,
-          teamId: viewer.team.id,
+        .exit({
+          team: viewer.team.id,
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);

@@ -1,8 +1,22 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
@@ -17,6 +31,8 @@ interface Props {
 }
 
 export default function ProjectCardLists({ project, cardLists, role }: Props) {
+  const [isMounted, setIsMounted] = useState(false);
+
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
 
   const projectQuery = useQuery({
@@ -31,9 +47,61 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     initialData: cardLists,
   });
 
-  return (
+  const [_cardLists, setCardLists] = useState(query.data);
+
+  const swapMutation = useMutation({
+    mutationFn: async ({
+      first,
+      second,
+    }: {
+      first: number;
+      second: number;
+    }) => {
+      return Api.client().cardList().swap(first, second);
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        delay: 100,
+        tolerance: 10,
+      },
+    }),
+  );
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const onDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over !== null && active.id !== over.id) {
+      setCardLists((previous) => {
+        const oldIndex = previous.findIndex((p) => p.id === active.id);
+        const newIndex = previous.findIndex((p) => p.id === over.id);
+
+        const _oldIndex = previous[oldIndex].index;
+        previous[oldIndex].index = previous[newIndex].index;
+        previous[newIndex].index = _oldIndex;
+
+        return arrayMove(previous, oldIndex, newIndex);
+      });
+
+      swapMutation.mutate({
+        first: active.id as number,
+        second: over.id as number,
+      });
+    }
+  };
+
+  const content = (
     <ul className="flex flex-1 flex-row gap-4">
-      {query.data.map((cardList) => {
+      {_cardLists.map((cardList) => {
         return (
           <ProjectCardListsItem
             key={`card-list-${cardList.id}`}
@@ -44,7 +112,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
         );
       })}
       {isAdmin && (
-        <li className="w-full">
+        <li className="min-w-3xs min-h-[20rem] overflow-hidden">
           <Link
             href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/columns/create`}
             className={clsx(
@@ -60,4 +128,25 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       )}
     </ul>
   );
+
+  if (isMounted && isAdmin)
+    return (
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+        autoScroll={false}
+      >
+        <SortableContext
+          items={_cardLists.map((p) => p.id)}
+          strategy={rectSortingStrategy}
+        >
+          <p className="-mt-1 mb-2 font-thin">
+            Segure, espere um pouco e depois arraste para mudar a ordem.
+          </p>
+          {content}
+        </SortableContext>
+      </DndContext>
+    );
+  else if (isMounted) return content;
 }

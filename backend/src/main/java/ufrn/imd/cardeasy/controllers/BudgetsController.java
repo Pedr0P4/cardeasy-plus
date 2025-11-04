@@ -46,22 +46,22 @@ public class BudgetsController {
   @PostMapping
   public ResponseEntity<BudgetDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateBudgetDTO budget
+    @RequestBody @Valid CreateBudgetDTO body
   ) {
-    this.projects.existsById(budget.project());
+    this.projects.existsById(body.project());
 
     this.participations.checkProjectAccess(
       Role.ADMIN,
       account.getId(),
-      budget.project()
+      body.project()
     );
 
     Budget created = this.budgets.create(
-      budget.project(),
-      budget.minValue(),
-      budget.maxValue(),
-      budget.currency(),
-      budget.deadline()
+      body.project(),
+      body.minValue(),
+      body.maxValue(),
+      body.currency(),
+      body.deadline()
     );
 
     return ResponseEntity
@@ -74,7 +74,7 @@ public class BudgetsController {
   public ResponseEntity<BudgetDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody @Valid UpdateBudgetDTO budget
+    @RequestBody @Valid UpdateBudgetDTO body
   ) {
     this.budgets.existsById(id);
 
@@ -86,10 +86,10 @@ public class BudgetsController {
 
     Budget updated = this.budgets.update(
       id,
-      budget.minValue(),
-      budget.maxValue(),
-      budget.currency(),
-      budget.deadline()
+      body.minValue(),
+      body.maxValue(),
+      body.currency(),
+      body.deadline()
     );
 
     return ResponseEntity.ok(

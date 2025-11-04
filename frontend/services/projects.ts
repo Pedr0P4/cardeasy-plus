@@ -55,12 +55,10 @@ export class ProjectsService extends Service {
   }
 
   async swap(first: number, second: number) {
-    return this.api
-      .post<Project>("/projects/swap", {
-        first,
-        second,
-      })
-      .then((res) => res.data);
+    return this.api.post("/projects/swap", {
+      first,
+      second,
+    });
   }
 
   async stages(id: number) {

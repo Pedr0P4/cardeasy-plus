@@ -8,8 +8,12 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+} from "@dnd-kit/sortable";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -43,7 +47,8 @@ export default function TeamProjects({ participation, projects }: Props) {
     initialData: projects,
   });
 
-  const queryClient = useQueryClient();
+  const [_projects, setProjects] = useState(query.data);
+
   const swapMutation = useMutation({
     mutationFn: async ({
       first,
@@ -53,11 +58,6 @@ export default function TeamProjects({ participation, projects }: Props) {
       second: number;
     }) => {
       return Api.client().projects().swap(first, second);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id, "projects"],
-      });
     },
     onError: (error) => {
       console.log(error);
@@ -81,17 +81,16 @@ export default function TeamProjects({ participation, projects }: Props) {
     const { active, over } = event;
 
     if (over !== null && active.id !== over.id) {
-      // setProjects((projects) => {
-      //   const oldIndex = projects.findIndex((p) => p.id === active.id);
-      //   const newIndex = projects.findIndex((p) => p.id === over.id);
+      setProjects((previous) => {
+        const oldIndex = previous.findIndex((p) => p.id === active.id);
+        const newIndex = previous.findIndex((p) => p.id === over.id);
 
-      //   const _oldIndex = projects[oldIndex].index;
-      //   projects[oldIndex].index = projects[newIndex].index;
-      //   projects[newIndex].index = _oldIndex;
+        const _oldIndex = previous[oldIndex].index;
+        previous[oldIndex].index = previous[newIndex].index;
+        previous[newIndex].index = _oldIndex;
 
-      //   const newProjects = arrayMove(projects, oldIndex, newIndex);
-      //   return newProjects;
-      // });
+        return arrayMove(previous, oldIndex, newIndex);
+      });
 
       swapMutation.mutate({
         first: active.id as number,
@@ -102,17 +101,15 @@ export default function TeamProjects({ participation, projects }: Props) {
 
   const content = (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {query.data
-        .sort((a, b) => a.index - b.index)
-        .map((project) => {
-          return (
-            <TeamProjectsItem
-              key={`${participation.team.id}-${project.id}`}
-              team={participationQuery.data.team}
-              project={project}
-            />
-          );
-        })}
+      {_projects.map((project) => {
+        return (
+          <TeamProjectsItem
+            key={`${participation.team.id}-${project.id}`}
+            team={participationQuery.data.team}
+            project={project}
+          />
+        );
+      })}
       {isAdmin && (
         <li className="w-full">
           <Link
@@ -140,7 +137,7 @@ export default function TeamProjects({ participation, projects }: Props) {
         autoScroll={false}
       >
         <SortableContext
-          items={query.data.map((p) => p.id)}
+          items={_projects.map((p) => p.id)}
           strategy={rectSortingStrategy}
         >
           <p className="-mt-1 mb-2 font-thin">
@@ -150,6 +147,5 @@ export default function TeamProjects({ participation, projects }: Props) {
         </SortableContext>
       </DndContext>
     );
-
-  return content;
+  else if (isMounted) return content;
 }

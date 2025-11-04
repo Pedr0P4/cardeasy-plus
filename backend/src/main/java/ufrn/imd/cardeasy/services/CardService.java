@@ -4,9 +4,12 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.CardNotFound;
+import ufrn.imd.cardeasy.errors.InvalidSwap;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.repositories.CardListsRepository;
@@ -34,8 +37,15 @@ public class CardService {
     CardList list = cardLists.findById(cardListId)
       .orElseThrow(CardListNotFound::new);
 
+    IntervalDTO interval = this.cards.getIndexIntervalByCardList(cardListId);
+
     Card card = new Card();
-    card.setIndex(0l);
+    
+    if(interval.min() > 1) 
+      card.setIndex(interval.min() - 1);
+    else 
+      card.setIndex(interval.max() + 1);
+    
     card.setTitle(title);
     card.setList(list);
     card.setDescription(description);
@@ -77,5 +87,27 @@ public class CardService {
   public void existsById(Integer id) {
     if(!cards.existsById(id))
       throw new CardNotFound();
+  };
+
+  @Transactional
+  public void swap(Integer firstId, Integer secondId) {
+    Card first = this.findById(firstId);
+    Card second = this.findById(secondId);
+
+    if (
+      !first.getList().getId().equals(
+        second.getList().getId()
+      )
+    ) throw new InvalidSwap();
+    
+    Long firstIndex = first.getIndex();
+    Long secondIndex = second.getIndex();
+
+    first.setIndex(secondIndex);
+    second.setIndex(firstIndex);
+
+    this.cards.saveAll(
+      List.of(first, second)
+    );
   };
 };

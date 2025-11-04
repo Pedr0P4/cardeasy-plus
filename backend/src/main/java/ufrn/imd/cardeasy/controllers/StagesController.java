@@ -49,22 +49,22 @@ public class StagesController {
   @PostMapping
   public ResponseEntity<StageDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateStageDTO stage
+    @RequestBody @Valid CreateStageDTO body
   ) {
-    this.projects.existsById(stage.project());
+    this.projects.existsById(body.project());
 
     this.participations.checkProjectAccess(
       Role.ADMIN,
       account.getId(),
-      stage.project()
+      body.project()
     );
 
     Stage created = this.stages.create(
-      stage.project(),
-      stage.name(),
-      stage.description(),
-      stage.expectedStartIn(),
-      stage.expectedEndIn()
+      body.project(),
+      body.name(),
+      body.description(),
+      body.expectedStartIn(),
+      body.expectedEndIn()
     );
 
     return ResponseEntity
@@ -113,7 +113,7 @@ public class StagesController {
   public ResponseEntity<StageDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody @Valid UpdateStageDTO stage
+    @RequestBody @Valid UpdateStageDTO body
   ) {
     this.stages.existsById(id);
 
@@ -125,11 +125,11 @@ public class StagesController {
 
     Stage updated = this.stages.update(
       id,
-      stage.name(),
-      stage.state(),
-      stage.description(),
-      stage.expectedStartIn(),
-      stage.expectedEndIn()
+      body.name(),
+      body.state(),
+      body.description(),
+      body.expectedStartIn(),
+      body.expectedEndIn()
     );
 
     return ResponseEntity.ok(

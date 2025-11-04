@@ -1,5 +1,7 @@
 "use client";
 
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FaPlus } from "react-icons/fa6";
@@ -20,6 +22,15 @@ export default function ProjectCardListsItem({
   project,
   role,
 }: Props) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef: ref,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: cardList.id });
+
   const query = useQuery({
     queryKey: ["projects", project.id, "card-lists", cardList.id, "cards"],
     queryFn: () => Api.client().cardList().cards(cardList.id),
@@ -27,7 +38,20 @@ export default function ProjectCardListsItem({
   });
 
   return (
-    <li className="min-w-3xs min-h-[20rem] overflow-hidden" tabIndex={-1}>
+    <li
+      ref={ref}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+      className={clsx(
+        "relative min-w-3xs min-h-[20rem] overflow-hidden",
+        isDragging ? "z-10" : "z-0",
+        isDragging && "opacity-50",
+      )}
+      {...attributes}
+      tabIndex={-1}
+    >
       <div
         className={clsx(
           "bg-base-200 h-full flex flex-col",
@@ -37,6 +61,7 @@ export default function ProjectCardListsItem({
           "scrollbar-thumb-base-content",
           "scrollbar-track-base-200",
         )}
+        {...listeners}
       >
         <h4 className="font-bold text-start text-sm px-4 pt-3 pb-1">
           {cardList.title}
