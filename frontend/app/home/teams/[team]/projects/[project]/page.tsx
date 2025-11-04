@@ -1,19 +1,24 @@
-import TabsContext from "@/components/tabs/context/tabsContex";
-import Tab from "@/components/tabs/Tab";
-import TabButton from "@/components/tabs/TabButton";
-import { Api } from "@/services/api";
-import { Role } from "@/services/teams";
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import {
-  FaCalendarDay,
   FaCalendarDays,
   FaGear,
-  FaTimeline,
+  FaSquareCaretDown,
+  FaSquareCaretUp,
   FaTrello,
 } from "react-icons/fa6";
-import { format } from "date-fns";
+import Accodition from "@/components/accordition/Accodition";
+import AccoditionButton from "@/components/accordition/AccoditionButton";
+import AccordionContext from "@/components/accordition/context/accoditionContext";
+import ProjectCardLists from "@/components/projects/ProjectCardLists";
 import ProjectConfiguration from "@/components/projects/ProjectConfiguration";
+import ProjectHeader from "@/components/projects/ProjectHeader";
+import ProjectStages from "@/components/projects/ProjectStages";
+import TabsContext from "@/components/tabs/context/tabsContext";
+import Tab from "@/components/tabs/Tab";
+import TabButton from "@/components/tabs/TabButton";
+import { Api } from "@/services/api";
+import { Role } from "@/services/participations";
 
 export default async function ProjectPage({
   params,
@@ -27,20 +32,11 @@ export default async function ProjectPage({
     .projects()
     .get(Number.parseInt(projectId, 10));
 
-  // TODO - Remover budget
-  // TODO - Adicionar budget
-  // TODO - Editar budget
-  // TODO - Adicionar stage
-  // TODO - Editar stage
-  // TODO - Remover stage
-  // TODO - Visualizar stage
+  const stages = await Api.server().projects().stages(project.id);
+
+  const cardLists = await Api.server().projects().cardList(project.id);
 
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(participation.role);
-
-  const formatter = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: project?.budget?.currency ?? "BRL",
-  });
 
   return (
     <main
@@ -56,53 +52,55 @@ export default async function ProjectPage({
             "rounded-box w-full rounded-none border m-0 px-2",
           )}
         >
-          <div className="p-4 flex flex-col gap-0">
-            <h1 className="font-bold text-2xl">{project.title}</h1>
-
-            <p>{project.description}</p>
-            {project.budget && (
-              <>
-                <hr className="w-1/6 my-1 border-base-300" />
-                <p className="font-extralight italic text-sm mt-2">
-                  Verba de{" "}
-                  <span className="bg-base-100 p-1 rounded-md">
-                    {formatter.format(project.budget.minValue)} ~{" "}
-                    {formatter.format(project.budget.maxValue)}
-                  </span>
-                  {project.budget.deadline && (
-                    <>
-                      {" até "}
-                      <span className="bg-base-100 p-1 rounded-md">
-                        {format(
-                          new Date(project.budget.deadline),
-                          "dd/MM/uuuu",
-                        )}
-                      </span>
-                    </>
-                  )}
-                </p>
-              </>
-            )}
-          </div>
-          <div className="tabs tabs-lift">
-            <TabButton name="cards">
-              <FaTrello className="size-4 me-2" /> Cartões
-            </TabButton>
-            <TabButton name="stages">
-              <FaCalendarDays className="size-4 me-2" /> Etapas
-            </TabButton>
-            {isAdmin && (
-              <TabButton name="config">
-                <FaGear className="size-4 me-2" /> Configurações
+          <AccordionContext initial={true}>
+            <Accodition>
+              <ProjectHeader project={project} />
+            </Accodition>
+            <div className="tabs tabs-lift">
+              <AccoditionButton
+                type="button"
+                role="tab"
+                className="tab"
+                hiddenIcon={<FaSquareCaretUp className="size-4" />}
+                showIcon={<FaSquareCaretDown className="size-4" />}
+              />
+              <TabButton name="cards">
+                <FaTrello className="size-4 me-2" /> Cartões
               </TabButton>
-            )}
-          </div>
+              <TabButton name="stages">
+                <FaCalendarDays className="size-4 me-2" /> Etapas
+              </TabButton>
+              {isAdmin && (
+                <TabButton name="config">
+                  <FaGear className="size-4 me-2" /> Configurações
+                </TabButton>
+              )}
+            </div>
+          </AccordionContext>
         </section>
         <Tab name="cards">
-          <section className="w-full flex flex-col gap-2 p-6"></section>
+          <section
+            className={clsx(
+              "w-full flex flex-1 flex-col gap-2 p-6 overflow-x-auto",
+              "scrollbar scrollbar-thin scrollbar-thumb-base-content",
+              "scrollbar-track-base-200",
+            )}
+          >
+            <ProjectCardLists
+              project={project}
+              role={participation.role}
+              cardLists={cardLists}
+            />
+          </section>
         </Tab>
         <Tab name="stages">
-          <section className="w-full flex flex-col gap-2 p-6"></section>
+          <section className="w-full flex flex-col gap-2 p-6">
+            <ProjectStages
+              project={project}
+              role={participation.role}
+              stages={stages}
+            />
+          </section>
         </Tab>
         {isAdmin && (
           <Tab name="config">

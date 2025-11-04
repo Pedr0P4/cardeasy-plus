@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import AccountStoreInitializer from "@/components/AccountStoreInitializer";
 import Header from "@/components/Header";
+import QueriesContext from "@/components/queries/QueriesContext";
 import type { Account } from "@/services/accounts";
 
 export default async function TeamsLayout({
@@ -18,7 +19,7 @@ export default async function TeamsLayout({
     const account: Account = JSON.parse(_account ?? "");
 
     return (
-      <>
+      <QueriesContext>
         <AccountStoreInitializer account={account} />
         <div className="flex flex-col w-full sticky top-0 z-20">
           {" "}
@@ -26,7 +27,7 @@ export default async function TeamsLayout({
           {breadcrumbs}
         </div>
         {children}
-      </>
+      </QueriesContext>
     );
   } catch (_) {
     redirect("/");

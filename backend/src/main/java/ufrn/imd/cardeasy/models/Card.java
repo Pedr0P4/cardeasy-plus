@@ -1,6 +1,5 @@
 package ufrn.imd.cardeasy.models;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -11,7 +10,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,11 +20,12 @@ import lombok.ToString;
 @EqualsAndHashCode(of = { "id" })
 public class Card {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false)
   private Long index;
+  // TODO - Criar com o index certo
 
   @Column(nullable = false)
   private String title;

@@ -45,8 +45,7 @@ export default async function HomePage() {
         return (
           <TeamSection
             key={participation.team.id}
-            role={participation.role}
-            team={participation.team}
+            participation={participation}
             projects={projects}
           />
         );

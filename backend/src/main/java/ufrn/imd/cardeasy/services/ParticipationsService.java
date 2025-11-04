@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import ufrn.imd.cardeasy.errors.Forbidden;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.models.Participation;
@@ -76,14 +78,47 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
+  public Participation findByAccountAndCard(
+    UUID accountId,
+    Integer cardId
+  ) {
+    return this.participations
+      .findByAccountAndCard(accountId, cardId)
+      .orElseThrow(ParticipationNotFound::new);
+  };
+
   public Participation findByAccountAndTag(
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     return this.participations
       .findByAccountAndTag(accountId, tagId)
       .orElseThrow(ParticipationNotFound::new);
-  }
+  };
+
+  public Participation update(
+    UUID accountId,
+    UUID teamId,
+    Role role
+  ) {
+    Participation participation = this.findById(accountId, teamId);
+    participation.setRole(role);
+    this.participations.save(participation);
+    return participation;
+  };
+
+  @Transactional
+  public void deleteByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  ) {
+    Participation participation = this.participations
+      .findByAccountAndTeam(accountId, teamId)
+      .orElseThrow(ParticipationNotFound::new);
+    
+    this.participations.deleteAssignmentsByAccountAndTeam(accountId, teamId);
+    this.participations.deleteById(participation.getId());
+  };
 
   public Participation checkAccess(Role role, UUID accountId, UUID teamId) {
     Participation participation = this.findById(accountId, teamId);
@@ -168,12 +203,12 @@ public class ParticipationsService {
 
   public Participation checkBudgetAccess(
     UUID accountId,
-    Integer stageId
+    Integer budgetId
   ) {
-    return this.checkStageAccess(
+    return this.checkBudgetAccess(
       Role.MEMBER,
       accountId,
-      stageId
+      budgetId
     );
   };
 
@@ -199,10 +234,39 @@ public class ParticipationsService {
     UUID accountId,
     Integer cardListId
   ) {
-    return this.checkStageAccess(
+    return this.checkCardListAccess(
       Role.MEMBER,
       accountId,
       cardListId
+    );
+  };
+
+  public Participation checkCardAccess(
+    Role role,
+    UUID accountId,
+    Integer cardId
+  ) {
+    Participation participation = this.findByAccountAndCard(
+      accountId,
+      cardId
+    );
+
+    if (
+      !participation.getRole()
+        .hasAccessOf(role)
+    ) throw new Forbidden();
+
+    return participation;
+  };
+
+  public Participation checkCardAccess(
+    UUID accountId,
+    Integer cardId
+  ) {
+    return this.checkCardAccess(
+      Role.MEMBER,
+      accountId,
+      cardId
     );
   };
 
@@ -210,7 +274,7 @@ public class ParticipationsService {
     Role role,
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     Participation participation = this.findByAccountAndTag(accountId, tagId);
     if(
       !participation.getRole()
@@ -218,16 +282,16 @@ public class ParticipationsService {
     ) throw new Forbidden();
 
     return participation;
-  }
+  };
 
   public Participation checkTagAccess(
     UUID accountId,
     Integer tagId
-  ){
+  ) {
     return this.checkTagAccess(
       Role.MEMBER,
       accountId,
       tagId
     );
-  }
+  };
 };

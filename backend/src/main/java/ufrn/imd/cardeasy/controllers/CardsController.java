@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,167 +22,125 @@ import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
-import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.CardService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 
 @RestController
 @RequestMapping("/cards")
 public class CardsController {
-    private CardListsService cardListsService;
-    private ParticipationsService participationsService;
-    private CardService cardService; 
+  private ParticipationsService participations;
+  private CardService cards; 
 
-    public CardsController (
-        CardListsService cardLists,
-        ParticipationsService participations,
-        CardService card
-    ) {
-        this.participationsService = participations;
-        this.cardListsService = cardLists;
-        this.cardService = card;
-    }
+  @Autowired
+  public CardsController (
+    ParticipationsService participations,
+    CardService cards
+  ) {
+    this.participations = participations;
+    this.cards = cards;
+  };
 
+  @Authenticate
+  @GetMapping("/{id}")
+  public ResponseEntity<CardDTO> findById(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    Card card = this.cards.findById(id);
 
+    this.participations.checkCardListAccess(
+      account.getId(), 
+      card.getList().getId()
+    );
 
-    // GET /cards/{id}
-    @Authenticate
-    @GetMapping("/{id}")
-    public ResponseEntity<CardDTO> findById(
-        @AuthenticationPrincipal Account account,
-        @PathVariable Integer id
-    ) {
+    return ResponseEntity.ok(
+      CardDTO.from(card)
+    );
+  };
 
-        Card card = this.cardService.findById(id);
+  @Authenticate
+  @PostMapping
+  public ResponseEntity<CardDTO> create(
+    @AuthenticationPrincipal Account account,
+    @RequestBody CreateCardDTO body
+  ) {
+    this.participations.checkCardListAccess(
+      account.getId(), 
+      body.cardList()
+    );
 
-        this.participationsService.checkCardListAccess(
-            account.getId(), 
-            card.getList().getId()
-        );
+    Card card = this.cards.create(
+      body.cardList(), 
+      body.title(), 
+      body.description()
+    );
 
-        return ResponseEntity.ok(
-            CardDTO.from(card)
-        );
-    }
+    return ResponseEntity
+      .status(HttpStatus.CREATED)
+      .body(CardDTO.from(card));
+  };
 
-    // POST /cards
-    @Authenticate
-    @PostMapping
-    public ResponseEntity<CardDTO> create(
-        @AuthenticationPrincipal Account account,
-        @RequestBody CreateCardDTO cardDTO
-    ) {
-        this.participationsService.checkCardListAccess(
-            account.getId(), 
-            cardDTO.cardList()
-        );
-
-        Card card = this.cardService.create(
-            cardDTO.cardList(), 
-            cardDTO.title(), 
-            cardDTO.description()
-        );
-
-        return ResponseEntity
-            .status(HttpStatus.CREATED)
-            .body(CardDTO.from(card));
-    }
-
-
-    /*
-     * @Authenticate
+  @Authenticate
   @PutMapping("/{id}")
-  public ResponseEntity<CardListDTO> update(
+  public ResponseEntity<CardDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id, 
-    @RequestBody UpdateCardListDTO body
+    @RequestBody UpdateCardDTO body
   ) {
-    this.cardLists.existsById(id);
-    
-    this.participations.checkCardListAccess(
+    this.cards.existsById(id);
+
+    this.participations.checkCardAccess(
       account.getId(),
       id
     );
 
-    CardList cardList = this.cardLists.update(
-      id, 
-      body.title()
+    Card card = this.cards.update(
+      id,
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity.ok(
-      CardListDTO.from(cardList)
+        CardDTO.from(card)
     );
   };
-     */
 
-    // PUT /cards/{id}
-    @Authenticate
-    @PutMapping("/{id}")
-    public ResponseEntity<CardDTO> update(
-        @AuthenticationPrincipal Account account,
-        @PathVariable Integer id, 
-        @RequestBody UpdateCardDTO body
-    ) {
+  @Authenticate
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    this.cards.existsById(id);
 
-        this.cardService.existsById(id);
+    this.participations.checkCardAccess(
+      Role.ADMIN,
+      account.getId(), 
+      id
+    );
 
-        this.participationsService.checkCardListAccess(
-            account.getId(), 
-            cardService.findById(id).getList().getId()
-        );
+    this.cards.deleteById(id);
 
-        Card card = this.cardService.update(
-            id,
-            body.cardListId(),
-            body.title(),
-            body.description()
-        );
+    return ResponseEntity
+      .noContent()
+      .build();
+  };
 
+  @Authenticate
+  @GetMapping("/card-list/{id}")
+  public ResponseEntity<List<CardDTO>> findAllByCardList(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    this.participations.checkCardListAccess(
+      account.getId(), 
+      id
+    );
 
-        return ResponseEntity.ok(
-            CardDTO.from(card)
-        );
-    }
-
-    // DELETE /cards/{id}
-    @Authenticate
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
-        @AuthenticationPrincipal Account account,
-        @PathVariable Integer id
-    ) {
-        this.cardService.existsById(id);
-
-        this.participationsService.checkCardListAccess(
-            Role.ADMIN,
-            account.getId(), 
-            cardService.findById(id).getList().getId()
-        );
-
-        this.cardService.deleteById(id);
-
-        return ResponseEntity.noContent().build();
-
-    }
-
-    // POST /cards/swap
-
-    // GET /cards/card-list/{id}
-    @Authenticate
-    @GetMapping("/card-list/{id}")
-    public ResponseEntity<List<CardDTO>> findAllByCardList(
-        @AuthenticationPrincipal Account account,
-        @PathVariable Integer id
-    ) {
-        this.participationsService.checkCardListAccess(
-            account.getId(), 
-            id
-        );
-
-        List<Card> cards = cardService.findAllByCardList(id);
-        
-        return ResponseEntity.ok(
-            CardDTO.from(cards)
-        );
-    }    
-}
+    List<Card> cards = this.cards.findAllByCardList(id);
+    
+    return ResponseEntity.ok(
+      CardDTO.from(cards)
+    );
+  };  
+};

@@ -5,13 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record CreateCardDTO(
-    @NotNull
-    Integer cardList,
+  @NotNull
+  Integer cardList,
 
-    @NotBlank
-    @Size(min = 1, max = 45)
-    String title,
+  @NotBlank
+  @Size(min = 1, max = 45)
+  String title,
 
-    @Size(min = 0, max = 125)
-    String description
-) {} 
+  @Size(min = 0, max = 125)
+  String description
+) {};

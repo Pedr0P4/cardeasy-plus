@@ -47,7 +47,7 @@ public class AccountsService {
   ) {
     if(this.accounts.findByEmail(email).isPresent())
       throw new EmailAlreadyInUse();
-    
+
     Account account = new Account();
     account.setName(name);
     account.setEmail(email);
@@ -85,17 +85,17 @@ public class AccountsService {
     Optional<Account> candidate = this.accounts.findByEmail(email);
 
     if(
-      candidate.isPresent() && 
+      candidate.isPresent() &&
       !candidate.get().getId().equals(id)
     ) throw new EmailAlreadyInUse();
-    
+
     Account account = this.findById(id);
 
     if(!this.encoder.matches(
       password,
       account.getPassword()
     )) throw new PasswordsNotMatch();
-    
+
     account.setName(name);
     account.setEmail(email);
 
@@ -119,12 +119,10 @@ public class AccountsService {
     String email,
     String password
   ) {
-    System.out.println(this.encoder.encode(password));
-
     Account account = this.findByEmail(email);
-    
+
     if(!this.encoder.matches(
-      password, 
+      password,
       account.getPassword()
     )) throw new Unauthorized();
 
@@ -139,4 +137,9 @@ public class AccountsService {
     UUID id = this.authenticator.verify(token);
     return this.findById(id);
   };
+
+  public void existsById(UUID id){
+    if(!this.accounts.existsById(id))
+      throw new AccountNotFound();
+  }
 };

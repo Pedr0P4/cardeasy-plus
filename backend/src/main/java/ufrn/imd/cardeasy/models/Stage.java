@@ -1,9 +1,14 @@
 package ufrn.imd.cardeasy.models;
 
 import java.sql.Date;
+import java.time.Instant;
+
+import org.hibernate.annotations.Formula;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,14 +24,15 @@ import lombok.ToString;
 @EqualsAndHashCode(of = {"id"})
 public class Stage {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false)
   private String name;
 
   @Column(nullable = false)
-  private Boolean current = false;
+  @Enumerated(EnumType.STRING)
+  private StageState state = StageState.PLANNED;
 
   @Column(nullable = true)
   private String description;
@@ -41,4 +47,19 @@ public class Stage {
   @ManyToOne(fetch = FetchType.LAZY)
   @ToString.Exclude
   private Project project;
+
+  public StageStatus getStatus() {
+    Date now = new Date(Instant.now().toEpochMilli());
+    
+    if(this.state == StageState.FINISHED)
+      return StageStatus.FINISHED;
+    if(this.expectedEndIn != null && this.expectedEndIn.before(now))
+      return StageStatus.LATE;
+    else if(this.state == StageState.STARTED)
+      return StageStatus.RUNNING;
+    else if(this.expectedStartIn.before(now))
+      return StageStatus.PENDING;
+    else
+      return StageStatus.PLANNED;
+  };
 };

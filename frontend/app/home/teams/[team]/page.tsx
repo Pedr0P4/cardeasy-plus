@@ -1,14 +1,24 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import {
+  FaDiagramProject,
+  FaGear,
+  FaSquareCaretDown,
+  FaSquareCaretUp,
+  FaUserGroup,
+} from "react-icons/fa6";
+import Accodition from "@/components/accordition/Accodition";
+import AccoditionButton from "@/components/accordition/AccoditionButton";
+import AccordionContext from "@/components/accordition/context/accoditionContext";
+import TabsContext from "@/components/tabs/context/tabsContext";
+import Tab from "@/components/tabs/Tab";
+import TabButton from "@/components/tabs/TabButton";
+import TeamConfiguration from "@/components/teams/TeamConfiguration";
+import TeamHeader from "@/components/teams/TeamHeader";
+import TeamMembers from "@/components/teams/TeamMembers";
 import TeamProjects from "@/components/teams/TeamProjects";
 import { Api } from "@/services/api";
-import { FaDiagramProject, FaGear, FaUserGroup } from "react-icons/fa6";
-import Tab from "@/components/tabs/Tab";
-import TabsContext from "@/components/tabs/context/tabsContex";
-import TabButton from "@/components/tabs/TabButton";
-import { Role } from "@/services/teams";
-import TeamMembers from "@/components/teams/TeamMembers";
-import TeamConfiguration from "@/components/teams/TeamConfiguration";
+import { Role } from "@/services/participations";
 
 export default async function TeamPage({
   params,
@@ -35,49 +45,49 @@ export default async function TeamPage({
             "rounded-box w-full rounded-none border m-0 px-2",
           )}
         >
-          <div className="p-4">
-            <h1 className="font-bold text-2xl">{participation.team.title}</h1>
-            <p>{participation.team.description}</p>
-          </div>
-          <div className="tabs tabs-lift">
-            <TabButton name="projects">
-              <FaDiagramProject className="size-4 me-2" /> Projetos
-            </TabButton>
-            <TabButton name="members">
-              <FaUserGroup className="size-4 me-2" /> Membros
-            </TabButton>
-            {isOwner && (
-              <TabButton name="config">
-                <FaGear className="size-4 me-2" /> Configurações
+          <AccordionContext initial={true}>
+            <Accodition>
+              <TeamHeader participation={participation} />
+            </Accodition>
+            <div className="tabs tabs-lift">
+              <AccoditionButton
+                type="button"
+                role="tab"
+                className="tab"
+                hiddenIcon={<FaSquareCaretUp className="size-4" />}
+                showIcon={<FaSquareCaretDown className="size-4" />}
+              />
+              <TabButton name="projects">
+                <FaDiagramProject className="size-4 me-2" /> Projetos
               </TabButton>
-            )}
-          </div>
+              <TabButton name="members">
+                <FaUserGroup className="size-4 me-2" /> Membros
+              </TabButton>
+              {isOwner && (
+                <TabButton name="config">
+                  <FaGear className="size-4 me-2" /> Configurações
+                </TabButton>
+              )}
+            </div>
+          </AccordionContext>
         </section>
         <Tab name="projects">
           <section className="w-full flex flex-col gap-2 p-6">
-            <TeamProjects
-              projects={projects}
-              role={participation.role}
-              team={participation.team}
-            />
+            <TeamProjects projects={projects} participation={participation} />
           </section>
         </Tab>
         <Tab name="members">
           <section className="w-full flex flex-col gap-2 p-6">
             <TeamMembers
               participations={participations}
-              viewer={participation}
-              team={participation.team}
+              participation={participation}
             />
           </section>
         </Tab>
         {isOwner && (
           <Tab name="config">
             <section className="w-full h-full flex flex-1 flex-col gap-2">
-              <TeamConfiguration
-                role={participation.role}
-                team={participation.team}
-              />
+              <TeamConfiguration participation={participation} />
             </section>
           </Tab>
         )}

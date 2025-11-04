@@ -31,6 +31,7 @@ export type EditAccountData = {
 
 export class AccountsService extends Service {
   async login(data: LoginData) {
+    await this.logout();
     return this.api.post<string>("/accounts/auth", data).then(async (res) => {
       await this.setCookie("cardeasy@token", res.data);
     });

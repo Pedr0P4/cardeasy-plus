@@ -1,6 +1,7 @@
 package ufrn.imd.cardeasy.controllers;
 
 import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +30,7 @@ public class BudgetsController {
   private ParticipationsService participations;
   private ProjectsService projects;
   private BudgetsService budgets;
-
+  
   @Autowired
   public BudgetsController(
     ParticipationsService participations,
@@ -78,8 +79,8 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN, 
-      account.getId(), 
+      Role.ADMIN,
+      account.getId(),
       id
     );
 
@@ -105,8 +106,8 @@ public class BudgetsController {
     this.budgets.existsById(id);
 
     this.participations.checkBudgetAccess(
-      Role.ADMIN, 
-      account.getId(), 
+      Role.ADMIN,
+      account.getId(),
       id
     );
 

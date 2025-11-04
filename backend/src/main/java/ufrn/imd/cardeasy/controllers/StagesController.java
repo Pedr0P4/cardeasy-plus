@@ -2,6 +2,7 @@ package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +34,7 @@ public class StagesController {
   private ProjectsService projects;
   private StagesService stages;
 
+  @Autowired
   public StagesController(
     ParticipationsService participations,
     ProjectsService projects,
@@ -124,7 +126,7 @@ public class StagesController {
     Stage updated = this.stages.update(
       id,
       stage.name(),
-      stage.current(),
+      stage.state(),
       stage.description(),
       stage.expectedStartIn(),
       stage.expectedEndIn()

@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.services;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
@@ -12,9 +13,10 @@ import java.util.List;
 
 @Service
 public class CardListsService {
-  private final ProjectsRepository projects;
-  private final CardListsRepository cardLists;
+  private ProjectsRepository projects;
+  private CardListsRepository cardLists;
 
+  @Autowired
   public CardListsService(
     ProjectsRepository projects, 
     CardListsRepository cardLists
@@ -28,6 +30,7 @@ public class CardListsService {
       .orElseThrow(ProjectNotFound::new);
 
     CardList cardList = new CardList();
+    cardList.setIndex(0l);
     cardList.setTitle(title);
     cardList.setProject(project);
     cardLists.save(cardList);

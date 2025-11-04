@@ -21,7 +21,7 @@ import lombok.ToString;
 @EqualsAndHashCode(of = {"id"})
 public class Tag {
   @Id
-  @GeneratedValue(strategy = GenerationType.AUTO)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
   @Column(nullable = false, unique = true)
@@ -36,7 +36,7 @@ public class Tag {
   @JoinTable(
     name = "tag_card",
     joinColumns = @JoinColumn(name = "tag_id"),
-    inverseJoinColumns = @JoinColumn(name = "card_id", nullable = true)
+    inverseJoinColumns = @JoinColumn(name = "card_id")
   ) @ToString.Exclude
   private Set<Card> cards;
 };

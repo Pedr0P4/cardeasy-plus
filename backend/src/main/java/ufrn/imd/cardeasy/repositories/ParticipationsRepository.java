@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +15,33 @@ import ufrn.imd.cardeasy.models.ParticipationId;
 @Repository
 public interface ParticipationsRepository
 extends JpaRepository<Participation, ParticipationId> {
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      DELETE FROM assignments AS ag
+      WHERE ag.account_id = ?1
+      AND ag.team_id = ?2
+    """,
+    nativeQuery = true
+  ) public void deleteAssignmentsByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      WHERE pt.account_id = ?1
+      AND pt.team_id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndTeam(
+    UUID accountId,
+    UUID teamId
+  );
+
   @Query(
     // language=sql
     value = """
@@ -95,14 +123,32 @@ extends JpaRepository<Participation, ParticipationId> {
       SELECT pt.* FROM participation AS pt
       JOIN project AS pj
       ON pj.team_id = pt.team_id
+      JOIN card_list AS cl
+      ON cl.project_id = pj.id
+      JOIN card AS cd
+      ON cl.id = cd.list_id
+      WHERE pt.account_id = ?1
+      AND cd.id = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Participation> findByAccountAndCard(
+    UUID accountId,
+    Integer cardId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN project AS pj
+      ON pj.team_id = pt.team_id
       JOIN tag AS tg
       ON tg.project_id = pj.id
       WHERE pt.account_id = ?1
       AND tg.id = ?2
     """,
     nativeQuery = true
-  )
-  public Optional<Participation> findByAccountAndTag(
+  ) public Optional<Participation> findByAccountAndTag(
     UUID accountId,
     Integer tagId
   );

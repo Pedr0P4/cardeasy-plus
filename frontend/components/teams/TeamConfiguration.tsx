@@ -1,14 +1,23 @@
-import { Role, Team } from "@/services/teams";
+"use client";
+
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import EditTeamFormSection from "./EditTeamFormSection";
-import InviteCodeTeamFormSection from "./InviteCodeTeamFormSection";
+import { Api } from "@/services/api";
+import type { Participation } from "@/services/participations";
+import EditTeamFormSection from "./forms/EditTeamFormSection";
+import InviteCodeTeamFormSection from "./forms/InviteCodeTeamFormSection";
 
 interface Props {
-  team: Team;
-  role: Role;
+  participation: Participation;
 }
 
-export default function TeamConfiguration({ team, role }: Props) {
+export default function TeamConfiguration({ participation }: Props) {
+  const query = useQuery({
+    queryKey: ["participations", participation.team.id, "me"],
+    queryFn: () => Api.client().participations().get(participation.team.id),
+    initialData: participation,
+  });
+
   return (
     <main
       className={clsx(
@@ -16,8 +25,8 @@ export default function TeamConfiguration({ team, role }: Props) {
         "items-start justify-center",
       )}
     >
-      <InviteCodeTeamFormSection team={team} />
-      <EditTeamFormSection team={team} role={role} />
+      <InviteCodeTeamFormSection team={query.data.team} />
+      <EditTeamFormSection team={query.data.team} role={query.data.role} />
     </main>
   );
 }
