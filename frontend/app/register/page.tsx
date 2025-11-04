@@ -3,7 +3,12 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaEnvelope,
   FaKey,
@@ -18,7 +23,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function RegisterPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<RegisterData>({
@@ -31,21 +36,21 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setErrors({});
-    setIsLoading(true);
 
-    const success = await Api.client()
-      .accounts()
-      .register(data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      })
-      .finally(() => setIsLoading(false));
+    startTransition(async () => {
+      const success = await Api.client()
+        .accounts()
+        .register(data)
+        .then(() => true)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          return false;
+        });
 
-    if (success) redirect(`/login?email=${data.email}`);
+      if (success) redirect(`/login?email=${data.email}`);
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>

@@ -2,7 +2,12 @@
 
 import clsx from "clsx";
 import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaEnvelope,
   FaFloppyDisk,
@@ -21,6 +26,7 @@ import { useAccount } from "@/stores/useAccount";
 export default function EditAccountPage() {
   const account = useAccount((state) => state.account);
 
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [updatePassword, setUpdatePassword] = useState<boolean>(false);
@@ -42,18 +48,20 @@ export default function EditAccountPage() {
       return;
     }
 
-    const success = await Api.client()
-      .accounts()
-      .update(account.id, data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return false;
-      });
+    startTransition(async () => {
+      const success = await Api.client()
+        .accounts()
+        .update(account.id, data)
+        .then(() => true)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          return false;
+        });
 
-    if (success) redirect("/home");
+      if (success) redirect("/home");
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -117,6 +125,7 @@ export default function EditAccountPage() {
             avatar={data.avatar}
             onClearAvatar={onClearAvatar}
             onLoadAvatar={onLoadAvatar}
+            disabled={isLoading}
           />
           <Input
             name="name"
@@ -129,6 +138,7 @@ export default function EditAccountPage() {
             errors={errors}
             error={error}
             hiddenError={!!error}
+            disabled={isLoading}
           />
         </div>
         <Input
@@ -142,6 +152,7 @@ export default function EditAccountPage() {
           errors={errors}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
         <Input
           name="password"
@@ -154,6 +165,7 @@ export default function EditAccountPage() {
           errors={errors}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
         <Input
           name="newPassword"
@@ -166,11 +178,12 @@ export default function EditAccountPage() {
           errors={errors}
           error={error}
           optional
-          disabled={!updatePassword}
+          hidden={!updatePassword}
           hiddenError={!!error}
           onChangeOptional={onChangePassword}
+          disabled={isLoading}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaFloppyDisk />
           Salvar
         </button>

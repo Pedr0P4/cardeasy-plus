@@ -2,7 +2,12 @@
 
 import clsx from "clsx";
 import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaClipboardList,
   FaPenClip,
@@ -16,7 +21,7 @@ import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CreateTeamData } from "@/services/teams";
 
 export default function CreateTeamPage() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<CreateTeamData>({
@@ -28,20 +33,20 @@ export default function CreateTeamPage() {
     e.preventDefault();
     setError("");
     setErrors({});
-    setIsLoading(true);
 
-    const team = await Api.client()
-      .teams()
-      .create(data)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isValidationError()) setErrors(err.errors);
-        else if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return undefined;
-      })
-      .finally(() => setIsLoading(false));
+    startTransition(async () => {
+      const team = await Api.client()
+        .teams()
+        .create(data)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isValidationError()) setErrors(err.errors);
+          else if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          return undefined;
+        });
 
-    if (team) redirect(`/home/teams/${team.id}`);
+      if (team) redirect(`/home/teams/${team.id}`);
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
