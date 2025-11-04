@@ -5,49 +5,103 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
 import {
-  FaCalendarDay,
   FaClipboardList,
+  FaFloppyDisk,
   FaPenClip,
-  FaPencil,
-  FaPlus,
+  FaPenRuler,
+  FaTrash,
   FaTriangleExclamation,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import type { CardList } from "@/services/cardLists";
+import type { Card, UpdateCardData } from "@/services/cards";
 import type { Project } from "@/services/projects";
-import type { CreateStageDTO } from "@/services/stages";
 import Input from "../../../Input";
 
 interface Props {
   project: Project;
+  cardList: CardList;
+  card: Card;
 }
 
-export default function CreateStageFormSection({ project }: Props) {
+export default function EditCardFormSection({
+  project,
+  cardList,
+  card,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [withExpectedEndIn, setWithExpectedEndIn] = useState(false);
-  const [data, setData] = useState<CreateStageDTO>({
-    project: project.id,
-    name: "",
-    description: "",
+  const [data, setData] = useState<UpdateCardData>({
+    title: card.title,
+    description: card.description,
   });
 
   const router = useRouter();
   const queryClient = useQueryClient();
-  const createMutation = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: async () => {
       return await Api.client()
-        .stages()
-        .create({
-          ...data,
-          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
-        })
+        .cards()
+        .delete(card.id)
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "stages"],
+            queryKey: [
+              "projects",
+              project.id,
+              "card-lists",
+              cardList.id,
+              "cards",
+            ],
           });
-          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+
+          queryClient.removeQueries({
+            queryKey: [
+              "projects",
+              project.id,
+              "card-lists",
+              cardList.id,
+              "cards",
+              card.id,
+            ],
+          });
+
+          router.push(`/home/teams/${project.team}/projects/${project.id}`);
+        });
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return await Api.client()
+        .cards()
+        .update(card.id, data)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: [
+              "projects",
+              project.id,
+              "card-lists",
+              cardList.id,
+              "cards",
+            ],
+          });
+
+          queryClient.invalidateQueries({
+            queryKey: [
+              "projects",
+              project.id,
+              "card-lists",
+              cardList.id,
+              "cards",
+              card.id,
+            ],
+          });
+
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
         .catch((err: ApiErrorResponse) => {
@@ -62,29 +116,14 @@ export default function CreateStageFormSection({ project }: Props) {
     },
   });
 
-  const onChangeExpectedStartIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedStartIn: date ? date.getTime() : undefined,
-    }));
-
-  const onChangeExpectedEndIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedEndIn: date ? date.getTime() : undefined,
-    }));
-
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
       ...data,
       [e.target.name]: e.target.value,
     }));
 
-  const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
-    setWithExpectedEndIn(e.target.checked);
-  };
-
-  const isPending = isLoading || createMutation.isPending;
+  const isPending =
+    isLoading || updateMutation.isPending || deleteMutation.isPending;
 
   return (
     <>
@@ -96,8 +135,8 @@ export default function CreateStageFormSection({ project }: Props) {
           "flex flex-row items-center gap-2",
         )}
       >
-        <FaPlus className="size-6" />
-        Criar nova etapa
+        <FaPenRuler className="size-6" />
+        Editar cartão
       </h1>
       <div
         className={clsx(
@@ -112,17 +151,17 @@ export default function CreateStageFormSection({ project }: Props) {
             setError("");
             setErrors({});
             setIsLoading(true);
-            createMutation.mutate();
+            updateMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
-            name="name"
+            name="title"
             type="text"
-            placeholder="Nome"
-            label="Nome"
+            placeholder="Título"
+            label="Título"
             icon={FaPenClip}
-            value={data.name}
+            value={data.title}
             onChange={onChange}
             errors={errors}
             error={error}
@@ -141,45 +180,28 @@ export default function CreateStageFormSection({ project }: Props) {
             error={error}
             hiddenError={!!error}
           />
-          <Input
-            name="expectedStartIn"
-            type="day"
-            placeholder="Expectativa de início"
-            label="Expectativa de início"
-            icon={FaCalendarDay}
-            selected={
-              data.expectedStartIn ? new Date(data.expectedStartIn) : undefined
-            }
-            onSelect={onChangeExpectedStartIn}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="expectedEndIn"
-            type="day"
-            placeholder="Expectativa de termino"
-            label="Expectativa de termino"
-            onChangeOptional={onChangeWithExpectedEndIn}
-            optional
-            disabled={!withExpectedEndIn}
-            icon={FaCalendarDay}
-            selected={
-              data.expectedEndIn ? new Date(data.expectedEndIn) : undefined
-            }
-            onSelect={onChangeExpectedEndIn}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
           <div className="flex flex-row flex-wrap gap-4">
             <button
               disabled={isPending}
               type="submit"
               className="btn btn-neutral"
             >
-              <FaPencil />
-              Criar
+              <FaFloppyDisk />
+              Salvar alterações
+            </button>
+            <button
+              disabled={isPending}
+              onClick={() => {
+                setError("");
+                setErrors({});
+                setIsLoading(true);
+                deleteMutation.mutate();
+              }}
+              type="button"
+              className="btn btn-soft btn-primary"
+            >
+              <FaTrash />
+              Remover cartão
             </button>
           </div>
         </form>

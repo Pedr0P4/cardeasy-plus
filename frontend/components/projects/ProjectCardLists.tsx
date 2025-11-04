@@ -57,7 +57,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       first: number;
       second: number;
     }) => {
-      return Api.client().cardList().swap(first, second);
+      return await Api.client().cardLists().swap(first, second);
     },
     onError: (error) => {
       console.log(error);
@@ -77,13 +77,23 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!query.isFetching && query.isSuccess) {
+      setCardLists(query.data);
+    }
+  }, [query.data, query.isFetching, query.isSuccess]);
+
   const onDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (over !== null && active.id !== over.id) {
       setCardLists((previous) => {
-        const oldIndex = previous.findIndex((p) => p.id === active.id);
-        const newIndex = previous.findIndex((p) => p.id === over.id);
+        const oldIndex = previous.findIndex(
+          (p) => `card-list-${p.id}` === active.id,
+        );
+        const newIndex = previous.findIndex(
+          (p) => `card-list-${p.id}` === over.id,
+        );
 
         const _oldIndex = previous[oldIndex].index;
         previous[oldIndex].index = previous[newIndex].index;
@@ -114,7 +124,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       {isAdmin && (
         <li className="min-w-3xs min-h-[20rem] overflow-hidden">
           <Link
-            href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/columns/create`}
+            href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
             className={clsx(
               "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
               "items-center justify-center rounded-md px-6 py-4",
@@ -138,7 +148,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
         autoScroll={false}
       >
         <SortableContext
-          items={_cardLists.map((p) => p.id)}
+          items={_cardLists.map((cardList) => `card-list-${cardList.id}`)}
           strategy={rectSortingStrategy}
         >
           <p className="-mt-1 mb-2 font-thin">

@@ -27,18 +27,20 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
   const queryClient = useQueryClient();
   const deleteCodeMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .deleteCode(team.id as UUID)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          setCode("");
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      setCode("");
     },
     onError: (error) => {
       console.log(error);
@@ -47,18 +49,20 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
 
   const generateCodeMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .generateCode(team.id as UUID)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          setCode(code);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
         });
-    },
-    onSuccess: (code) => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      setCode(code);
     },
     onError: (error) => {
       console.log(error);

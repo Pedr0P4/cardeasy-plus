@@ -5,8 +5,6 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
 import {
-  FaCalendarDay,
-  FaClipboardList,
   FaPenClip,
   FaPencil,
   FaPlus,
@@ -14,23 +12,21 @@ import {
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import type { CreateCardListData } from "@/services/cardLists";
 import type { Project } from "@/services/projects";
-import type { CreateStageDTO } from "@/services/stages";
 import Input from "../../../Input";
 
 interface Props {
   project: Project;
 }
 
-export default function CreateStageFormSection({ project }: Props) {
+export default function CreateCardListFormSection({ project }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [withExpectedEndIn, setWithExpectedEndIn] = useState(false);
-  const [data, setData] = useState<CreateStageDTO>({
+  const [data, setData] = useState<CreateCardListData>({
     project: project.id,
-    name: "",
-    description: "",
+    title: "",
   });
 
   const router = useRouter();
@@ -38,16 +34,13 @@ export default function CreateStageFormSection({ project }: Props) {
   const createMutation = useMutation({
     mutationFn: async () => {
       return await Api.client()
-        .stages()
-        .create({
-          ...data,
-          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
-        })
+        .cardLists()
+        .create(data)
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "stages"],
+            queryKey: ["projects", project.id, "card-lists"],
           });
-          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
         .catch((err: ApiErrorResponse) => {
@@ -62,27 +55,11 @@ export default function CreateStageFormSection({ project }: Props) {
     },
   });
 
-  const onChangeExpectedStartIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedStartIn: date ? date.getTime() : undefined,
-    }));
-
-  const onChangeExpectedEndIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedEndIn: date ? date.getTime() : undefined,
-    }));
-
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
       ...data,
       [e.target.name]: e.target.value,
     }));
-
-  const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
-    setWithExpectedEndIn(e.target.checked);
-  };
 
   const isPending = isLoading || createMutation.isPending;
 
@@ -97,7 +74,7 @@ export default function CreateStageFormSection({ project }: Props) {
         )}
       >
         <FaPlus className="size-6" />
-        Criar nova etapa
+        Criar nova coluna
       </h1>
       <div
         className={clsx(
@@ -117,57 +94,13 @@ export default function CreateStageFormSection({ project }: Props) {
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
-            name="name"
+            name="title"
             type="text"
-            placeholder="Nome"
-            label="Nome"
+            placeholder="Título"
+            label="Título"
             icon={FaPenClip}
-            value={data.name}
+            value={data.title}
             onChange={onChange}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="description"
-            type="textarea"
-            placeholder="Descrição"
-            label="Descrição"
-            className="min-h-32"
-            icon={FaClipboardList}
-            value={data.description}
-            onChange={onChange}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="expectedStartIn"
-            type="day"
-            placeholder="Expectativa de início"
-            label="Expectativa de início"
-            icon={FaCalendarDay}
-            selected={
-              data.expectedStartIn ? new Date(data.expectedStartIn) : undefined
-            }
-            onSelect={onChangeExpectedStartIn}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="expectedEndIn"
-            type="day"
-            placeholder="Expectativa de termino"
-            label="Expectativa de termino"
-            onChangeOptional={onChangeWithExpectedEndIn}
-            optional
-            disabled={!withExpectedEndIn}
-            icon={FaCalendarDay}
-            selected={
-              data.expectedEndIn ? new Date(data.expectedEndIn) : undefined
-            }
-            onSelect={onChangeExpectedEndIn}
             errors={errors}
             error={error}
             hiddenError={!!error}

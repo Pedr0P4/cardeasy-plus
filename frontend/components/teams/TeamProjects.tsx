@@ -57,7 +57,7 @@ export default function TeamProjects({ participation, projects }: Props) {
       first: number;
       second: number;
     }) => {
-      return Api.client().projects().swap(first, second);
+      return await Api.client().projects().swap(first, second);
     },
     onError: (error) => {
       console.log(error);
@@ -76,6 +76,12 @@ export default function TeamProjects({ participation, projects }: Props) {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!query.isFetching && query.isSuccess) {
+      setProjects(query.data);
+    }
+  }, [query.data, query.isFetching, query.isSuccess]);
 
   const onDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
@@ -137,7 +143,7 @@ export default function TeamProjects({ participation, projects }: Props) {
         autoScroll={false}
       >
         <SortableContext
-          items={_projects.map((p) => p.id)}
+          items={_projects.map((project) => project.id)}
           strategy={rectSortingStrategy}
         >
           <p className="-mt-1 mb-2 font-thin">

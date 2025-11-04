@@ -17,6 +17,7 @@ import { Api } from "../../services/api";
 
 export default function LoginPage() {
   const params = useSearchParams();
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [data, setData] = useState<LoginData>({
     email: params.get("email") ?? "",
@@ -26,6 +27,7 @@ export default function LoginPage() {
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     const success = await Api.client()
       .accounts()
@@ -35,7 +37,8 @@ export default function LoginPage() {
         if (err.isApiError()) setError("usuário ou senha incorretos");
         else setError("erro inesperado");
         return false;
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (success) redirect("/home");
   };

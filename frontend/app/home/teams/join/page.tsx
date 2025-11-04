@@ -14,6 +14,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function CreateTeamPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>("");
 
@@ -26,6 +27,7 @@ export default function CreateTeamPage() {
       return;
     }
 
+    setIsLoading(true);
     const team = await Api.client()
       .teams()
       .join(code)
@@ -33,7 +35,8 @@ export default function CreateTeamPage() {
         if (err.isErrorResponse()) setError(err.error);
         else setError("erro inesperado");
         return undefined;
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (team) redirect(`/home/teams/${team.id}`);
   };
@@ -77,8 +80,9 @@ export default function CreateTeamPage() {
           onChange={onChange}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaPersonRunning />
           Entrar
         </button>

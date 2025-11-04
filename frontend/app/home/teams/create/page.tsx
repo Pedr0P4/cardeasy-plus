@@ -16,6 +16,7 @@ import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CreateTeamData } from "@/services/teams";
 
 export default function CreateTeamPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<CreateTeamData>({
@@ -27,6 +28,7 @@ export default function CreateTeamPage() {
     e.preventDefault();
     setError("");
     setErrors({});
+    setIsLoading(true);
 
     const team = await Api.client()
       .teams()
@@ -36,7 +38,8 @@ export default function CreateTeamPage() {
         else if (err.isErrorResponse()) setError(err.error);
         else setError("erro inesperado");
         return undefined;
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (team) redirect(`/home/teams/${team.id}`);
   };
@@ -85,6 +88,7 @@ export default function CreateTeamPage() {
           errors={errors}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
         <Input
           name="description"
@@ -98,8 +102,9 @@ export default function CreateTeamPage() {
           errors={errors}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaPencil />
           Criar
         </button>

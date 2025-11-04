@@ -19,6 +19,7 @@ import type { CreateProjectData } from "@/services/projects";
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
 
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<CreateProjectData>({
@@ -31,6 +32,7 @@ export default function CreateProjectPage() {
     e.preventDefault();
     setError("");
     setErrors({});
+    setIsLoading(true);
 
     const project = await Api.client()
       .projects()
@@ -40,7 +42,8 @@ export default function CreateProjectPage() {
         else if (err.isErrorResponse()) setError(err.error);
         else setError("erro inesperado");
         return undefined;
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (project) redirect(`/home/teams/${team}/projects/${project.id}`);
   };
@@ -103,7 +106,7 @@ export default function CreateProjectPage() {
           error={error}
           hiddenError={!!error}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaPencil />
           Criar
         </button>

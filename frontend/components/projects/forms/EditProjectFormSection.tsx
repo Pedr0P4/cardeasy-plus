@@ -3,7 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+  useState,
+} from "react";
 import {
   FaClipboardList,
   FaFloppyDisk,
@@ -21,9 +26,16 @@ import Input from "../../Input";
 interface Props {
   project: Project;
   role: Role;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function EditProjectFormSection({ project, role }: Props) {
+export default function EditProjectFormSection({
+  project,
+  role,
+  isLoading,
+  setIsLoading,
+}: Props) {
   const isOwner = role === Role.OWNER;
 
   const [error, setError] = useState<string>("");
@@ -37,21 +49,21 @@ export default function EditProjectFormSection({ project, role }: Props) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .projects()
         .delete(project.id)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", project.team, "projects"],
+          });
+          queryClient.removeQueries({ queryKey: ["projects", project.id] });
+          router.push(`/home/teams/${project.team}`);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", project.team, "projects"],
-      });
-      queryClient.removeQueries({ queryKey: ["projects", project.id] });
-      router.push(`/home/teams/${project.team}`);
     },
     onError: (error) => {
       console.log(error);
@@ -60,9 +72,16 @@ export default function EditProjectFormSection({ project, role }: Props) {
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .projects()
         .update(project.id, data)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", project.team, "projects"],
+          });
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+          setIsLoading(false);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
@@ -70,19 +89,13 @@ export default function EditProjectFormSection({ project, role }: Props) {
           throw err;
         });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", project.team, "projects"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-      router.push(`/home/teams/${project.team}/projects/${project.id}`);
-    },
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const isPending = updateMutation.isPending || deleteMutation.isPending;
+  const isPending =
+    isLoading || updateMutation.isPending || deleteMutation.isPending;
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
@@ -115,6 +128,7 @@ export default function EditProjectFormSection({ project, role }: Props) {
             e.preventDefault();
             setError("");
             setErrors({});
+            setIsLoading(true);
             updateMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
@@ -161,6 +175,7 @@ export default function EditProjectFormSection({ project, role }: Props) {
                 onClick={() => {
                   setError("");
                   setErrors({});
+                  setIsLoading(true);
                   deleteMutation.mutate();
                 }}
                 type="button"

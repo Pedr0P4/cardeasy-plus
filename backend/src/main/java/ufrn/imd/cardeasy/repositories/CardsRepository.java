@@ -25,8 +25,8 @@ extends JpaRepository<Card, Integer> {
   @Query(
     // language=sql
     value = """
-      SELECT COALESCE(MIN(pj.index), 0) AS min, 
-      COALESCE(MAX(pj.index), 0) AS max 
+      SELECT COALESCE(MIN(cd.index), 0) AS min, 
+      COALESCE(MAX(cd.index), 0) AS max 
       FROM card AS cd
       WHERE cd.list_id = ?1
     """,

@@ -8,8 +8,6 @@ import {
   FaEnvelope,
   FaKey,
   FaPencil,
-  FaRegEnvelope,
-  FaRegUser,
   FaTriangleExclamation,
   FaUser,
 } from "react-icons/fa6";
@@ -20,6 +18,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function RegisterPage() {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [data, setData] = useState<RegisterData>({
@@ -32,6 +31,7 @@ export default function RegisterPage() {
     e.preventDefault();
     setError("");
     setErrors({});
+    setIsLoading(true);
 
     const success = await Api.client()
       .accounts()
@@ -42,7 +42,8 @@ export default function RegisterPage() {
         else if (err.isErrorResponse()) setError(err.error);
         else setError("erro inesperado");
         return false;
-      });
+      })
+      .finally(() => setIsLoading(false));
 
     if (success) redirect(`/login?email=${data.email}`);
   };
@@ -99,12 +100,14 @@ export default function RegisterPage() {
       >
         <div className="flex flex-row gap-4 w-full items-center">
           <Avatar
+            disabled={isLoading}
             name={data.name}
             avatar={data.avatar}
             onClearAvatar={onClearAvatar}
             onLoadAvatar={onLoadAvatar}
           />
           <Input
+            disabled={isLoading}
             name="name"
             type="text"
             placeholder="Nome"
@@ -118,6 +121,7 @@ export default function RegisterPage() {
           />
         </div>
         <Input
+          disabled={isLoading}
           name="email"
           type="text"
           placeholder="Email"
@@ -130,6 +134,7 @@ export default function RegisterPage() {
           hiddenError={!!error}
         />
         <Input
+          disabled={isLoading}
           name="password"
           type="password"
           placeholder="Senha"
@@ -141,7 +146,7 @@ export default function RegisterPage() {
           error={error}
           hiddenError={!!error}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaPencil />
           Registrar-se
         </button>

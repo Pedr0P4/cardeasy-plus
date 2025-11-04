@@ -40,12 +40,17 @@ export default function TeamMemberContextMenu({
   const queryClient = useQueryClient();
   const promoteToAdminMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .update({
           account: participation.account.id,
           team: participation.team.id,
           role: Role.ADMIN,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
@@ -53,11 +58,6 @@ export default function TeamMemberContextMenu({
           // else setError("Erro inesperado!");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
     },
     onError: (error) => {
       console.log(error);
@@ -66,12 +66,17 @@ export default function TeamMemberContextMenu({
 
   const demoteToMemberMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .update({
           account: participation.account.id,
           team: participation.team.id,
           role: Role.MEMBER,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
@@ -79,11 +84,6 @@ export default function TeamMemberContextMenu({
           // else setError("Erro inesperado!");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
     },
     onError: (error) => {
       console.log(error);
@@ -92,23 +92,23 @@ export default function TeamMemberContextMenu({
 
   const transferOwnershipMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .transfer(participation.team.id, participation.account.id)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id, "me"],
+          });
+        })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id, "me"],
-      });
     },
     onError: (error) => {
       console.log(error);
@@ -117,11 +117,16 @@ export default function TeamMemberContextMenu({
 
   const kickMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .delete({
           account: participation.account.id,
           team: participation.team.id,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
@@ -129,11 +134,6 @@ export default function TeamMemberContextMenu({
           // else setError("Erro inesperado!");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
     },
     onError: (error) => {
       console.log(error);
@@ -142,10 +142,19 @@ export default function TeamMemberContextMenu({
 
   const exitMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .exit({
           team: viewer.team.id,
+        })
+        .then(() => {
+          queryClient.removeQueries({
+            queryKey: ["participations", participation.team.id],
+          });
+          queryClient.removeQueries({
+            queryKey: ["participations", participation.team.id, "me"],
+          });
+          router.push("/home");
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
@@ -154,19 +163,17 @@ export default function TeamMemberContextMenu({
           throw err;
         });
     },
-    onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: ["participations", participation.team.id],
-      });
-      queryClient.removeQueries({
-        queryKey: ["participations", participation.team.id, "me"],
-      });
-      router.push("/home");
-    },
     onError: (error) => {
       console.log(error);
     },
   });
+
+  const isPending =
+    exitMutation.isPending ||
+    kickMutation.isPending ||
+    transferOwnershipMutation.isPending ||
+    promoteToAdminMutation.isPending ||
+    demoteToMemberMutation.isPending;
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 
@@ -189,6 +196,7 @@ export default function TeamMemberContextMenu({
               <li>
                 <button
                   type="button"
+                  disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
                     promoteToAdminMutation.mutate();
@@ -202,6 +210,7 @@ export default function TeamMemberContextMenu({
               <li>
                 <button
                   type="button"
+                  disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
                     demoteToMemberMutation.mutate();
@@ -215,6 +224,7 @@ export default function TeamMemberContextMenu({
             <li>
               <button
                 type="button"
+                disabled={isPending}
                 onClick={(e) => {
                   e.currentTarget.blur();
                   transferOwnershipMutation.mutate();
@@ -231,6 +241,7 @@ export default function TeamMemberContextMenu({
           <li>
             <button
               type="button"
+              disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
                 kickMutation.mutate();
@@ -246,6 +257,7 @@ export default function TeamMemberContextMenu({
           <li>
             <button
               type="button"
+              disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
                 exitMutation.mutate();

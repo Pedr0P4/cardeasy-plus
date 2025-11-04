@@ -37,22 +37,22 @@ export default function EditTeamFormSection({ team, role }: Props) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .delete(team.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["participations"] });
+          queryClient.removeQueries({ queryKey: ["participations", team.id] });
+          queryClient.removeQueries({
+            queryKey: ["participations", team.id, "me"],
+          });
+          router.push("/home");
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations"] });
-      queryClient.removeQueries({ queryKey: ["participations", team.id] });
-      queryClient.removeQueries({
-        queryKey: ["participations", team.id, "me"],
-      });
-      router.push("/home");
     },
     onError: (error) => {
       console.log(error);
@@ -61,19 +61,21 @@ export default function EditTeamFormSection({ team, role }: Props) {
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .update(team.id, data)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          router.push(`/home/teams/${team.id}`);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
         });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      router.push(`/home/teams/${team.id}`);
     },
     onError: (error) => {
       console.log(error);
