@@ -1,6 +1,8 @@
 package ufrn.imd.cardeasy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
@@ -38,8 +40,11 @@ public class CardListsService {
     return cardList;
   };
 
-  public List<CardList> findAllByProject(Integer projectId) {
-    return this.cardLists.findAllByProject(projectId);
+  public Page<CardList> findAllByProject(Integer projectId, String filter, Pageable pageable) {
+    if (filter != null) {
+      return this.cardLists.findAllByProjectAndTitle(projectId,filter,pageable);
+    }
+    return this.cardLists.findAllByProject(projectId,pageable);
   };
 
   public CardList findById(Integer id) {

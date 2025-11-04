@@ -1,10 +1,14 @@
 package ufrn.imd.cardeasy.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CreateCardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.UpdateCardListDTO;
@@ -61,18 +65,23 @@ public class CardListsController {
 
   @Authenticate
   @GetMapping("/project/{id}")
-  public ResponseEntity<List<CardListDTO>> findAllByProject(
+  public ResponseEntity<PageDTO<CardListDTO>> findAllByProject(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer id
+    @PathVariable Integer id,
+    @RequestParam(name = "filter", required = false) String filter,
+    @RequestParam(name = "page", defaultValue = "0") Integer page
+
   ) {
     this.participations.checkProjectAccess(
       account.getId(),
       id
     );
+    Pageable pageable = PageRequest.of(page, 24);
 
-    List<CardList> cardLists = this.cardLists.findAllByProject(id);
+    Page<CardList> cardLists = this.cardLists.findAllByProject(id,filter,pageable);
+    Page<CardListDTO> cardListDTOPage = cardLists.map(CardListDTO::from);
     return ResponseEntity.ok(
-      CardListDTO.from(cardLists)
+      PageDTO.from(cardListDTOPage)
     );
   };
 
