@@ -1,41 +1,33 @@
 "use client";
 
 import {
-  closestCenter,
-  DndContext,
-  type DragEndEvent,
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMutation, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
-import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
+import type { Card } from "@/services/cards";
 import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import ProjectCardItem from "./ProjectCardItem";
+import ProjectCardListContextMenu from "./ProjectCardListContextMenu";
 
 interface Props {
   project: Project;
   cardList: CardList;
   role: Role;
+  cards: Card[];
 }
 
 export default function ProjectCardListsItem({
   cardList,
   project,
   role,
+  cards,
 }: Props) {
   const {
     attributes,
@@ -46,68 +38,6 @@ export default function ProjectCardListsItem({
     isDragging,
   } = useSortable({ id: `card-list-${cardList.id}` });
 
-  const query = useQuery({
-    queryKey: ["projects", project.id, "card-lists", cardList.id, "cards"],
-    queryFn: () => Api.client().cardLists().cards(cardList.id),
-    initialData: [],
-  });
-
-  const [cards, setCards] = useState(query.data);
-
-  const swapMutation = useMutation({
-    mutationFn: async ({
-      first,
-      second,
-    }: {
-      first: number;
-      second: number;
-    }) => {
-      return await Api.client().cards().swap(first, second);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        delay: 100,
-        tolerance: 10,
-      },
-    }),
-  );
-
-  useEffect(() => {
-    if (!query.isFetching && query.isSuccess) {
-      setCards(query.data);
-    }
-  }, [query.data, query.isFetching, query.isSuccess]);
-
-  const onDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over !== null && active.id !== over.id) {
-      setCards((previous) => {
-        const oldIndex = previous.findIndex(
-          (p) => `card-${p.id}` === active.id,
-        );
-        const newIndex = previous.findIndex((p) => `card-${p.id}` === over.id);
-
-        const _oldIndex = previous[oldIndex].index;
-        previous[oldIndex].index = previous[newIndex].index;
-        previous[newIndex].index = _oldIndex;
-
-        return arrayMove(previous, oldIndex, newIndex);
-      });
-
-      swapMutation.mutate({
-        first: active.id as number,
-        second: over.id as number,
-      });
-    }
-  };
-
   return (
     <li
       ref={ref}
@@ -116,7 +46,7 @@ export default function ProjectCardListsItem({
         transition,
       }}
       className={clsx(
-        "relative min-w-3xs min-h-[20rem] overflow-hidden",
+        "relative min-w-3xs max-w-4xs min-h-[20rem] overflow-hidden",
         isDragging && "z-10",
         isDragging && "opacity-80",
       )}
@@ -134,35 +64,33 @@ export default function ProjectCardListsItem({
         )}
         {...listeners}
       >
-        <h4 className="font-bold text-start text-sm px-4 pt-3 pb-1">
+        <h4
+          className={clsx(
+            "font-bold text-start text-sm px-4 pb-1.5 pt-2.5",
+            "bg-base-300 w-full mb-1 pr-14",
+          )}
+        >
           {cardList.title}
         </h4>
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={onDragEnd}
-          autoScroll={false}
+        <SortableContext
+          id={`cards-${cardList.id}`}
+          items={cards.map((card) => `card-${card.id}`)}
+          strategy={verticalListSortingStrategy}
         >
-          <SortableContext
-            items={cards.map((card) => `card-${card.id}`)}
-            strategy={verticalListSortingStrategy}
-          >
-            <ul className="flex flex-1 flex-col w-full gap-1">
-              {query.data.map((card) => {
-                return (
-                  <ProjectCardItem
-                    key={`card-${card.id}`}
-                    card={card}
-                    cardList={cardList}
-                    project={project}
-                    role={role}
-                  />
-                );
-              })}
-            </ul>
-          </SortableContext>
-        </DndContext>
-        {/* <ProjectStageContextMenu project={project} role={role} stage={stage} /> */}
+          <ul className="flex flex-1 flex-col w-full gap-1">
+            {cards.map((card) => {
+              return (
+                <ProjectCardItem
+                  key={`card-${card.id}`}
+                  card={card}
+                  cardList={cardList}
+                  project={project}
+                  role={role}
+                />
+              );
+            })}
+          </ul>
+        </SortableContext>
         <Link
           href={`/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/create`}
           className={clsx(
@@ -174,6 +102,7 @@ export default function ProjectCardListsItem({
           Criar novo cartão
         </Link>
       </div>
+      <ProjectCardListContextMenu cardList={cardList} project={project} />
     </li>
   );
 }

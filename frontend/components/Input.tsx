@@ -160,7 +160,7 @@ export default function Input({
           </label>
         ))}
       {message && !hiddenError && (
-        <div className="validator-hint visible first-letter:uppercase mt-0 ">
+        <div className="validator-hint !text-error visible first-letter:uppercase mt-0 ">
           {message}
         </div>
       )}

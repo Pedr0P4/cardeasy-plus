@@ -43,9 +43,9 @@ extends JpaRepository<CardList, Integer> {
     // language=sql
     value = """
       UPDATE card AS cd
+      SET cd.index = cd.index + 1
       WHERE cd.list_id = ?1
       AND cd.index >= ?2
-      SET cd.index = cd.index + 1
     """,
     nativeQuery = true
   ) public void shiftDown(
@@ -58,9 +58,9 @@ extends JpaRepository<CardList, Integer> {
     // language=sql
     value = """
       UPDATE card AS cd
+      SET cd.index = cd.index - 1
       WHERE cd.list_id = ?1
       AND cd.index >= ?2
-      SET cd.index = cd.index - 1
     """,
     nativeQuery = true
   ) public void shiftUp(

@@ -21,6 +21,18 @@ extends JpaRepository<Card, Integer> {
     """,
     nativeQuery = true
   ) public List<Card> findAllByCardList(Integer cardListId);
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT c.* FROM card AS c
+      JOIN card_list AS cl
+      ON c.list_id = cl.id
+      WHERE cl.project_id = ?1
+      ORDER BY index ASC
+    """,
+    nativeQuery = true
+  ) public List<Card> findAllByProject(Integer projectId);
   
   @Query(
     // language=sql

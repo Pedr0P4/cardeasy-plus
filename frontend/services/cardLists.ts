@@ -43,6 +43,13 @@ export class CardListsService extends Service {
     });
   }
 
+  async insert(id: number, card: number, index: number) {
+    return this.api.post(`/card-lists/${id}/insert`, {
+      card,
+      index,
+    });
+  }
+
   async cards(id: number) {
     return this.api
       .get<Card[]>(`/cards/card-list/${id}`)

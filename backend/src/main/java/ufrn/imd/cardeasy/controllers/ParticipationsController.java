@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.participations.DeleteParticipationDTO;
 import ufrn.imd.cardeasy.dtos.participations.ExitParticipationDTO;
 import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
@@ -79,7 +80,7 @@ public class ParticipationsController {
   @PutMapping
   public ResponseEntity<ParticipationDTO> update(
     @AuthenticationPrincipal Account account,
-    @RequestBody UpdateParticipationDTO body
+    @RequestBody @Valid UpdateParticipationDTO body
   ) {
     this.teams.existsById(body.team());
     this.accounts.existsById(body.account());
@@ -105,7 +106,7 @@ public class ParticipationsController {
   @DeleteMapping
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
-    @RequestBody DeleteParticipationDTO body
+    @RequestBody @Valid DeleteParticipationDTO body
   ) {
     this.teams.existsById(body.team());
     this.accounts.existsById(body.account());
@@ -135,7 +136,7 @@ public class ParticipationsController {
   @DeleteMapping("/exit")
   public ResponseEntity<Void> exit(
     @AuthenticationPrincipal Account account,
-    @RequestBody ExitParticipationDTO body
+    @RequestBody @Valid ExitParticipationDTO body
   ) {
     this.teams.existsById(body.team());
 

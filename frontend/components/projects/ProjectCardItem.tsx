@@ -33,6 +33,9 @@ export default function ProjectCardItem({
     id: `card-${card.id}`,
   });
 
+  // TODO - Visualizar assignments
+  // TODO - Visualizar tags
+  // TODO - Paginação em alguns cantos
   return (
     <li
       ref={ref}
@@ -54,7 +57,7 @@ export default function ProjectCardItem({
           "btn h-min flex flex-col",
           "items-start justify-start",
           "rounded-md px-3 py-2 touch-none gap-2",
-          "bg-base-300 w-[calc(100%-1rem)] mx-2",
+          "bg-base-300 w-[calc(100%-1rem)] mx-2  pr-14",
         )}
       >
         <h4 className="font-bold text-start text-sm">{card.title}</h4>

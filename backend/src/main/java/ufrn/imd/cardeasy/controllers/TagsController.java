@@ -111,7 +111,7 @@ public class TagsController {
   public ResponseEntity<TagDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody UpdateTagDTO body
+    @RequestBody @Valid UpdateTagDTO body
   ){
     this.tags.existsById(id);
     this.participations.checkTagAccess(account.getId(), id);

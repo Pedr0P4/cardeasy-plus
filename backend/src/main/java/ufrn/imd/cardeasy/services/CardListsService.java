@@ -104,7 +104,7 @@ public class CardListsService {
 
   @Transactional
   public void insert(Integer cardId, Long index, Integer cardListId) {
-    Card card = this.cards.findById(cardListId)
+    Card card = this.cards.findById(cardId)
       .orElseThrow(CardNotFound::new);
 
     if (card.getList().getId() == cardListId) return;

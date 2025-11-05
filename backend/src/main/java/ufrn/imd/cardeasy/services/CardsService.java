@@ -16,12 +16,12 @@ import ufrn.imd.cardeasy.repositories.CardListsRepository;
 import ufrn.imd.cardeasy.repositories.CardsRepository;
 
 @Service
-public class CardService {
+public class CardsService {
   private CardListsRepository cardLists;
   private CardsRepository cards;
   
   @Autowired
-  public CardService(
+  public CardsService(
     CardListsRepository cardLists,
     CardsRepository cards
   ) {
@@ -77,6 +77,10 @@ public class CardService {
 
   public List<Card> findAllByCardList(Integer cardListId) {
     return this.cards.findAllByCardList(cardListId);
+  };
+
+  public List<Card> findAllByProject(Integer projectId) {
+    return this.cards.findAllByProject(projectId);
   };
 
   public Card findById(Integer id) {

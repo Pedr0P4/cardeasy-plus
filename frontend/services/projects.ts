@@ -1,6 +1,7 @@
 import type { UUID } from "crypto";
 import { Service } from "./base/services";
 import type { CardList } from "./cardLists";
+import type { Card } from "./cards";
 import type { Stage } from "./stages";
 
 export type Budget = {
@@ -71,5 +72,9 @@ export class ProjectsService extends Service {
     return this.api
       .get<CardList[]>(`/card-lists/project/${id}`)
       .then((res) => res.data);
+  }
+
+  async cards(id: number) {
+    return this.api.get<Card[]>(`/cards/project/${id}`).then((res) => res.data);
   }
 }

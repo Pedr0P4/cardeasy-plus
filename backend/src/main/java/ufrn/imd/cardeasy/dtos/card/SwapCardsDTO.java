@@ -1,10 +1,11 @@
-package ufrn.imd.cardeasy.dtos.project;
+package ufrn.imd.cardeasy.dtos.card;
 
 import jakarta.validation.constraints.NotNull;
 
-public record SwapProjectsDTO(
+public record SwapCardsDTO(
   @NotNull
   Integer first,
+
   @NotNull
   Integer second
 ) {};
