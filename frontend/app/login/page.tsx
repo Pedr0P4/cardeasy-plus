@@ -3,7 +3,12 @@
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect, useSearchParams } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaEnvelope,
   FaKey,
@@ -17,6 +22,7 @@ import { Api } from "../../services/api";
 
 export default function LoginPage() {
   const params = useSearchParams();
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [data, setData] = useState<LoginData>({
     email: params.get("email") ?? "",
@@ -27,17 +33,19 @@ export default function LoginPage() {
     e.preventDefault();
     setError("");
 
-    const success = await Api.client()
-      .accounts()
-      .login(data)
-      .then(() => true)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isApiError()) setError("usuário ou senha incorretos");
-        else setError("erro inesperado");
-        return false;
-      });
+    startTransition(async () => {
+      const success = await Api.client()
+        .accounts()
+        .login(data)
+        .then(() => true)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isApiError()) setError("usuário ou senha incorretos");
+          else setError("erro inesperado");
+          return false;
+        });
 
-    if (success) redirect("/home");
+      if (success) redirect("/home");
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -81,6 +89,7 @@ export default function LoginPage() {
           onChange={onChange}
           error={error}
           hiddenError
+          disabled={isLoading}
         />
         <Input
           name="password"
@@ -92,9 +101,10 @@ export default function LoginPage() {
           onChange={onChange}
           error={error}
           hiddenError
+          disabled={isLoading}
         />
 
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaUnlock />
           Entrar
         </button>

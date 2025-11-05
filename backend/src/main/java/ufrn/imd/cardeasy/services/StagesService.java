@@ -103,7 +103,7 @@ public class StagesService {
   };
 
   public void deleteById(Integer id) {
-    this.findById(id);
+    this.existsById(id);
     this.stages.deleteById(id);
   };
 

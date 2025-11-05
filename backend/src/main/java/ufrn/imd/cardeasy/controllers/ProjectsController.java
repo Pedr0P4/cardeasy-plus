@@ -50,20 +50,20 @@ public class ProjectsController {
   @PostMapping
   public ResponseEntity<ProjectDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateProjectDTO project
+    @RequestBody @Valid CreateProjectDTO body
   ) {
-    this.teams.existsById(project.team());
+    this.teams.existsById(body.team());
 
     this.participations.checkAccess(
       Role.ADMIN,
       account.getId(),
-      project.team()
+      body.team()
     );
 
     Project created = this.projects.create(
-      project.team(),
-      project.title(),
-      project.description()
+      body.team(),
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity
@@ -108,7 +108,7 @@ public class ProjectsController {
   public ResponseEntity<ProjectDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody @Valid UpdateProjectDTO project
+    @RequestBody @Valid UpdateProjectDTO body
   ) {
     this.projects.existsById(id);
 
@@ -119,8 +119,8 @@ public class ProjectsController {
 
     Project updated = this.projects.update(
       id,
-      project.title(),
-      project.description()
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity.ok(
@@ -153,26 +153,26 @@ public class ProjectsController {
   @PostMapping("/swap")
   public ResponseEntity<Void> swap(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid SwapProjectsDTO projects
+    @RequestBody @Valid SwapProjectsDTO body
   ) {
-    this.projects.existsById(projects.first());
-    this.projects.existsById(projects.second());
+    this.projects.existsById(body.first());
+    this.projects.existsById(body.second());
     
     this.participations.checkProjectAccess(
       Role.ADMIN,
       account.getId(),
-      projects.first()
+      body.first()
     );
 
     this.participations.checkProjectAccess(
       Role.ADMIN,
       account.getId(),
-      projects.second()
+      body.second()
     );
     
     this.projects.swap(
-      projects.first(),
-      projects.second()
+      body.first(),
+      body.second()
     );
 
     return ResponseEntity.ok()

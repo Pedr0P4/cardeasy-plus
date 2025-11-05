@@ -23,6 +23,7 @@ interface Props {
 }
 
 export default function CreateStageFormSection({ project }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [withExpectedEndIn, setWithExpectedEndIn] = useState(false);
@@ -36,11 +37,18 @@ export default function CreateStageFormSection({ project }: Props) {
   const queryClient = useQueryClient();
   const createMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .stages()
         .create({
           ...data,
           expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "stages"],
+          });
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+          router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -49,15 +57,9 @@ export default function CreateStageFormSection({ project }: Props) {
           throw err;
         });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", project.id, "stages"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-      router.push(`/home/teams/${project.team}/projects/${project.id}`);
-    },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
@@ -82,6 +84,8 @@ export default function CreateStageFormSection({ project }: Props) {
   const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
     setWithExpectedEndIn(e.target.checked);
   };
+
+  const isPending = isLoading || createMutation.isPending;
 
   return (
     <>
@@ -108,7 +112,7 @@ export default function CreateStageFormSection({ project }: Props) {
             e.preventDefault();
             setError("");
             setErrors({});
-
+            setIsLoading(true);
             createMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
@@ -171,7 +175,7 @@ export default function CreateStageFormSection({ project }: Props) {
           />
           <div className="flex flex-row flex-wrap gap-4">
             <button
-              disabled={createMutation.isPending}
+              disabled={isPending}
               type="submit"
               className="btn btn-neutral"
             >

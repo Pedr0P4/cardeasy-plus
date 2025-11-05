@@ -15,26 +15,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.card.CardDTO;
 import ufrn.imd.cardeasy.dtos.card.CreateCardDTO;
+import ufrn.imd.cardeasy.dtos.card.SwapCardsDTO;
 import ufrn.imd.cardeasy.dtos.card.UpdateCardDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
-import ufrn.imd.cardeasy.services.CardService;
+import ufrn.imd.cardeasy.services.CardsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 
 @RestController
 @RequestMapping("/cards")
 public class CardsController {
   private ParticipationsService participations;
-  private CardService cards; 
+  private CardsService cards; 
 
   @Autowired
   public CardsController (
     ParticipationsService participations,
-    CardService cards
+    CardsService cards
   ) {
     this.participations = participations;
     this.cards = cards;
@@ -62,7 +64,7 @@ public class CardsController {
   @PostMapping
   public ResponseEntity<CardDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody CreateCardDTO body
+    @RequestBody @Valid CreateCardDTO body
   ) {
     this.participations.checkCardListAccess(
       account.getId(), 
@@ -85,7 +87,7 @@ public class CardsController {
   public ResponseEntity<CardDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id, 
-    @RequestBody UpdateCardDTO body
+    @RequestBody @Valid UpdateCardDTO body
   ) {
     this.cards.existsById(id);
 
@@ -142,5 +144,51 @@ public class CardsController {
     return ResponseEntity.ok(
       CardDTO.from(cards)
     );
-  };  
+  };
+
+  @Authenticate
+  @GetMapping("/project/{id}")
+  public ResponseEntity<List<CardDTO>> findAllByProject(
+    @AuthenticationPrincipal Account account,
+    @PathVariable Integer id
+  ) {
+    this.participations.checkProjectAccess(
+      account.getId(), 
+      id
+    );
+
+    List<Card> cards = this.cards.findAllByProject(id);
+    
+    return ResponseEntity.ok(
+      CardDTO.from(cards)
+    );
+  };
+
+  @Authenticate
+  @PostMapping("/swap")
+  public ResponseEntity<Void> swap(
+    @AuthenticationPrincipal Account account,
+    @RequestBody @Valid SwapCardsDTO body
+  ) {
+    this.cards.existsById(body.first());
+    this.cards.existsById(body.second());
+    
+    this.participations.checkCardAccess(
+      account.getId(),
+      body.first()
+    );
+
+    this.participations.checkCardAccess(
+      account.getId(),
+      body.second()
+    );
+    
+    this.cards.swap(
+      body.first(),
+      body.second()
+    );
+
+    return ResponseEntity.ok()
+      .build();
+  };
 };

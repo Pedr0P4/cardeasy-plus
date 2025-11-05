@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
-import ufrn.imd.cardeasy.dtos.team.KickDTO;
-import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.TeamDTO;
+import ufrn.imd.cardeasy.dtos.team.TransferOwnerDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateTeamDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
@@ -50,12 +50,12 @@ public class TeamsController {
   @PostMapping
   public ResponseEntity<TeamDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateTeamDTO team
+    @RequestBody @Valid CreateTeamDTO body
   ) {
     Team created = this.teams.create(
       account.getId(),
-      team.title(),
-      team.description()
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity
@@ -136,7 +136,7 @@ public class TeamsController {
   public ResponseEntity<TeamDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id,
-    @RequestBody @Valid UpdateTeamDTO team
+    @RequestBody @Valid UpdateTeamDTO body
   ) {
     this.teams.existsById(id);
 
@@ -148,8 +148,8 @@ public class TeamsController {
 
     Team updated = this.teams.update(
       id, 
-      team.title(), 
-      team.description()
+      body.title(), 
+      body.description()
     );
 
     return ResponseEntity.ok(
@@ -237,28 +237,24 @@ public class TeamsController {
   };
 
   @Authenticate
-  @PostMapping("/{id}/kick")
-  public ResponseEntity<TeamDTO> kick(
+  @PostMapping("/{id}/transfer")
+  public ResponseEntity<Void> transfer(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid KickDTO kick,
-    @PathVariable UUID id
+    @PathVariable UUID id,
+    @RequestBody @Valid TransferOwnerDTO body
   ) {
     this.teams.existsById(id);
 
-    Participation participation = this.participations.findById(
-      kick.account().getId(),
-      id
-    );
-
     this.participations.checkAccess(
-      participation.getRole().nextRole(),
-      account.getId(),
+      Role.OWNER,
+      account.getId(), 
       id
     );
 
-    this.teams.kick(
-      kick.account().getId(), 
-      id
+    this.teams.transfer(
+      id,
+      account.getId(),
+      body.account()
     );
 
     return ResponseEntity

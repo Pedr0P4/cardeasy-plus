@@ -10,14 +10,18 @@ export type Participation = {
 };
 
 export type UpdateParticipationData = {
-  accountId: UUID;
-  teamId: UUID;
+  account: UUID;
+  team: UUID;
   role: Role;
 };
 
 export type DeleteParticipationData = {
-  accountId: UUID;
-  teamId: UUID;
+  account: UUID;
+  team: UUID;
+};
+
+export type ExitParticipationData = {
+  team: UUID;
 };
 
 export enum Role {
@@ -47,5 +51,9 @@ export class ParticipationsService extends Service {
 
   async delete(data: DeleteParticipationData) {
     return this.api.delete("/participations", { data });
+  }
+
+  async exit(data: ExitParticipationData) {
+    return this.api.delete("/participations/exit", { data });
   }
 }

@@ -1,9 +1,11 @@
 package ufrn.imd.cardeasy.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.models.CardList;
 
 import java.util.List;
@@ -16,9 +18,53 @@ extends JpaRepository<CardList, Integer> {
     value = """
       SELECT cl.* FROM card_list AS cl
       WHERE cl.project_id = ?1
+      ORDER BY index ASC
     """,
     nativeQuery = true
   ) public List<CardList> findAllByProject(
     Integer projectId
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT COALESCE(MIN(cl.index), 0) AS min, 
+      COALESCE(MAX(cl.index), 0) AS max 
+      FROM card_list AS cl
+      WHERE cl.project_id = ?1
+    """,
+    nativeQuery = true
+  ) public IntervalDTO getIndexIntervalByProject(
+    Integer projectId
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE card AS cd
+      SET cd.index = cd.index + 1
+      WHERE cd.list_id = ?1
+      AND cd.index >= ?2
+    """,
+    nativeQuery = true
+  ) public void shiftDown(
+    Integer cardListId,
+    Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE card AS cd
+      SET cd.index = cd.index - 1
+      WHERE cd.list_id = ?1
+      AND cd.index >= ?2
+    """,
+    nativeQuery = true
+  ) public void shiftUp(
+    Integer cardListId,
+    Long index
   );
 };

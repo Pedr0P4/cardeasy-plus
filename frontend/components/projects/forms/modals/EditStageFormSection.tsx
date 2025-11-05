@@ -25,6 +25,7 @@ interface Props {
 }
 
 export default function EditStageFormSection({ project, stage }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [withExpectedEndIn, setWithExpectedEndIn] = useState(
@@ -43,27 +44,37 @@ export default function EditStageFormSection({ project, stage }: Props) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return Api.client().stages().delete(stage.id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", project.id, "stages"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-      router.push(`/home/teams/${project.team}/projects/${project.id}`);
+      return await Api.client()
+        .stages()
+        .delete(stage.id)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "stages"],
+          });
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+          router.push(`/home/teams/${project.team}/projects/${project.id}`);
+        });
     },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .stages()
         .update(stage?.id, {
           ...data,
           expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "stages"],
+          });
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+          router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -72,19 +83,11 @@ export default function EditStageFormSection({ project, stage }: Props) {
           throw err;
         });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", project.id, "stages"],
-      });
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-      router.push(`/home/teams/${project.team}/projects/${project.id}`);
-    },
     onError: (error) => {
       console.log(error);
+      setIsLoading(false);
     },
   });
-
-  const isPending = updateMutation.isPending || deleteMutation.isPending;
 
   const onChangeExpectedStartIn = (date?: Date) =>
     setData((data) => ({
@@ -107,6 +110,9 @@ export default function EditStageFormSection({ project, stage }: Props) {
   const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
     setWithExpectedEndIn(e.target.checked);
   };
+
+  const isPending =
+    isLoading || updateMutation.isPending || deleteMutation.isPending;
 
   return (
     <>
@@ -133,7 +139,7 @@ export default function EditStageFormSection({ project, stage }: Props) {
             e.preventDefault();
             setError("");
             setErrors({});
-
+            setIsLoading(true);
             updateMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
@@ -208,6 +214,7 @@ export default function EditStageFormSection({ project, stage }: Props) {
               onClick={() => {
                 setError("");
                 setErrors({});
+                setIsLoading(true);
                 deleteMutation.mutate();
               }}
               type="button"

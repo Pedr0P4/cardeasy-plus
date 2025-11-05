@@ -37,12 +37,17 @@ export class CardListsService extends Service {
   }
 
   async swap(first: number, second: number) {
-    return this.api
-      .post<CardList>("/card-lists/swap", {
-        first,
-        second,
-      })
-      .then((res) => res.data);
+    return this.api.post("/card-lists/swap", {
+      first,
+      second,
+    });
+  }
+
+  async insert(id: number, card: number, index: number) {
+    return this.api.post(`/card-lists/${id}/insert`, {
+      card,
+      index,
+    });
   }
 
   async cards(id: number) {

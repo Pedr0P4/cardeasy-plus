@@ -63,4 +63,10 @@ export class TeamsService extends Service {
   async join(code: string) {
     return this.api.post<Team>(`/teams/join/${code}`).then((res) => res.data);
   }
+
+  async transfer(id: UUID, to: UUID) {
+    return this.api.post<Team>(`/teams/${id}/transfer`, {
+      account: to,
+    });
+  }
 }

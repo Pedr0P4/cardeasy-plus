@@ -94,11 +94,11 @@ public class TagsController {
   @GetMapping("/project/{id}")
   public ResponseEntity<List<TagDTO>> findAllById(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer projectId
+    @PathVariable Integer id
   ) {
     List<Tag> tags = this.tags.findAllByAccountAndProject(
       account.getId(), 
-      projectId
+      id
     );
 
     return ResponseEntity.ok(
@@ -111,12 +111,12 @@ public class TagsController {
   public ResponseEntity<TagDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody UpdateTagDTO tag
+    @RequestBody @Valid UpdateTagDTO body
   ){
     this.tags.existsById(id);
     this.participations.checkTagAccess(account.getId(), id);
 
-    Tag updated = this.tags.update(id, tag.content());
+    Tag updated = this.tags.update(id, body.content());
 
     return ResponseEntity.ok(
       TagDTO.from(updated)

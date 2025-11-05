@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import ufrn.imd.cardeasy.dtos.team.DeleteParticipationDTO;
-import ufrn.imd.cardeasy.dtos.team.ParticipationDTO;
-import ufrn.imd.cardeasy.dtos.team.UpdateParticipationDTO;
+import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.participations.DeleteParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participations.ExitParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participations.UpdateParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.security.Authenticate;
@@ -78,31 +80,78 @@ public class ParticipationsController {
   @PutMapping
   public ResponseEntity<ParticipationDTO> update(
     @AuthenticationPrincipal Account account,
-    @RequestBody UpdateParticipationDTO participation
-  ){
-    this.teams.existsById(participation.teamId());
-    this.accounts.existsById(participation.accountId());
-    this.participations.checkAccess(account.getId(), participation.teamId());
-    Participation updated = this.participations.update(participation.accountId(), participation.teamId(), participation.role());
+    @RequestBody @Valid UpdateParticipationDTO body
+  ) {
+    this.teams.existsById(body.team());
+    this.accounts.existsById(body.account());
+
+    this.participations.checkAccess(
+      body.role().nextRole(),
+      account.getId(), 
+      body.team()
+    );
+
+    Participation updated = this.participations.update(
+      body.account(), 
+      body.team(), 
+      body.role()
+    );
 
     return ResponseEntity.ok(
       ParticipationDTO.from(updated)
     );
-  }
+  };
 
   @Authenticate
   @DeleteMapping
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
-    @RequestBody DeleteParticipationDTO participationToDelete
-  ){
-    this.teams.existsById(participationToDelete.teamId());
-    this.accounts.existsById(participationToDelete.accountId());
-    this.participations.checkAccess(account.getId(), participationToDelete.teamId());
-    this.participations.deleteByAccountAndTeam(participationToDelete.accountId(), participationToDelete.teamId());
+    @RequestBody @Valid DeleteParticipationDTO body
+  ) {
+    this.teams.existsById(body.team());
+    this.accounts.existsById(body.account());
+
+    Participation participation = this.participations.findById(
+      body.account(),
+      body.team()
+    );
+
+    this.participations.checkAccess(
+      participation.getRole().nextRole(),
+      account.getId(),
+      body.team()
+    );
+
+    this.participations.deleteByAccountAndTeam(
+      body.account(), 
+      body.team()
+    );
 
     return ResponseEntity
       .noContent()
       .build();
-  }
+  };
+
+  @Authenticate
+  @DeleteMapping("/exit")
+  public ResponseEntity<Void> exit(
+    @AuthenticationPrincipal Account account,
+    @RequestBody @Valid ExitParticipationDTO body
+  ) {
+    this.teams.existsById(body.team());
+
+    this.participations.checkAccess(
+      account.getId(),
+      body.team()
+    );
+
+    this.participations.deleteByAccountAndTeam(
+      account.getId(),
+      body.team()
+    );
+
+    return ResponseEntity
+      .noContent()
+      .build();
+  };
 };

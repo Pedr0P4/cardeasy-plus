@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { useState } from "react";
 import { Api } from "@/services/api";
 import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
@@ -14,6 +15,8 @@ interface Props {
 }
 
 export default function ProjectConfiguration({ project, role }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const query = useQuery({
     queryKey: ["projects", project.id],
     queryFn: () => Api.client().projects().get(project.id),
@@ -27,8 +30,17 @@ export default function ProjectConfiguration({ project, role }: Props) {
         "items-start justify-center",
       )}
     >
-      <BudgetFormSection project={query.data} />
-      <EditProjectFormSection project={query.data} role={role} />
+      <BudgetFormSection
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        project={query.data}
+      />
+      <EditProjectFormSection
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        project={query.data}
+        role={role}
+      />
     </main>
   );
 }

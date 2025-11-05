@@ -67,7 +67,7 @@ public class TagsService {
   };
 
   public void deleteById(Integer id){
-    this.findById(id);
+    this.existsById(id);
     this.tags.deleteById(id);
   };
 
