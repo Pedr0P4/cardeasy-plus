@@ -48,7 +48,7 @@ export default function ProjectCardListsItem({
       className={clsx(
         "relative min-w-3xs max-w-4xs min-h-[20rem] overflow-hidden",
         isDragging && "z-10",
-        isDragging && "opacity-80",
+        isDragging && "opacity-40",
       )}
       {...attributes}
       tabIndex={-1}
