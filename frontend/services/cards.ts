@@ -19,7 +19,7 @@ export type UpdateCardData = {
   description: string;
 };
 
-export class CardListsService extends Service {
+export class CardsService extends Service {
   async get(id: number) {
     return this.api.get<Card>(`/cards/${id}`).then((res) => res.data);
   }
@@ -36,12 +36,10 @@ export class CardListsService extends Service {
     return this.api.delete(`/cards/${id}`);
   }
 
-  async swap(first: number, second: number) {
-    return this.api
-      .post<Card>("/cards/swap", {
-        first,
-        second,
-      })
-      .then((res) => res.data);
+  async move(cardList: number, card: number, index: number) {
+    return this.api.post(`/card-lists/${cardList}/cards/move`, {
+      card,
+      index,
+    });
   }
 }

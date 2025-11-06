@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import ufrn.imd.cardeasy.errors.CannotKickOnwer;
 import ufrn.imd.cardeasy.errors.Forbidden;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.models.Participation;
@@ -115,6 +116,9 @@ public class ParticipationsService {
     Participation participation = this.participations
       .findByAccountAndTeam(accountId, teamId)
       .orElseThrow(ParticipationNotFound::new);
+    
+    if (participation.getRole() == Role.OWNER) 
+      throw new CannotKickOnwer();
     
     this.participations.deleteAssignmentsByAccountAndTeam(accountId, teamId);
     this.participations.deleteById(participation.getId());

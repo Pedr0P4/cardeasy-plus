@@ -2,7 +2,12 @@
 
 import clsx from "clsx";
 import { redirect } from "next/navigation";
-import { type ChangeEvent, type FormEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type FormEvent,
+  useState,
+  useTransition,
+} from "react";
 import {
   FaDungeon,
   FaHashtag,
@@ -14,6 +19,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 
 export default function CreateTeamPage() {
+  const [isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>("");
 
@@ -26,16 +32,18 @@ export default function CreateTeamPage() {
       return;
     }
 
-    const team = await Api.client()
-      .teams()
-      .join(code)
-      .catch((err: ApiErrorResponse) => {
-        if (err.isErrorResponse()) setError(err.error);
-        else setError("erro inesperado");
-        return undefined;
-      });
+    startTransition(async () => {
+      const team = await Api.client()
+        .teams()
+        .join(code)
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+          return undefined;
+        });
 
-    if (team) redirect(`/home/teams/${team.id}`);
+      if (team) redirect(`/home/teams/${team.id}`);
+    });
   };
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -77,8 +85,9 @@ export default function CreateTeamPage() {
           onChange={onChange}
           error={error}
           hiddenError={!!error}
+          disabled={isLoading}
         />
-        <button type="submit" className="btn btn-neutral">
+        <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaPersonRunning />
           Entrar
         </button>

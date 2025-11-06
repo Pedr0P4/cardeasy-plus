@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
+import { useState } from "react";
 import {
   FaCalendarCheck,
   FaCalendarDay,
@@ -27,17 +28,21 @@ export default function ProjectStageContextMenu({
   project,
   stage,
 }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(role);
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return Api.client().stages().delete(stage.id);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", project.id, "stages"],
-      });
+      return await Api.client()
+        .stages()
+        .delete(stage.id)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "stages"],
+          });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -46,25 +51,29 @@ export default function ProjectStageContextMenu({
 
   const updateStateMutation = useMutation({
     mutationFn: async (state: StageState) => {
-      return Api.client().stages().update(stage.id, {
-        state,
-        name: stage.name,
-        description: stage.description,
-        expectedEndIn: stage.expectedEndIn,
-        expectedStartIn: stage.expectedStartIn,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["projects", project.id, "stages"],
-      });
+      return await Api.client()
+        .stages()
+        .update(stage.id, {
+          state,
+          name: stage.name,
+          description: stage.description,
+          expectedEndIn: stage.expectedEndIn,
+          expectedStartIn: stage.expectedStartIn,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "stages"],
+          });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const isPending = updateStateMutation.isPending || deleteMutation.isPending;
+  const isPending =
+    isLoading || updateStateMutation.isPending || deleteMutation.isPending;
 
   if (!isAdmin) return null;
 

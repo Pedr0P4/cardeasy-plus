@@ -1,8 +1,9 @@
-package ufrn.imd.cardeasy.dtos.team;
+package ufrn.imd.cardeasy.dtos.participations;
 
 import java.util.List;
 
 import ufrn.imd.cardeasy.dtos.account.AccountDTO;
+import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.models.Team;

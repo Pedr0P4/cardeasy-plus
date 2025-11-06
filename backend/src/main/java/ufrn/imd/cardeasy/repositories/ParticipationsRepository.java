@@ -91,8 +91,10 @@ extends JpaRepository<Participation, ParticipationId> {
       SELECT pt.* FROM participation AS pt
       JOIN project AS pj
       ON pj.team_id = pt.team_id
+      JOIN budget As bd
+      ON bd.project_id = pj.id
       WHERE pt.account_id = ?1
-      AND pj.budget_id = ?2
+      AND bd.id = ?2
     """,
     nativeQuery = true
   ) public Optional<Participation> findByAccountAndBudget(

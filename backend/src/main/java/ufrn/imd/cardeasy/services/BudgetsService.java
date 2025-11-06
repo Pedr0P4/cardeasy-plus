@@ -85,11 +85,8 @@ public class BudgetsService {
   };
 
   public void deleteById(Integer id) {
-    Project project = this.findById(id)
-      .getProject();
-    
-    project.setBudget(null);
-    projects.save(project);
+    this.existsById(id);
+    this.budgets.deleteById(id);
   };
 
   public void existsById(Integer id) {

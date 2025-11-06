@@ -8,24 +8,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ufrn.imd.cardeasy.dtos.IntervalDTO;
-import ufrn.imd.cardeasy.errors.InvalidSwap;
+import ufrn.imd.cardeasy.errors.InvalidMove;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Team;
+import ufrn.imd.cardeasy.repositories.BudgetsRepository;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 import ufrn.imd.cardeasy.repositories.TeamsRepository;
 
 @Service
 public class ProjectsService {
+  private BudgetsRepository budgets;
   private ProjectsRepository projects;
   private TeamsRepository teams;
 
   @Autowired
   public ProjectsService(
+    BudgetsRepository budgets,
     ProjectsRepository projects, 
     TeamsRepository teams
   ) {
+    this.budgets = budgets;
     this.projects = projects;
     this.teams = teams;
   };
@@ -79,8 +83,10 @@ public class ProjectsService {
     return project;
   };
 
+  @Transactional
   public void deleteById(Integer id) {
-    this.findById(id);
+    this.existsById(id);
+    this.budgets.deleteByProject(id);
     this.projects.deleteById(id);
   };
 
@@ -90,22 +96,27 @@ public class ProjectsService {
   };
 
   @Transactional
-  public void swap(Integer firstId, Integer secondId) {
-    Project first = this.findById(firstId);
-    Project second = this.findById(secondId);
+  public void move(Integer projectId, Long index, UUID teamId) {
+    Project project = this.findById(projectId);
 
-    if (
-      !first.getTeam().getId().equals(second.getTeam().getId())
-    ) throw new InvalidSwap();
+    Team team = this.teams.findById(teamId)      
+      .orElseThrow(ProjectNotFound::new);
+
+    index = Math.min(Math.max(0l, index), team.getProjects().size());
     
-    Long firstIndex = first.getIndex();
-    Long secondIndex = second.getIndex();
+    if(teamId != project.getTeam().getId())
+      throw new InvalidMove();
+    
+    if (project.getIndex().equals(index)) return;
+    
+    if (project.getIndex() < index) {
+      this.projects.shiftIndices(teamId, project.getIndex() + 1, index, -1);
+    } else {
+      this.projects.shiftIndices(teamId, index, project.getIndex() - 1, 1);
+    };
+    
+    project.setIndex(index);
 
-    first.setIndex(secondIndex);
-    second.setIndex(firstIndex);
-
-    this.projects.saveAll(
-      List.of(first, second)
-    );
+    this.projects.save(project);
   };
 };

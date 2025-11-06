@@ -10,6 +10,7 @@ interface Props {
   avatar?: ImageData;
   onLoadAvatar?: (base64: string, blob: Blob, filename?: string) => void;
   onClearAvatar?: () => void;
+  disabled?: boolean;
 }
 
 export default function Avatar({
@@ -18,6 +19,7 @@ export default function Avatar({
   avatar,
   onClearAvatar,
   onLoadAvatar,
+  disabled,
 }: Props) {
   const hasImage = !!avatar?.url;
 
@@ -45,6 +47,7 @@ export default function Avatar({
       </div>
       {onClearAvatar && onLoadAvatar && (
         <ImageInput
+          disabled={disabled}
           className={clsx(
             "absolute -bottom-2 -right-2 btn btn-xs",
             "btn-circle btn-neutral pl-[1px]",
