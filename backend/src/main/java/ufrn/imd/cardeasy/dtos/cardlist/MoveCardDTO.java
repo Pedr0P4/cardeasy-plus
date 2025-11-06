@@ -2,10 +2,10 @@ package ufrn.imd.cardeasy.dtos.cardlist;
 
 import jakarta.validation.constraints.NotNull;
 
-public record SwapCardListsDTO(
+public record MoveCardDTO(
   @NotNull
-  Integer first,
+  Integer card,
 
   @NotNull
-  Integer second
+  Long index
 ) {};

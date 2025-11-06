@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
+import ufrn.imd.cardeasy.dtos.project.MoveCardListDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
-import ufrn.imd.cardeasy.dtos.project.SwapProjectsDTO;
 import ufrn.imd.cardeasy.dtos.project.UpdateProjectDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 import ufrn.imd.cardeasy.services.TeamsService;
@@ -33,17 +34,20 @@ import ufrn.imd.cardeasy.services.TeamsService;
 public class ProjectsController {
   private TeamsService teams;
   private ParticipationsService participations;
+  private CardListsService cardLists;
   private ProjectsService projects;
 
   @Autowired
   public ProjectsController(
     TeamsService teams,
     ParticipationsService participations,
-    ProjectsService projects
+    ProjectsService projects,
+    CardListsService cardLists
   ) {
     this.teams = teams;
     this.participations = participations;
     this.projects = projects;
+    this.cardLists = cardLists;
   };
 
   @Authenticate
@@ -150,29 +154,29 @@ public class ProjectsController {
   };
 
   @Authenticate
-  @PostMapping("/swap")
-  public ResponseEntity<Void> swap(
+  @PostMapping("/{id}/move")
+  public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid SwapProjectsDTO body
+    @RequestBody @Valid MoveCardListDTO body,
+    @PathVariable Integer id
   ) {
-    this.projects.existsById(body.first());
-    this.projects.existsById(body.second());
+    this.projects.existsById(id);
+    this.cardLists.existsById(body.cardList());
     
-    this.participations.checkProjectAccess(
-      Role.ADMIN,
+    this.participations.checkCardListAccess(
       account.getId(),
-      body.first()
+      body.cardList()
     );
 
     this.participations.checkProjectAccess(
-      Role.ADMIN,
       account.getId(),
-      body.second()
+      id
     );
     
-    this.projects.swap(
-      body.first(),
-      body.second()
+    this.cardLists.move(
+      body.cardList(),
+      body.index(),
+      id
     );
 
     return ResponseEntity.ok()

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import ufrn.imd.cardeasy.dtos.IntervalDTO;
-import ufrn.imd.cardeasy.errors.InvalidSwap;
+import ufrn.imd.cardeasy.errors.InvalidMove;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Project;
@@ -96,22 +96,21 @@ public class ProjectsService {
   };
 
   @Transactional
-  public void swap(Integer firstId, Integer secondId) {
-    Project first = this.findById(firstId);
-    Project second = this.findById(secondId);
+  public void move(Integer projectId, Long index, UUID teamId) {
+    Project project = this.findById(projectId);
 
-    if (
-      !first.getTeam().getId().equals(second.getTeam().getId())
-    ) throw new InvalidSwap();
+    Team team = this.teams.findById(teamId)      
+      .orElseThrow(ProjectNotFound::new);
     
-    Long firstIndex = first.getIndex();
-    Long secondIndex = second.getIndex();
+    if(teamId != project.getTeam().getId())
+      throw new InvalidMove();
+    
+    index = Math.min(Math.max(0l, index), team.getProjects().size());
+    this.projects.shiftUp(teamId, project.getIndex());
+    this.projects.shiftDown(teamId, index);
+    
+    project.setIndex(index);
 
-    first.setIndex(secondIndex);
-    second.setIndex(firstIndex);
-
-    this.projects.saveAll(
-      List.of(first, second)
-    );
+    this.projects.save(project);
   };
 };

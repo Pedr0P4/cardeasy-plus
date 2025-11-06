@@ -1,10 +1,10 @@
-package ufrn.imd.cardeasy.dtos.cardlist;
+package ufrn.imd.cardeasy.dtos.team;
 
 import jakarta.validation.constraints.NotNull;
 
-public record InsertCardDTO(
+public record MoveProjectDTO(
   @NotNull
-  Integer card,
+  Integer project,
 
   @NotNull
   Long index

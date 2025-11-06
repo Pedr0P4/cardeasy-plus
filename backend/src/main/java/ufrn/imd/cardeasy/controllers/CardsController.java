@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.card.CardDTO;
 import ufrn.imd.cardeasy.dtos.card.CreateCardDTO;
-import ufrn.imd.cardeasy.dtos.card.SwapCardsDTO;
 import ufrn.imd.cardeasy.dtos.card.UpdateCardDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Card;
@@ -162,33 +161,5 @@ public class CardsController {
     return ResponseEntity.ok(
       CardDTO.from(cards)
     );
-  };
-
-  @Authenticate
-  @PostMapping("/swap")
-  public ResponseEntity<Void> swap(
-    @AuthenticationPrincipal Account account,
-    @RequestBody @Valid SwapCardsDTO body
-  ) {
-    this.cards.existsById(body.first());
-    this.cards.existsById(body.second());
-    
-    this.participations.checkCardAccess(
-      account.getId(),
-      body.first()
-    );
-
-    this.participations.checkCardAccess(
-      account.getId(),
-      body.second()
-    );
-    
-    this.cards.swap(
-      body.first(),
-      body.second()
-    );
-
-    return ResponseEntity.ok()
-      .build();
   };
 };

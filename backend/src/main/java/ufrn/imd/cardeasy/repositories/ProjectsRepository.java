@@ -53,4 +53,34 @@ extends JpaRepository<Project, Integer> {
   ) public List<Project> findAllByAccount(
     UUID accountId
   );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE project AS pj
+      SET pj.index = pj.index + 1
+      WHERE pj.team_id = ?1
+      AND pj.index >= ?2
+    """,
+    nativeQuery = true
+  ) public void shiftDown(
+    UUID teamId,
+    Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE project AS pj
+      SET pj.index = pj.index - 1
+      WHERE pj.team_id = ?1
+      AND pj.index >= ?2
+    """,
+    nativeQuery = true
+  ) public void shiftUp(
+    UUID teamId,
+    Long index
+  );
 };
