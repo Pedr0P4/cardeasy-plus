@@ -104,10 +104,11 @@ public class CardsService {
 
     if (newCardListId.equals(oldCardList.getId())) {
       if (card.getIndex().equals(index)) return;
+      
       if (card.getIndex() < index) {
-          this.cards.shiftIndices(oldCardList.getId(), card.getIndex() + 1, index, -1);
+        this.cards.shiftIndices(oldCardList.getId(), card.getIndex() + 1, index, -1);
       } else {
-          this.cards.shiftIndices(oldCardList.getId(), index, card.getIndex() - 1, 1);
+        this.cards.shiftIndices(oldCardList.getId(), index, card.getIndex() - 1, 1);
       };
     } else {
       this.cards.shiftUp(oldCardList.getId(), card.getIndex());

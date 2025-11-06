@@ -76,11 +76,29 @@ extends JpaRepository<Project, Integer> {
       UPDATE project AS pj
       SET pj.index = pj.index - 1
       WHERE pj.team_id = ?1
-      AND pj.index >= ?2
+      AND pj.index > ?2
     """,
     nativeQuery = true
   ) public void shiftUp(
     UUID teamId,
     Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE project AS pj
+      SET pj.index = pj.index + ?4
+      WHERE pj.team_id = ?1
+      AND pj.index 
+      BETWEEN ?2 AND ?3
+    """,
+    nativeQuery = true
+  ) void shiftIndices(
+    UUID tramId, 
+    Long startIndex, 
+    Long endIndex, 
+    int shift
   );
 };

@@ -4,12 +4,14 @@ import {
   closestCenter,
   DndContext,
   type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import Link from "next/link";
@@ -18,6 +20,8 @@ import { FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { type Participation, Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import handleProjectDragStart from "@/utils/dragging/handleProjectDragStart";
+import handleProjectInsert from "@/utils/dragging/handleProjectInsert";
 import TeamProjectsItem from "./TeamProjectsItem";
 
 interface Props {
@@ -27,6 +31,7 @@ interface Props {
 
 export default function TeamProjects({ participation, projects }: Props) {
   const [isMounted, setIsMounted] = useState(false);
+  const [overlay, setOverlay] = useState<Project | null>(null);
 
   const participationQuery = useQuery({
     queryKey: ["participations", participation.team.id, "me"],
@@ -46,6 +51,7 @@ export default function TeamProjects({ participation, projects }: Props) {
 
   const [_projects, setProjects] = useState(query.data);
 
+  const queryClient = useQueryClient();
   const moveMutation = useMutation({
     mutationFn: async ({
       team,
@@ -56,7 +62,14 @@ export default function TeamProjects({ participation, projects }: Props) {
       project: number;
       index: number;
     }) => {
-      return await Api.client().projects().move(team, project, index);
+      return await Api.client()
+        .projects()
+        .move(team, project, index)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id, "projects"],
+          });
+        });
     },
     onError: (error) => {
       console.log(error);
@@ -82,23 +95,28 @@ export default function TeamProjects({ participation, projects }: Props) {
     }
   }, [query.data, query.isFetching, query.isSuccess]);
 
-  const onDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  const onDragStart = async (event: DragStartEvent) => {
+    handleProjectDragStart(event, _projects, setOverlay);
+  };
 
-    if (over !== null && active.id !== over.id) {
-      // TODO - Alguem tem que fazer, alguém, né?
-      // setProjects((previous) => {
-      //   const oldIndex = previous.findIndex((p) => p.id === active.id);
-      //   const newIndex = previous.findIndex((p) => p.id === over.id);
-      //   const _oldIndex = previous[oldIndex].index;
-      //   previous[oldIndex].index = previous[newIndex].index;
-      //   previous[newIndex].index = _oldIndex;
-      //   return arrayMove(previous, oldIndex, newIndex);
-      // });
-      // swapMutation.mutate({
-      //   first: active.id as number,
-      //   second: over.id as number,
-      // });
+  const onDragEnd = async (event: DragEndEvent) => {
+    try {
+      const { active, over } = event;
+
+      if (over !== null && active.id !== over.id) {
+        const activeId = Number.parseInt(active.id as string, 10);
+        const overId = Number.parseInt(over.id as string, 10);
+
+        const index = handleProjectInsert(activeId, overId, setProjects);
+
+        moveMutation.mutate({
+          project: activeId,
+          team: participation.team.id,
+          index,
+        });
+      }
+    } finally {
+      setOverlay(null);
     }
   };
 
@@ -137,6 +155,7 @@ export default function TeamProjects({ participation, projects }: Props) {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={onDragEnd}
+        onDragStart={onDragStart}
         autoScroll={false}
       >
         <SortableContext
@@ -147,8 +166,18 @@ export default function TeamProjects({ participation, projects }: Props) {
             Segure, espere um pouco e depois arraste para mudar a ordem.
           </p>
           {content}
+          <DragOverlay dropAnimation={null}>
+            {overlay && (
+              <TeamProjectsItem
+                key={`${participation.team.id}-${overlay.id}`}
+                team={participationQuery.data.team}
+                project={overlay}
+              />
+            )}
+          </DragOverlay>
         </SortableContext>
       </DndContext>
     );
   else if (isMounted) return content;
+  else return null;
 }

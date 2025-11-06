@@ -86,7 +86,7 @@ extends JpaRepository<Card, Integer> {
       SET cd.index = cd.index + ?4
       WHERE cd.list_id = ?1
       AND cd.index 
-      BETWEEN ?2 AND ?3;
+      BETWEEN ?2 AND ?3
     """,
     nativeQuery = true
   ) void shiftIndices(

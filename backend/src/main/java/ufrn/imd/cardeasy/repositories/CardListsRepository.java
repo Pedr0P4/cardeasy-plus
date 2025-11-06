@@ -60,11 +60,29 @@ extends JpaRepository<CardList, Integer> {
       UPDATE card_list AS cl
       SET cl.index = cl.index - 1
       WHERE cl.project_id = ?1
-      AND cl.index >= ?2
+      AND cl.index > ?2
     """,
     nativeQuery = true
   ) public void shiftUp(
     Integer projectId,
     Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE card_list AS cl
+      SET cl.index = cl.index + ?4
+      WHERE cl.project_id = ?1
+      AND cl.index 
+      BETWEEN ?2 AND ?3
+    """,
+    nativeQuery = true
+  ) void shiftIndices(
+    Integer projectId, 
+    Long startIndex, 
+    Long endIndex, 
+    int shift
   );
 };

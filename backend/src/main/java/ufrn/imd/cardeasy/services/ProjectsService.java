@@ -101,13 +101,19 @@ public class ProjectsService {
 
     Team team = this.teams.findById(teamId)      
       .orElseThrow(ProjectNotFound::new);
+
+    index = Math.min(Math.max(0l, index), team.getProjects().size());
     
     if(teamId != project.getTeam().getId())
       throw new InvalidMove();
     
-    index = Math.min(Math.max(0l, index), team.getProjects().size());
-    this.projects.shiftUp(teamId, project.getIndex());
-    this.projects.shiftDown(teamId, index);
+    if (project.getIndex().equals(index)) return;
+    
+    if (project.getIndex() < index) {
+      this.projects.shiftIndices(teamId, project.getIndex() + 1, index, -1);
+    } else {
+      this.projects.shiftIndices(teamId, index, project.getIndex() - 1, 1);
+    };
     
     project.setIndex(index);
 

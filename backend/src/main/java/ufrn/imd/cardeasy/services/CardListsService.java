@@ -82,13 +82,19 @@ public class CardListsService {
 
     Project project = this.projects.findById(projectId)
       .orElseThrow(ProjectNotFound::new);
-
+     
+    index = Math.min(Math.max(0l, index), project.getLists().size());
+    
     if(project.getId() != cardList.getProject().getId())
       throw new InvalidMove();
     
-    index = Math.min(Math.max(0l, index), project.getLists().size());
-    this.cardLists.shiftUp(projectId, cardList.getIndex());
-    this.cardLists.shiftDown(projectId, index);
+    if (cardList.getIndex().equals(index)) return;
+
+    if (cardList.getIndex() < index) {
+      this.cardLists.shiftIndices(projectId, cardList.getIndex() + 1, index, -1);
+    } else {
+      this.cardLists.shiftIndices(projectId, index, cardList.getIndex() - 1, 1);
+    };
     
     cardList.setIndex(index);
 
