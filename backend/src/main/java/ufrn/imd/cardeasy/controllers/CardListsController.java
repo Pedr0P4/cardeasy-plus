@@ -24,7 +24,6 @@ import ufrn.imd.cardeasy.services.CardsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 
-import java.util.List;
 @RestController
 @RequestMapping("/card-lists")
 public class CardListsController {
@@ -75,20 +74,21 @@ public class CardListsController {
   public ResponseEntity<PageDTO<CardListDTO>> findAllByProject(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestParam(name = "filter", required = false) String filter,
-    @RequestParam(name = "page", defaultValue = "0") Integer page
-
+    @RequestParam(name = "filter", defaultValue = "") String filter,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
     this.participations.checkProjectAccess(
       account.getId(),
       id
     );
-    Pageable pageable = PageRequest.of(page, 24);
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
 
     Page<CardList> cardLists = this.cardLists.findAllByProject(id,filter,pageable);
-    Page<CardListDTO> cardListDTOPage = cardLists.map(CardListDTO::from);
+    
     return ResponseEntity.ok(
-      PageDTO.from(cardListDTOPage)
+      PageDTO.from(cardLists, CardListDTO::from)
     );
   };
 

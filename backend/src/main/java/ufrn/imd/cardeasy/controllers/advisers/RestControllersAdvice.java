@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -111,6 +113,18 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
       .body(new ErrorDTO(
         HttpStatus.UNAUTHORIZED,
         "falha de autenticação"
+      ));
+  };
+
+  @ExceptionHandler({ AccessDeniedException.class, AuthorizationDeniedException.class })
+  public ResponseEntity<ErrorDTO> handleAuthorizationError(
+    AccessDeniedException e
+  ) {
+    return ResponseEntity
+      .status(HttpStatus.FORBIDDEN)
+      .body(new ErrorDTO(
+        HttpStatus.FORBIDDEN,
+        "Acesso proibido. Você não tem permissão."
       ));
   };
 

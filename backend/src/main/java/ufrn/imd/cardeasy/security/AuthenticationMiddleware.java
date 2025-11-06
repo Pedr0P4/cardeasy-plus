@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.services.AccountsService;
 
-@Component
 public class AuthenticationMiddleware extends OncePerRequestFilter {
   private AccountsService accounts;
 

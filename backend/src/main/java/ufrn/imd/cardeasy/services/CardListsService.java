@@ -51,11 +51,16 @@ public class CardListsService {
     return cardList;
   };
 
-  public Page<CardList> findAllByProject(Integer projectId, String filter, Pageable pageable) {
-    if (filter != null) {
-      return this.cardLists.findAllByProjectAndTitle(projectId,filter,pageable);
-    }
-    return this.cardLists.findAllByProject(projectId,pageable);
+  public Page<CardList> findAllByProject(
+    Integer projectId, 
+    String filter, 
+    Pageable pageable
+  ) {
+    return this.cardLists.findAllByProjectAndTitle(
+      projectId,
+      filter,
+      pageable
+    );
   };
 
   public CardList findById(Integer id) {

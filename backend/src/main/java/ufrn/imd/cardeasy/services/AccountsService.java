@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +31,7 @@ public class AccountsService {
     AvatarStorage avatars,
     Authenticator authenticator,
     AccountsRepository accounts,
-    BCryptPasswordEncoder encoder
+    @Lazy BCryptPasswordEncoder encoder
   ) {
     this.avatars = avatars;
     this.authenticator = authenticator;

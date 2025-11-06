@@ -18,23 +18,23 @@ extends JpaRepository<CardList, Integer> {
     // language=sql
     value = """
       SELECT cl.* FROM card_list AS cl
-      WHERE cl.project_id = ?1
-      ORDER BY index ASC
+      WHERE cl.project_id = ?1 
+      ORDER BY index ASC,
+      cl.title LIKE ?2 DESC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(cl.id) FROM card_list AS cl
+      WHERE cl.project_id = ?1 
+      ORDER BY index ASC,
+      cl.title LIKE ?2 DESC
     """,
     nativeQuery = true
-  ) public Page<CardList> findAllByProject(
-    Integer projectId,
+  ) Page<CardList> findAllByProjectAndTitle(
+    Integer projectId, 
+    String title, 
     Pageable pageable
   );
-  
-  @Query(
-    value = """
-        SELECT cl.* FROM card_list AS cl
-        WHERE cl.project_id = ?1 AND cl.title = ?2
-    """,
-    nativeQuery = true
-  )
-  Page<CardList> findAllByProjectAndTitle(Integer projectId, String title, Pageable pageable);
 
   @Query(
     // language=sql
