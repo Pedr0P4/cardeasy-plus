@@ -1,7 +1,7 @@
 "use client";
 
 import {
-  closestCenter,
+  closestCorners,
   DndContext,
   type DragEndEvent,
   DragOverlay,
@@ -25,10 +25,9 @@ import type { Card } from "@/services/cards";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard";
+import handleCardInsertOverCardList from "@/utils/dragging/handleCardInsertOverCardList";
 import handleCardListDragStart from "@/utils/dragging/handleCardListDragStart";
-import handleCardListsSwap from "@/utils/dragging/handleCardListsSwap";
-import handleCardsSwap from "@/utils/dragging/handleCardsSwap";
-import handleCardInsertOverCardList from "../../utils/dragging/handleCardInsertOverCardList";
+import handleCardListsInsert from "@/utils/dragging/handleCardListInsert";
 import ProjectCardItem from "./ProjectCardItem";
 import ProjectCardListsItem from "./ProjectCardListsItem";
 
@@ -57,14 +56,13 @@ export type ProjectCardListOverlay =
   | null;
 
 export type MutateRequest = {
-  type: "swap-lists" | "swap-cards" | "insert-card";
+  type: "move-lists" | "move-cards";
   request: () => void;
 } | null;
 
 export default function ProjectCardLists({ project, cardLists, role }: Props) {
   const [isMounted, setIsMounted] = useState(false);
   const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
-  const [mutation, setMutation] = useState<MutateRequest>(null);
 
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
 
@@ -99,20 +97,22 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
   });
 
   const queryClient = useQueryClient();
-  const swapMutation = useMutation({
+  const moveCardListMutation = useMutation({
     mutationFn: async ({
-      first,
-      second,
+      project,
+      cardList,
+      index,
     }: {
-      first: number;
-      second: number;
+      project: number;
+      cardList: number;
+      index: number;
     }) => {
       return await Api.client()
         .cardLists()
-        .swap(first, second)
+        .move(project, cardList, index)
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "card-lists"],
+            queryKey: ["projects", project, "card-lists"],
           });
         });
     },
@@ -121,29 +121,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     },
   });
 
-  const swapCardMutation = useMutation({
-    mutationFn: async ({
-      first,
-      second,
-    }: {
-      first: number;
-      second: number;
-    }) => {
-      return await Api.client()
-        .cards()
-        .swap(first, second)
-        .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "cards"],
-          });
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const insertCardMutation = useMutation({
+  const moveCardMutation = useMutation({
     mutationFn: async ({
       cardList,
       card,
@@ -154,8 +132,8 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       index: number;
     }) => {
       return await Api.client()
-        .cardLists()
-        .insert(cardList, card, index)
+        .cards()
+        .move(cardList, card, index)
         .then(() => {
           queryClient.invalidateQueries({
             queryKey: ["projects", project.id, "cards"],
@@ -221,6 +199,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       const overId = over.id as string;
 
       if (
+        mutate &&
         activeId.startsWith("card-list-") &&
         overId.startsWith("card-list-")
       ) {
@@ -234,21 +213,58 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
           10,
         );
 
-        handleCardListsSwap(_activeId, _overId, setData);
+        const index = handleCardListsInsert(_activeId, _overId, setData);
 
-        if (!mutate && _overId !== _activeId)
-          setMutation({
-            type: "swap-lists",
-            request: () =>
-              swapMutation.mutate({
-                first: _activeId,
-                second: _overId,
-              }),
+        if (mutate) {
+          moveCardListMutation.mutate({
+            project: project.id,
+            cardList: _activeId,
+            index,
           });
+        }
+      } else if (
+        mutate &&
+        activeId.startsWith("card-list-") &&
+        !overId.startsWith("card-list-")
+      ) {
+        const _activeId = Number.parseInt(
+          (active.id as string).replace("card-list-", ""),
+          10,
+        );
+
+        const overListId = Number.parseInt(
+          (overId.startsWith("card-list-")
+            ? overId.replace("card-list-", "cards-")
+            : overId.startsWith("card-")
+              ? (over.data.current?.sortable.containerId as string)
+              : overId
+          ).replace("cards-", ""),
+          10,
+        );
+
+        const index = handleCardListsInsert(_activeId, overListId, setData);
+
+        if (mutate) {
+          moveCardListMutation.mutate({
+            project: project.id,
+            cardList: _activeId,
+            index,
+          });
+        }
       } else if (
         activeId.startsWith("card-") &&
         !activeId.startsWith("card-list")
       ) {
+        const { top: overTop, height: overHeight } = over.rect;
+        const center = overTop + overHeight / 2;
+
+        if (!active.rect.current.translated) return;
+
+        const { top: activeTop, height: activeHeight } =
+          active.rect.current.translated;
+        const clientY = activeTop + activeHeight / 2;
+        const isOnTop = clientY < center;
+
         const _activeId = Number.parseInt(
           (active.id as string).replace("card-", ""),
           10,
@@ -273,33 +289,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
         );
 
         if (
-          activeListId === overListId &&
-          overId.startsWith("card-") &&
-          !overId.startsWith("card-list")
-        ) {
-          const _overId = Number.parseInt(
-            (over.id as string).replace("card-", ""),
-            10,
-          );
-
-          handleCardsSwap(activeListId, _activeId, _overId, setData);
-
-          // TODO - Não é swap, é insert
-          if (!mutate && _overId !== _activeId)
-            setMutation((mutation) => {
-              if (mutation && mutation.type === "insert-card")
-                mutation.request();
-              return {
-                type: "swap-cards",
-                request: () =>
-                  swapCardMutation.mutate({
-                    first: _activeId,
-                    second: _overId,
-                  }),
-              };
-            });
-        } else if (
-          activeListId !== overListId &&
+          (mutate || overListId !== activeListId) &&
           overId.startsWith("card-") &&
           !overId.startsWith("card-list")
         ) {
@@ -313,34 +303,21 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
             overListId,
             _activeId,
             _overId,
+            isOnTop,
             setData,
           );
 
-          if (!mutate && overListId !== activeListId) {
-            setMutation({
-              type: "insert-card",
-              request: () =>
-                insertCardMutation.mutate({
-                  cardList: overListId,
-                  card: _activeId,
-                  index,
-                }),
+          if (mutate) {
+            moveCardMutation.mutate({
+              cardList: overListId,
+              card: _activeId,
+              index,
             });
           }
         } else if (
-          activeListId !== overListId &&
+          (mutate || overListId !== activeListId) &&
           overId.startsWith("card-list")
         ) {
-          const { top: overTop, height: overHeight } = over.rect;
-          const center = overTop + overHeight / 2;
-
-          if (!active.rect.current.translated) return;
-
-          const { top: activeTop, height: activeHeight } =
-            active.rect.current.translated;
-          const clientY = activeTop + activeHeight / 2;
-          const isOnTop = clientY < center;
-
           const index = handleCardInsertOverCardList(
             activeListId,
             overListId,
@@ -349,27 +326,17 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
             setData,
           );
 
-          if (!mutate && overListId !== activeListId) {
-            setMutation({
-              type: "insert-card",
-              request: () =>
-                insertCardMutation.mutate({
-                  cardList: overListId,
-                  card: _activeId,
-                  index,
-                }),
+          if (mutate) {
+            moveCardMutation.mutate({
+              cardList: overListId,
+              card: _activeId,
+              index,
             });
           }
         }
       }
     } finally {
-      if (mutate) {
-        setOverlay(null);
-        if (mutation) {
-          mutation.request();
-          setMutation(null);
-        }
-      }
+      if (mutate) setOverlay(null);
     }
   };
 
@@ -408,7 +375,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     return (
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
+        collisionDetection={closestCorners}
         onDragOver={(e) => onDrag(e, false)}
         onDragEnd={(e) => onDrag(e, true)}
         onDragStart={onDragStart}

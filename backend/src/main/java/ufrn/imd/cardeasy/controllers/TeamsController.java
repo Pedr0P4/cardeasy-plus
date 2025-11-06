@@ -268,7 +268,7 @@ public class TeamsController {
   };
 
   @Authenticate
-  @PostMapping("/{id}/move")
+  @PostMapping("/{id}/projects/move")
   public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid MoveProjectDTO body,

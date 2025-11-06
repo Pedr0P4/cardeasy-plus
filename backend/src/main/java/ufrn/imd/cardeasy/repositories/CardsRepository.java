@@ -48,7 +48,7 @@ extends JpaRepository<Card, Integer> {
     Integer cardListId
   );
 
-   @Modifying
+  @Modifying
   @Query(
     // language=sql
     value = """
@@ -70,11 +70,29 @@ extends JpaRepository<Card, Integer> {
       UPDATE card AS cd
       SET cd.index = cd.index - 1
       WHERE cd.list_id = ?1
-      AND cd.index >= ?2
+      AND cd.index > ?2
     """,
     nativeQuery = true
   ) public void shiftUp(
     Integer cardListId,
     Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE card AS cd 
+      SET cd.index = cd.index + ?4
+      WHERE cd.list_id = ?1
+      AND cd.index 
+      BETWEEN ?2 AND ?3;
+    """,
+    nativeQuery = true
+  ) void shiftIndices(
+    Integer listId, 
+    Long startIndex, 
+    Long endIndex, 
+    int shift
   );
 };

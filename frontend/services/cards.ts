@@ -36,10 +36,10 @@ export class CardsService extends Service {
     return this.api.delete(`/cards/${id}`);
   }
 
-  async swap(first: number, second: number) {
-    return this.api.post("/cards/swap", {
-      first,
-      second,
+  async move(cardList: number, card: number, index: number) {
+    return this.api.post(`/card-lists/${cardList}/cards/move`, {
+      card,
+      index,
     });
   }
 }

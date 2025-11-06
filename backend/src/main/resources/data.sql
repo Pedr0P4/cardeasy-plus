@@ -25,8 +25,8 @@ VALUES
 INSERT INTO PROJECT 
 (ID, DESCRIPTION, INDEX, TITLE, TEAM_ID)
 VALUES
-(1, U&'De onde ser\00e1 que surgiu a ideia do nome?', 1, 'Cardeasy', UUID '6adb4645-88f8-4a85-a2ea-e6edc6f20002'),
-(52, 'teste', 1, 'dasds', UUID 'dc697b42-a087-4ca4-a21f-d4666f554e7b');
+(1, U&'De onde ser\00e1 que surgiu a ideia do nome?', 0, 'Cardeasy', UUID '6adb4645-88f8-4a85-a2ea-e6edc6f20002'),
+(52, 'teste', 0, 'dasds', UUID 'dc697b42-a087-4ca4-a21f-d4666f554e7b');
 
 INSERT INTO STAGE 
 (ID, DESCRIPTION, EXPECTED_END_IN, EXPECTED_START_IN, NAME, STATE, PROJECT_ID)
@@ -47,19 +47,19 @@ VALUES
 INSERT INTO CARD_LIST
 (ID, INDEX, TITLE, PROJECT_ID) 
 VALUES
-(1, 1, 'A fazer', 1),
-(2, 2, 'Em andamento', 1),
-(3, 3, U&'Conclu\00eddo', 1);
+(1, 0, 'A fazer', 1),
+(2, 1, 'Em andamento', 1),
+(3, 2, U&'Conclu\00eddo', 1);
 
 INSERT INTO CARD 
 (ID, DESCRIPTION, INDEX, TITLE, LIST_ID)
 VALUES
-(1, 'Boa sorte.', 1, 'Figma', 3),
-(2, U&'\00c9 precisso.', 1, U&'Diagrama\00e7\00e3o', 2),
-(3, U&'Faltou n\00e9.', 2, U&'Avalia\00e7\00e3o dos esbo\00e7os', 2),
-(4, U&'Algu\00e9m precisa fazer!', 1, 'Backend', 1),
-(5, U&'Algu\00e9m n\00e9?', 2, 'Banco de dados', 1),
-(6, U&'Algu\00e9m...', 3, 'Frontend', 1);
+(1, 'Boa sorte.', 0, 'Figma', 3),
+(2, U&'\00c9 precisso.', 0, U&'Diagrama\00e7\00e3o', 2),
+(3, U&'Faltou n\00e9.', 1, U&'Avalia\00e7\00e3o dos esbo\00e7os', 2),
+(4, U&'Algu\00e9m precisa fazer!', 0, 'Backend', 1),
+(5, U&'Algu\00e9m n\00e9?', 1, 'Banco de dados', 1),
+(6, U&'Algu\00e9m...', 2, 'Frontend', 1);
 
 INSERT INTO TAG 
 (ID, CONTENT, PROJECT_ID) 

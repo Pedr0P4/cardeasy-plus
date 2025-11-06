@@ -55,13 +55,6 @@ export class ProjectsService extends Service {
     return this.api.delete(`/projects/${id}`);
   }
 
-  async swap(first: number, second: number) {
-    return this.api.post("/projects/swap", {
-      first,
-      second,
-    });
-  }
-
   async stages(id: number) {
     return this.api
       .get<Stage[]>(`/stages/project/${id}`)
@@ -76,5 +69,12 @@ export class ProjectsService extends Service {
 
   async cards(id: number) {
     return this.api.get<Card[]>(`/cards/project/${id}`).then((res) => res.data);
+  }
+
+  async move(team: UUID, project: number, index: number) {
+    return this.api.post(`/teams/${team}/projects/move`, {
+      project,
+      index,
+    });
   }
 }

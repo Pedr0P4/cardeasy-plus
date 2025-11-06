@@ -154,7 +154,7 @@ public class ProjectsController {
   };
 
   @Authenticate
-  @PostMapping("/{id}/move")
+  @PostMapping("/{id}/card-lists/move")
   public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid MoveCardListDTO body,

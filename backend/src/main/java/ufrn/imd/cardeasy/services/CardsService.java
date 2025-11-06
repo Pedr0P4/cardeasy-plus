@@ -93,15 +93,26 @@ public class CardsService {
   };
 
   @Transactional
-  public void move(Integer cardId, Long index, Integer cardListId) {
+  public void move(Integer cardId, Long index, Integer newCardListId) {
     Card card = this.findById(cardId);
     
-    CardList cardList = this.cardLists.findById(cardListId)
+    CardList oldCardList = card.getList();
+    CardList cardList = this.cardLists.findById(newCardListId)
       .orElseThrow(CardListNotFound::new);
     
     index = Math.min(Math.max(0l, index), cardList.getCards().size());
-    this.cards.shiftUp(cardListId, card.getIndex());
-    this.cards.shiftDown(cardListId, index);
+
+    if (newCardListId.equals(oldCardList.getId())) {
+      if (card.getIndex().equals(index)) return;
+      if (card.getIndex() < index) {
+          this.cards.shiftIndices(oldCardList.getId(), card.getIndex() + 1, index, -1);
+      } else {
+          this.cards.shiftIndices(oldCardList.getId(), index, card.getIndex() - 1, 1);
+      };
+    } else {
+      this.cards.shiftUp(oldCardList.getId(), card.getIndex());
+      this.cards.shiftDown(newCardListId, index);
+    };
     
     card.setIndex(index);
     card.setList(cardList);

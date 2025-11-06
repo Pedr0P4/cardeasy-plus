@@ -8,13 +8,10 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-} from "@dnd-kit/sortable";
+import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import type { UUID } from "crypto";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
@@ -49,15 +46,17 @@ export default function TeamProjects({ participation, projects }: Props) {
 
   const [_projects, setProjects] = useState(query.data);
 
-  const swapMutation = useMutation({
+  const moveMutation = useMutation({
     mutationFn: async ({
-      first,
-      second,
+      team,
+      project,
+      index,
     }: {
-      first: number;
-      second: number;
+      team: UUID;
+      project: number;
+      index: number;
     }) => {
-      return await Api.client().projects().swap(first, second);
+      return await Api.client().projects().move(team, project, index);
     },
     onError: (error) => {
       console.log(error);
@@ -87,21 +86,19 @@ export default function TeamProjects({ participation, projects }: Props) {
     const { active, over } = event;
 
     if (over !== null && active.id !== over.id) {
-      setProjects((previous) => {
-        const oldIndex = previous.findIndex((p) => p.id === active.id);
-        const newIndex = previous.findIndex((p) => p.id === over.id);
-
-        const _oldIndex = previous[oldIndex].index;
-        previous[oldIndex].index = previous[newIndex].index;
-        previous[newIndex].index = _oldIndex;
-
-        return arrayMove(previous, oldIndex, newIndex);
-      });
-
-      swapMutation.mutate({
-        first: active.id as number,
-        second: over.id as number,
-      });
+      // TODO - Alguem tem que fazer, alguém, né?
+      // setProjects((previous) => {
+      //   const oldIndex = previous.findIndex((p) => p.id === active.id);
+      //   const newIndex = previous.findIndex((p) => p.id === over.id);
+      //   const _oldIndex = previous[oldIndex].index;
+      //   previous[oldIndex].index = previous[newIndex].index;
+      //   previous[newIndex].index = _oldIndex;
+      //   return arrayMove(previous, oldIndex, newIndex);
+      // });
+      // swapMutation.mutate({
+      //   first: active.id as number,
+      //   second: over.id as number,
+      // });
     }
   };
 
