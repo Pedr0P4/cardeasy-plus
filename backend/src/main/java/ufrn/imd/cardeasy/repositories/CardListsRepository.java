@@ -42,14 +42,14 @@ extends JpaRepository<CardList, Integer> {
   @Query(
     // language=sql
     value = """
-      UPDATE card AS cd
-      SET cd.index = cd.index + 1
-      WHERE cd.list_id = ?1
-      AND cd.index >= ?2
+      UPDATE card_list AS cl
+      SET cl.index = cl.index + 1
+      WHERE cl.project_id = ?1
+      AND cl.index >= ?2
     """,
     nativeQuery = true
   ) public void shiftDown(
-    Integer cardListId,
+    Integer projectId,
     Long index
   );
 
@@ -57,14 +57,32 @@ extends JpaRepository<CardList, Integer> {
   @Query(
     // language=sql
     value = """
-      UPDATE card AS cd
-      SET cd.index = cd.index - 1
-      WHERE cd.list_id = ?1
-      AND cd.index >= ?2
+      UPDATE card_list AS cl
+      SET cl.index = cl.index - 1
+      WHERE cl.project_id = ?1
+      AND cl.index > ?2
     """,
     nativeQuery = true
   ) public void shiftUp(
-    Integer cardListId,
+    Integer projectId,
     Long index
+  );
+
+  @Modifying
+  @Query(
+    // language=sql
+    value = """
+      UPDATE card_list AS cl
+      SET cl.index = cl.index + ?4
+      WHERE cl.project_id = ?1
+      AND cl.index 
+      BETWEEN ?2 AND ?3
+    """,
+    nativeQuery = true
+  ) void shiftIndices(
+    Integer projectId, 
+    Long startIndex, 
+    Long endIndex, 
+    int shift
   );
 };

@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.CardNotFound;
-import ufrn.imd.cardeasy.errors.InvalidSwap;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.repositories.CardListsRepository;
@@ -94,24 +93,31 @@ public class CardsService {
   };
 
   @Transactional
-  public void swap(Integer firstId, Integer secondId) {
-    Card first = this.findById(firstId);
-    Card second = this.findById(secondId);
-
-    if (
-      !first.getList().getId().equals(
-        second.getList().getId()
-      )
-    ) throw new InvalidSwap();
+  public void move(Integer cardId, Long index, Integer newCardListId) {
+    Card card = this.findById(cardId);
     
-    Long firstIndex = first.getIndex();
-    Long secondIndex = second.getIndex();
+    CardList oldCardList = card.getList();
+    CardList cardList = this.cardLists.findById(newCardListId)
+      .orElseThrow(CardListNotFound::new);
+    
+    index = Math.min(Math.max(0l, index), cardList.getCards().size());
 
-    first.setIndex(secondIndex);
-    second.setIndex(firstIndex);
+    if (newCardListId.equals(oldCardList.getId())) {
+      if (card.getIndex().equals(index)) return;
+      
+      if (card.getIndex() < index) {
+        this.cards.shiftIndices(oldCardList.getId(), card.getIndex() + 1, index, -1);
+      } else {
+        this.cards.shiftIndices(oldCardList.getId(), index, card.getIndex() - 1, 1);
+      };
+    } else {
+      this.cards.shiftUp(oldCardList.getId(), card.getIndex());
+      this.cards.shiftDown(newCardListId, index);
+    };
+    
+    card.setIndex(index);
+    card.setList(cardList);
 
-    this.cards.saveAll(
-      List.of(first, second)
-    );
+    this.cards.save(card);
   };
 };

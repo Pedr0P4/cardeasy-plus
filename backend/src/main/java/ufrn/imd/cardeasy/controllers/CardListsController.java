@@ -7,11 +7,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dtos.card.SwapCardsDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CreateCardListDTO;
-import ufrn.imd.cardeasy.dtos.cardlist.InsertCardDTO;
-import ufrn.imd.cardeasy.dtos.cardlist.SwapCardListsDTO;
+import ufrn.imd.cardeasy.dtos.cardlist.MoveCardDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.UpdateCardListDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.CardList;
@@ -148,38 +146,10 @@ public class CardListsController {
   };
 
   @Authenticate
-  @PostMapping("/swap")
-  public ResponseEntity<Void> swap(
+  @PostMapping("/{id}/cards/move")
+  public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid SwapCardListsDTO body
-  ) {
-    this.cardLists.existsById(body.first());
-    this.cardLists.existsById(body.second());
-    
-    this.participations.checkCardListAccess(
-      account.getId(),
-      body.first()
-    );
-
-    this.participations.checkCardListAccess(
-      account.getId(),
-      body.second()
-    );
-    
-    this.cardLists.swap(
-      body.first(),
-      body.second()
-    );
-
-    return ResponseEntity.ok()
-      .build();
-  };
-
-  @Authenticate
-  @PostMapping("/{id}/insert")
-  public ResponseEntity<Void> insert(
-    @AuthenticationPrincipal Account account,
-    @RequestBody @Valid InsertCardDTO body,
+    @RequestBody @Valid MoveCardDTO body,
     @PathVariable Integer id
   ) {
     this.cardLists.existsById(id);
@@ -195,7 +165,7 @@ public class CardListsController {
       id
     );
     
-    this.cardLists.insert(
+    this.cards.move(
       body.card(),
       body.index(),
       id

@@ -32,7 +32,7 @@ export default function TeamProjectsItem({ team, project }: Props) {
       className={clsx(
         "relative w-full",
         isDragging && "z-10",
-        isDragging && "opacity-80",
+        isDragging && "opacity-40",
       )}
       {...attributes}
       tabIndex={-1}

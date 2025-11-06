@@ -20,6 +20,7 @@ import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
+import ufrn.imd.cardeasy.dtos.team.MoveProjectDTO;
 import ufrn.imd.cardeasy.dtos.team.TeamDTO;
 import ufrn.imd.cardeasy.dtos.team.TransferOwnerDTO;
 import ufrn.imd.cardeasy.dtos.team.UpdateTeamDTO;
@@ -29,6 +30,7 @@ import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.models.Team;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.ParticipationsService;
+import ufrn.imd.cardeasy.services.ProjectsService;
 import ufrn.imd.cardeasy.services.TeamsService;
 
 @RestController
@@ -36,14 +38,17 @@ import ufrn.imd.cardeasy.services.TeamsService;
 public class TeamsController {
   private ParticipationsService participations;
   private TeamsService teams;
+  private ProjectsService projects;
 
   @Autowired
   public TeamsController(
     ParticipationsService participations,
-    TeamsService teams
+    TeamsService teams,
+    ProjectsService projects
   ) {
     this.participations = participations;
     this.teams = teams;
+    this.projects = projects;
   };
 
   @Authenticate
@@ -259,6 +264,37 @@ public class TeamsController {
 
     return ResponseEntity
       .noContent()
+      .build();
+  };
+
+  @Authenticate
+  @PostMapping("/{id}/projects/move")
+  public ResponseEntity<Void> move(
+    @AuthenticationPrincipal Account account,
+    @RequestBody @Valid MoveProjectDTO body,
+    @PathVariable UUID id
+  ) {
+    this.teams.existsById(id);
+    this.projects.existsById(body.project());
+    
+    this.participations.checkProjectAccess(
+      account.getId(),
+      body.project()
+    );
+
+    this.participations.checkAccess(
+      Role.ADMIN,
+      account.getId(),
+      id
+    );
+    
+    this.projects.move(
+      body.project(),
+      body.index(),
+      id
+    );
+
+    return ResponseEntity.ok()
       .build();
   };
 };

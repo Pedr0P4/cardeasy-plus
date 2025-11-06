@@ -3,10 +3,10 @@ package ufrn.imd.cardeasy.errors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
-public class InvalidSwap extends HttpStatusCodeException {
-  public InvalidSwap() {
+public class InvalidMove extends HttpStatusCodeException {
+  public InvalidMove() {
     super(
-      "troca entre objetos de coleções diferentes", 
+      "movimento inválido entre objetos", 
       HttpStatus.BAD_REQUEST, 
       null, 
       null, 

@@ -1,19 +1,20 @@
 "use client";
 
 import {
-  closestCenter,
+  closestCorners,
   DndContext,
   type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import {
-  arrayMove,
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -23,6 +24,11 @@ import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard";
+import handleCardInsertOverCardList from "@/utils/dragging/handleCardInsertOverCardList";
+import handleCardListDragStart from "@/utils/dragging/handleCardListDragStart";
+import handleCardListsInsert from "@/utils/dragging/handleCardListInsert";
+import ProjectCardItem from "./ProjectCardItem";
 import ProjectCardListsItem from "./ProjectCardListsItem";
 
 interface Props {
@@ -31,8 +37,32 @@ interface Props {
   role: Role;
 }
 
+export type ProjectCardListsData = {
+  cardsLists: CardList[];
+  cards: Record<number, Card[]>;
+};
+
+export type ProjectCardListOverlay =
+  | {
+      type: "card";
+      card: Card;
+      cardList: CardList;
+    }
+  | {
+      type: "card-list";
+      cards: Card[];
+      cardList: CardList;
+    }
+  | null;
+
+export type MutateRequest = {
+  type: "move-lists" | "move-cards";
+  request: () => void;
+} | null;
+
 export default function ProjectCardLists({ project, cardLists, role }: Props) {
   const [isMounted, setIsMounted] = useState(false);
+  const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
 
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
 
@@ -54,7 +84,7 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     initialData: [],
   });
 
-  const [data, setData] = useState({
+  const [data, setData] = useState<ProjectCardListsData>({
     cardsLists: query.data,
     cards: cardsQuery.data.reduce(
       (prev, cur) => {
@@ -66,37 +96,32 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     ),
   });
 
-  const swapMutation = useMutation({
+  const queryClient = useQueryClient();
+  const moveCardListMutation = useMutation({
     mutationFn: async ({
-      first,
-      second,
+      project,
+      cardList,
+      index,
     }: {
-      first: number;
-      second: number;
+      project: number;
+      cardList: number;
+      index: number;
     }) => {
-      return await Api.client().cardLists().swap(first, second);
+      return await Api.client()
+        .cardLists()
+        .move(project, cardList, index)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project, "card-lists"],
+          });
+        });
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const swapCardMutation = useMutation({
-    mutationFn: async ({
-      first,
-      second,
-    }: {
-      first: number;
-      second: number;
-    }) => {
-      return await Api.client().cards().swap(first, second);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
-
-  const insertCardMutation = useMutation({
+  const moveCardMutation = useMutation({
     mutationFn: async ({
       cardList,
       card,
@@ -106,7 +131,14 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       card: number;
       index: number;
     }) => {
-      return await Api.client().cardLists().insert(cardList, card, index);
+      return await Api.client()
+        .cards()
+        .move(cardList, card, index)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["projects", project.id, "cards"],
+          });
+        });
     },
     onError: (error) => {
       console.log(error);
@@ -153,162 +185,158 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     cardsQuery.isSuccess,
   ]);
 
-  const onDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+  const onDragStart = async (event: DragStartEvent) => {
+    handleCardListDragStart(event, data, setOverlay);
+  };
 
-    if (!over || !active) return;
+  const onDrag = async (event: DragEndEvent, mutate: boolean) => {
+    try {
+      const { active, over } = event;
 
-    const activeId = active.id as string;
-    const overId = over.id as string;
+      if (!over || !active) return;
 
-    if (activeId === overId) return;
+      const activeId = active.id as string;
+      const overId = over.id as string;
 
-    if (activeId.startsWith("card-list-") && overId.startsWith("card-list-")) {
-      console.log("list-to-list");
-      setData((previous) => {
-        const cardsLists = [...previous.cardsLists];
-        const oldIndex = cardsLists.findIndex(
-          (cardList) => `card-list-${cardList.id}` === active.id,
-        );
-        const newIndex = cardsLists.findIndex(
-          (cardList) => `card-list-${cardList.id}` === over.id,
-        );
-
-        const _oldIndex = cardsLists[oldIndex].index;
-        cardsLists[oldIndex].index = cardsLists[newIndex].index;
-        cardsLists[newIndex].index = _oldIndex;
-
-        const newCardLists = arrayMove(cardsLists, oldIndex, newIndex);
-
-        return {
-          cards: previous.cards,
-          cardsLists: newCardLists,
-        };
-      });
-
-      swapMutation.mutate({
-        first: Number.parseInt(
+      if (
+        mutate &&
+        activeId.startsWith("card-list-") &&
+        overId.startsWith("card-list-")
+      ) {
+        const _activeId = Number.parseInt(
           (active.id as string).replace("card-list-", ""),
           10,
-        ),
-        second: Number.parseInt(
+        );
+
+        const _overId = Number.parseInt(
           (over.id as string).replace("card-list-", ""),
           10,
-        ),
-      });
+        );
 
-      return;
-    } else if (activeId.startsWith("card-")) {
-      const activeListId = Number.parseInt(
-        (active.data.current?.sortable.containerId as string).replace(
-          "cards-",
-          "",
-        ),
-        10,
-      );
+        const index = handleCardListsInsert(_activeId, _overId, setData);
 
-      const overListId = Number.parseInt(
-        (overId.startsWith("card-list-")
-          ? overId.replace("card-list-", "cards-")
-          : overId.startsWith("card-")
-            ? (over.data.current?.sortable.containerId as string)
-            : overId
-        ).replace("cards-", ""),
-        10,
-      );
+        if (mutate) {
+          moveCardListMutation.mutate({
+            project: project.id,
+            cardList: _activeId,
+            index,
+          });
+        }
+      } else if (
+        mutate &&
+        activeId.startsWith("card-list-") &&
+        !overId.startsWith("card-list-")
+      ) {
+        const _activeId = Number.parseInt(
+          (active.id as string).replace("card-list-", ""),
+          10,
+        );
 
-      if (activeListId === overListId) {
-        console.log("card-to-card");
-        setData((previous) => {
-          const cards = [...previous.cards[activeListId]];
-          const oldIndex = cards.findIndex(
-            (card) => `card-${card.id}` === active.id,
+        const overListId = Number.parseInt(
+          (overId.startsWith("card-list-")
+            ? overId.replace("card-list-", "cards-")
+            : overId.startsWith("card-")
+              ? (over.data.current?.sortable.containerId as string)
+              : overId
+          ).replace("cards-", ""),
+          10,
+        );
+
+        const index = handleCardListsInsert(_activeId, overListId, setData);
+
+        if (mutate) {
+          moveCardListMutation.mutate({
+            project: project.id,
+            cardList: _activeId,
+            index,
+          });
+        }
+      } else if (
+        activeId.startsWith("card-") &&
+        !activeId.startsWith("card-list")
+      ) {
+        const { top: overTop, height: overHeight } = over.rect;
+        const center = overTop + overHeight / 2;
+
+        if (!active.rect.current.translated) return;
+
+        const { top: activeTop, height: activeHeight } =
+          active.rect.current.translated;
+        const clientY = activeTop + activeHeight / 2;
+        const isOnTop = clientY < center;
+
+        const _activeId = Number.parseInt(
+          (active.id as string).replace("card-", ""),
+          10,
+        );
+
+        const activeListId = Number.parseInt(
+          (active.data.current?.sortable.containerId as string).replace(
+            "cards-",
+            "",
+          ),
+          10,
+        );
+
+        const overListId = Number.parseInt(
+          (overId.startsWith("card-list-")
+            ? overId.replace("card-list-", "cards-")
+            : overId.startsWith("card-")
+              ? (over.data.current?.sortable.containerId as string)
+              : overId
+          ).replace("cards-", ""),
+          10,
+        );
+
+        if (
+          (mutate || overListId !== activeListId) &&
+          overId.startsWith("card-") &&
+          !overId.startsWith("card-list")
+        ) {
+          const _overId = Number.parseInt(
+            (over.id as string).replace("card-", ""),
+            10,
           );
-          const newIndex = cards.findIndex(
-            (card) => `card-${card.id}` === over.id,
+
+          const index = handleCardInsertOverCard(
+            activeListId,
+            overListId,
+            _activeId,
+            _overId,
+            isOnTop,
+            setData,
           );
 
-          const _oldIndex = cards[oldIndex].index;
-          cards[oldIndex].index = cards[newIndex].index;
-          cards[newIndex].index = _oldIndex;
-
-          const newCards = arrayMove(cards, oldIndex, newIndex);
-
-          return {
-            cards: {
-              ...previous.cards,
-              [activeListId]: newCards,
-            },
-            cardsLists: previous.cardsLists,
-          };
-        });
-
-        swapCardMutation.mutate({
-          first: Number.parseInt(activeId.replace("card-", ""), 10),
-          second: Number.parseInt(overId.replace("card-", ""), 10),
-        });
-      } else {
-        let targetIndex = 0;
-        console.log("card-to-list-[card]");
-
-        setData((previous) => {
-          const activeIndex = previous.cards[activeListId].findIndex(
-            (card) => `card-${card.id}` === activeId,
-          );
-
-          const activeCard = previous.cards[activeListId][activeIndex];
-          const newOverCardList = [...previous.cards[overListId]];
-          const newActiveCardList = [
-            ...previous.cards[activeListId].filter(
-              (card) => `card-${card.id}` !== activeId,
-            ),
-          ];
-
-          // TODO - Resolver essa "bomba"
-          // TODO - Fazer inserir no final tbm
-          // TODO - Sair da caixa
-          if (overId.startsWith("card-list-")) {
-            console.log("card-insert-list");
-            newOverCardList.unshift(activeCard);
-            targetIndex = 0;
-
-            return {
-              cards: {
-                ...previous.cards,
-                [activeListId]: newActiveCardList,
-                [overListId]: newOverCardList,
-              },
-              cardsLists: previous.cardsLists,
-            };
-          } else if (overId.startsWith("card-")) {
-            console.log("card-insert-card");
-
-            const overIndex = newOverCardList.findIndex(
-              (card) => `card-${card.id}` === overId,
-            );
-
-            targetIndex = newOverCardList[overIndex].index;
-            newOverCardList.splice(overIndex, 0, activeCard);
-
-            return {
-              cards: {
-                ...previous.cards,
-                [activeListId]: newActiveCardList,
-                [overListId]: newOverCardList,
-              },
-              cardsLists: previous.cardsLists,
-            };
+          if (mutate) {
+            moveCardMutation.mutate({
+              cardList: overListId,
+              card: _activeId,
+              index,
+            });
           }
+        } else if (
+          (mutate || overListId !== activeListId) &&
+          overId.startsWith("card-list")
+        ) {
+          const index = handleCardInsertOverCardList(
+            activeListId,
+            overListId,
+            _activeId,
+            isOnTop,
+            setData,
+          );
 
-          return previous;
-        });
-
-        insertCardMutation.mutate({
-          cardList: overListId,
-          card: Number.parseInt(activeId.replace("card-", ""), 10),
-          index: targetIndex,
-        });
+          if (mutate) {
+            moveCardMutation.mutate({
+              cardList: overListId,
+              card: _activeId,
+              index,
+            });
+          }
+        }
       }
+    } finally {
+      if (mutate) setOverlay(null);
     }
   };
 
@@ -343,12 +371,14 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     </ul>
   );
 
-  if (isMounted && isAdmin)
+  if (isMounted)
     return (
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={onDragEnd}
+        collisionDetection={closestCorners}
+        onDragOver={(e) => onDrag(e, false)}
+        onDragEnd={(e) => onDrag(e, true)}
+        onDragStart={onDragStart}
         autoScroll={false}
       >
         <SortableContext
@@ -359,8 +389,26 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
             Segure, espere um pouco e depois arraste para mudar a ordem.
           </p>
           {content}
+          <DragOverlay dropAnimation={null}>
+            {overlay &&
+              (overlay.type === "card" ? (
+                <ProjectCardItem
+                  card={overlay.card}
+                  cardList={overlay.cardList}
+                  project={projectQuery.data}
+                  role={role}
+                />
+              ) : (
+                <ProjectCardListsItem
+                  project={projectQuery.data}
+                  cardList={overlay.cardList}
+                  cards={overlay.cards}
+                  role={role}
+                />
+              ))}
+          </DragOverlay>
         </SortableContext>
       </DndContext>
     );
-  else if (isMounted) return content;
+  else return null;
 }

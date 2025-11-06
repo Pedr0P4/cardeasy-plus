@@ -46,7 +46,8 @@ export default function ProjectCardItem({
       className={clsx(
         "relative w-full min-h",
         isDragging && "z-10",
-        isDragging && "opacity-80",
+        isDragging && "opacity-40",
+        "list-none",
       )}
       {...attributes}
       tabIndex={-1}
