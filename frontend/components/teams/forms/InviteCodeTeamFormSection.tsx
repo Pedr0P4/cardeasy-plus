@@ -3,7 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
-import { useState } from "react";
+import { type Dispatch, type SetStateAction, useState } from "react";
 import {
   FaArrowsRotate,
   FaEnvelopeOpenText,
@@ -18,27 +18,36 @@ import Input from "../../Input";
 
 interface Props {
   team: Team;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function InviteCodeTeamFormSection({ team }: Props) {
+export default function InviteCodeTeamFormSection({
+  team,
+  isLoading,
+  setIsLoading,
+}: Props) {
   const [error, setError] = useState<string>("");
   const [code, setCode] = useState<string>(team?.code ?? "");
 
   const queryClient = useQueryClient();
   const deleteCodeMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .deleteCode(team.id as UUID)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          setCode("");
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      setCode("");
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -47,18 +56,21 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
 
   const generateCodeMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .generateCode(team.id as UUID)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          setCode(code);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: (code) => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      setCode(code);
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -66,7 +78,7 @@ export default function InviteCodeTeamFormSection({ team }: Props) {
   });
 
   const isPending =
-    deleteCodeMutation.isPending || generateCodeMutation.isPending;
+    isLoading || deleteCodeMutation.isPending || generateCodeMutation.isPending;
 
   return (
     <>

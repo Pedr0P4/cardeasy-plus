@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { useState } from "react";
 import { Api } from "@/services/api";
 import type { Participation } from "@/services/participations";
 import EditTeamFormSection from "./forms/EditTeamFormSection";
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export default function TeamConfiguration({ participation }: Props) {
+  const [isLoading, setIsLoading] = useState(false);
+
   const query = useQuery({
     queryKey: ["participations", participation.team.id, "me"],
     queryFn: () => Api.client().participations().get(participation.team.id),
@@ -25,8 +28,17 @@ export default function TeamConfiguration({ participation }: Props) {
         "items-start justify-center",
       )}
     >
-      <InviteCodeTeamFormSection team={query.data.team} />
-      <EditTeamFormSection team={query.data.team} role={query.data.role} />
+      <InviteCodeTeamFormSection
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        team={query.data.team}
+      />
+      <EditTeamFormSection
+        isLoading={isLoading}
+        setIsLoading={setIsLoading}
+        team={query.data.team}
+        role={query.data.role}
+      />
     </main>
   );
 }

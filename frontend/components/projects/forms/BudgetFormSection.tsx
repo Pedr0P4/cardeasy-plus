@@ -2,7 +2,13 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { type ChangeEvent, useMemo, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+  useMemo,
+  useState,
+} from "react";
 import {
   FaCalendarDay,
   FaCheck,
@@ -22,9 +28,15 @@ import Input from "../../Input";
 
 interface Props {
   project: Project;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function BudgetFormSection({ project }: Props) {
+export default function BudgetFormSection({
+  project,
+  isLoading,
+  setIsLoading,
+}: Props) {
   const [hasBudget, setHasBudget] = useState<boolean>(!!project.budget);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
@@ -39,17 +51,19 @@ export default function BudgetFormSection({ project }: Props) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async (budget: Budget) => {
-      return Api.client()
+      return await Api.client()
         .budgets()
         .delete(budget.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+          setHasBudget(false);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -58,21 +72,22 @@ export default function BudgetFormSection({ project }: Props) {
 
   const updateMutation = useMutation({
     mutationFn: async (budget: Budget) => {
-      return Api.client()
+      return await Api.client()
         .budgets()
         .update(budget.id, {
           ...data,
           deadline: withDeadline ? data.deadline : undefined,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -80,23 +95,24 @@ export default function BudgetFormSection({ project }: Props) {
   });
 
   const createMutation = useMutation({
-    mutationFn: () => {
-      return Api.client()
+    mutationFn: async () => {
+      return await Api.client()
         .budgets()
         .create({
           ...data,
           deadline: withDeadline ? data.deadline : undefined,
           project: project.id,
         })
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -155,6 +171,7 @@ export default function BudgetFormSection({ project }: Props) {
   };
 
   const isPending =
+    isLoading ||
     updateMutation.isPending ||
     deleteMutation.isPending ||
     createMutation.isPending;
@@ -185,7 +202,7 @@ export default function BudgetFormSection({ project }: Props) {
               e.preventDefault();
               setError("");
               setErrors({});
-
+              setIsLoading(true);
               if (project?.budget) {
                 updateMutation.mutate(project.budget);
               } else {
@@ -298,9 +315,8 @@ export default function BudgetFormSection({ project }: Props) {
                     return;
                   }
 
-                  deleteMutation.mutate(project.budget, {
-                    onSuccess: () => setHasBudget(false),
-                  });
+                  setIsLoading(true);
+                  deleteMutation.mutate(project.budget);
                 }}
                 type="button"
                 className="btn btn-soft btn-primary"
@@ -327,6 +343,7 @@ export default function BudgetFormSection({ project }: Props) {
             <div className="flex flex-row flex-wrap gap-4">
               <button
                 type="button"
+                disabled={isPending}
                 onClick={onAddBudget}
                 className="btn btn-neutral"
               >

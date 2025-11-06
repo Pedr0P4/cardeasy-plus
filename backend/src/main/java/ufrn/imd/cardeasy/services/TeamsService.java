@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ufrn.imd.cardeasy.errors.AccountNotFound;
-import ufrn.imd.cardeasy.errors.CannotKickOnwer;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Account;
@@ -91,7 +90,7 @@ public class TeamsService {
   };
 
   public void deleteById(UUID id) {
-    this.findById(id);
+    this.existsById(id);
     this.teams.deleteById(id);
   };
 
@@ -146,22 +145,30 @@ public class TeamsService {
 
     return team;
   };
-
-  public void kick(UUID accountId, UUID teamId) {
-    this.existsById(teamId);
-
-    ParticipationId participationId = new ParticipationId();
-    participationId.setTeamId(teamId);
-    participationId.setAccountId(accountId);
-
-    Participation participation = this.participations.findById(
-      participationId
+  
+  @Transactional
+  public void transfer(
+    UUID teamId,
+    UUID ownerId,
+    UUID accountId
+  ) {
+    Participation owner = this.participations.findByAccountAndTeam(
+      ownerId, 
+      teamId
     ).orElseThrow(ParticipationNotFound::new);
 
-    if (participation.getRole() == Role.OWNER) 
-      throw new CannotKickOnwer();
+    Participation account = this.participations.findByAccountAndTeam(
+      accountId, 
+      teamId
+    ).orElseThrow(ParticipationNotFound::new);
 
-    this.participations.deleteById(participationId);
+    owner.setRole(Role.ADMIN);
+    account.setRole(Role.OWNER);
+
+    this.participations.saveAll(List.of(
+      owner,
+      account
+    ));
   };
 
   public void existsById(UUID id) {

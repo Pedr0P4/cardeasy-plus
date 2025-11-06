@@ -47,7 +47,6 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
   public ResponseEntity<ErrorDTO> handleError(
     HttpStatusCodeException e
   ) {
-    
     return ResponseEntity
       .status(e.getStatusCode())
       .body(new ErrorDTO(

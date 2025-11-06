@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   FaArrowDown,
   FaArrowRightArrowLeft,
@@ -33,32 +34,33 @@ export default function TeamMemberContextMenu({
   const isOnwer = viewer.role === Role.OWNER;
   const same = viewer.account.id === participation.account.id;
   const level = levels[viewer.role] - levels[participation.role];
+  const [isLoading, setIsLoading] = useState(false);
 
   // TODO - Toast?
-  // TODO - Rever transição de posse
 
   const router = useRouter();
   const queryClient = useQueryClient();
   const promoteToAdminMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
           role: Role.ADMIN,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -67,24 +69,25 @@ export default function TeamMemberContextMenu({
 
   const demoteToMemberMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
           role: Role.MEMBER,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -93,27 +96,24 @@ export default function TeamMemberContextMenu({
 
   const transferOwnershipMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
-        .participations()
-        .update({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
-          role: viewer.role,
+      return await Api.client()
+        .teams()
+        .transfer(participation.team.id, participation.account.id)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id, "me"],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id, "me"],
-      });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -122,23 +122,24 @@ export default function TeamMemberContextMenu({
 
   const kickMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
         .delete({
-          accountId: participation.account.id,
-          teamId: participation.team.id,
+          account: participation.account.id,
+          team: participation.team.id,
+        })
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id],
+          });
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id],
-      });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -147,32 +148,40 @@ export default function TeamMemberContextMenu({
 
   const exitMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .participations()
-        .delete({
-          accountId: viewer.account.id,
-          teamId: viewer.team.id,
+        .exit({
+          team: viewer.team.id,
+        })
+        .then(() => {
+          queryClient.removeQueries({
+            queryKey: ["participations", participation.team.id],
+          });
+          queryClient.removeQueries({
+            queryKey: ["participations", participation.team.id, "me"],
+          });
+          router.push("/home");
         })
         .catch((err: ApiErrorResponse) => {
           // if (err.isValidationError()) setErrors(err.errors);
           // else if (err.isErrorResponse()) setError(err.error);
           // else setError("Erro inesperado!");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: ["participations", participation.team.id],
-      });
-      queryClient.removeQueries({
-        queryKey: ["participations", participation.team.id, "me"],
-      });
-      router.push("/home");
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
     },
   });
+
+  const isPending =
+    isLoading ||
+    exitMutation.isPending ||
+    kickMutation.isPending ||
+    transferOwnershipMutation.isPending ||
+    promoteToAdminMutation.isPending ||
+    demoteToMemberMutation.isPending;
 
   if (level <= 0 && (!same || (same && isOnwer))) return null;
 
@@ -195,8 +204,10 @@ export default function TeamMemberContextMenu({
               <li>
                 <button
                   type="button"
+                  disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
+                    setIsLoading(true);
                     promoteToAdminMutation.mutate();
                   }}
                 >
@@ -208,8 +219,10 @@ export default function TeamMemberContextMenu({
               <li>
                 <button
                   type="button"
+                  disabled={isPending}
                   onClick={(e) => {
                     e.currentTarget.blur();
+                    setIsLoading(true);
                     demoteToMemberMutation.mutate();
                   }}
                 >
@@ -221,8 +234,10 @@ export default function TeamMemberContextMenu({
             <li>
               <button
                 type="button"
+                disabled={isPending}
                 onClick={(e) => {
                   e.currentTarget.blur();
+                  setIsLoading(true);
                   transferOwnershipMutation.mutate();
                 }}
                 className="text-primary"
@@ -237,8 +252,10 @@ export default function TeamMemberContextMenu({
           <li>
             <button
               type="button"
+              disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
+                setIsLoading(true);
                 kickMutation.mutate();
               }}
               className="text-primary"
@@ -252,8 +269,10 @@ export default function TeamMemberContextMenu({
           <li>
             <button
               type="button"
+              disabled={isPending}
               onClick={(e) => {
                 e.currentTarget.blur();
+                setIsLoading(true);
                 exitMutation.mutate();
               }}
               className="text-primary"

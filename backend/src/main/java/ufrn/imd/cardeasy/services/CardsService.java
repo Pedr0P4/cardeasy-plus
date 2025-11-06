@@ -4,7 +4,9 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.CardNotFound;
 import ufrn.imd.cardeasy.models.Card;
@@ -13,12 +15,12 @@ import ufrn.imd.cardeasy.repositories.CardListsRepository;
 import ufrn.imd.cardeasy.repositories.CardsRepository;
 
 @Service
-public class CardService {
+public class CardsService {
   private CardListsRepository cardLists;
   private CardsRepository cards;
   
   @Autowired
-  public CardService(
+  public CardsService(
     CardListsRepository cardLists,
     CardsRepository cards
   ) {
@@ -34,8 +36,15 @@ public class CardService {
     CardList list = cardLists.findById(cardListId)
       .orElseThrow(CardListNotFound::new);
 
+    IntervalDTO interval = this.cards.getIndexIntervalByCardList(cardListId);
+
     Card card = new Card();
-    card.setIndex(0l);
+    
+    if(interval.min() > 1) 
+      card.setIndex(interval.min() - 1);
+    else 
+      card.setIndex(interval.max() + 1);
+    
     card.setTitle(title);
     card.setList(list);
     card.setDescription(description);
@@ -69,6 +78,10 @@ public class CardService {
     return this.cards.findAllByCardList(cardListId);
   };
 
+  public List<Card> findAllByProject(Integer projectId) {
+    return this.cards.findAllByProject(projectId);
+  };
+
   public Card findById(Integer id) {
     return this.cards.findById(id)
       .orElseThrow(CardNotFound::new);
@@ -77,5 +90,34 @@ public class CardService {
   public void existsById(Integer id) {
     if(!cards.existsById(id))
       throw new CardNotFound();
+  };
+
+  @Transactional
+  public void move(Integer cardId, Long index, Integer newCardListId) {
+    Card card = this.findById(cardId);
+    
+    CardList oldCardList = card.getList();
+    CardList cardList = this.cardLists.findById(newCardListId)
+      .orElseThrow(CardListNotFound::new);
+    
+    index = Math.min(Math.max(0l, index), cardList.getCards().size());
+
+    if (newCardListId.equals(oldCardList.getId())) {
+      if (card.getIndex().equals(index)) return;
+      
+      if (card.getIndex() < index) {
+        this.cards.shiftIndices(oldCardList.getId(), card.getIndex() + 1, index, -1);
+      } else {
+        this.cards.shiftIndices(oldCardList.getId(), index, card.getIndex() - 1, 1);
+      };
+    } else {
+      this.cards.shiftUp(oldCardList.getId(), card.getIndex());
+      this.cards.shiftDown(newCardListId, index);
+    };
+    
+    card.setIndex(index);
+    card.setList(cardList);
+
+    this.cards.save(card);
   };
 };

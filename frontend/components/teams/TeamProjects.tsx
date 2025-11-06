@@ -4,6 +4,8 @@ import {
   closestCenter,
   DndContext,
   type DragEndEvent,
+  DragOverlay,
+  type DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -11,12 +13,15 @@ import {
 import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
+import type { UUID } from "crypto";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { type Participation, Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import handleProjectDragStart from "@/utils/dragging/handleProjectDragStart";
+import handleProjectInsert from "@/utils/dragging/handleProjectInsert";
 import TeamProjectsItem from "./TeamProjectsItem";
 
 interface Props {
@@ -26,6 +31,7 @@ interface Props {
 
 export default function TeamProjects({ participation, projects }: Props) {
   const [isMounted, setIsMounted] = useState(false);
+  const [overlay, setOverlay] = useState<Project | null>(null);
 
   const participationQuery = useQuery({
     queryKey: ["participations", participation.team.id, "me"],
@@ -43,21 +49,27 @@ export default function TeamProjects({ participation, projects }: Props) {
     initialData: projects,
   });
 
+  const [_projects, setProjects] = useState(query.data);
+
   const queryClient = useQueryClient();
-  const swapMutation = useMutation({
+  const moveMutation = useMutation({
     mutationFn: async ({
-      first,
-      second,
+      team,
+      project,
+      index,
     }: {
-      first: number;
-      second: number;
+      team: UUID;
+      project: number;
+      index: number;
     }) => {
-      return Api.client().projects().swap(first, second);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["participations", participation.team.id, "projects"],
-      });
+      return await Api.client()
+        .projects()
+        .move(team, project, index)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", participation.team.id, "projects"],
+          });
+        });
     },
     onError: (error) => {
       console.log(error);
@@ -77,42 +89,48 @@ export default function TeamProjects({ participation, projects }: Props) {
     setIsMounted(true);
   }, []);
 
+  useEffect(() => {
+    if (!query.isFetching && query.isSuccess) {
+      setProjects(query.data);
+    }
+  }, [query.data, query.isFetching, query.isSuccess]);
+
+  const onDragStart = async (event: DragStartEvent) => {
+    handleProjectDragStart(event, _projects, setOverlay);
+  };
+
   const onDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
+    try {
+      const { active, over } = event;
 
-    if (over !== null && active.id !== over.id) {
-      // setProjects((projects) => {
-      //   const oldIndex = projects.findIndex((p) => p.id === active.id);
-      //   const newIndex = projects.findIndex((p) => p.id === over.id);
+      if (over !== null && active.id !== over.id) {
+        const activeId = Number.parseInt(active.id as string, 10);
+        const overId = Number.parseInt(over.id as string, 10);
 
-      //   const _oldIndex = projects[oldIndex].index;
-      //   projects[oldIndex].index = projects[newIndex].index;
-      //   projects[newIndex].index = _oldIndex;
+        const index = handleProjectInsert(activeId, overId, setProjects);
 
-      //   const newProjects = arrayMove(projects, oldIndex, newIndex);
-      //   return newProjects;
-      // });
-
-      swapMutation.mutate({
-        first: active.id as number,
-        second: over.id as number,
-      });
+        moveMutation.mutate({
+          project: activeId,
+          team: participation.team.id,
+          index,
+        });
+      }
+    } finally {
+      setOverlay(null);
     }
   };
 
   const content = (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {query.data
-        .sort((a, b) => a.index - b.index)
-        .map((project) => {
-          return (
-            <TeamProjectsItem
-              key={`${participation.team.id}-${project.id}`}
-              team={participationQuery.data.team}
-              project={project}
-            />
-          );
-        })}
+      {_projects.map((project) => {
+        return (
+          <TeamProjectsItem
+            key={`${participation.team.id}-${project.id}`}
+            team={participationQuery.data.team}
+            project={project}
+          />
+        );
+      })}
       {isAdmin && (
         <li className="w-full">
           <Link
@@ -137,19 +155,29 @@ export default function TeamProjects({ participation, projects }: Props) {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragEnd={onDragEnd}
+        onDragStart={onDragStart}
         autoScroll={false}
       >
         <SortableContext
-          items={query.data.map((p) => p.id)}
+          items={_projects.map((project) => project.id)}
           strategy={rectSortingStrategy}
         >
           <p className="-mt-1 mb-2 font-thin">
             Segure, espere um pouco e depois arraste para mudar a ordem.
           </p>
           {content}
+          <DragOverlay dropAnimation={null}>
+            {overlay && (
+              <TeamProjectsItem
+                key={`${participation.team.id}-${overlay.id}`}
+                team={participationQuery.data.team}
+                project={overlay}
+              />
+            )}
+          </DragOverlay>
         </SortableContext>
       </DndContext>
     );
-
-  return content;
+  else if (isMounted) return content;
+  else return null;
 }

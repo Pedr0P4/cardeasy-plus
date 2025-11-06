@@ -3,7 +3,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import { type ChangeEvent, useState } from "react";
+import {
+  type ChangeEvent,
+  type Dispatch,
+  type SetStateAction,
+  useState,
+} from "react";
 import {
   FaClipboardList,
   FaFloppyDisk,
@@ -21,9 +26,16 @@ import Input from "../../Input";
 interface Props {
   team: Team;
   role: Role;
+  isLoading: boolean;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function EditTeamFormSection({ team, role }: Props) {
+export default function EditTeamFormSection({
+  team,
+  role,
+  isLoading,
+  setIsLoading,
+}: Props) {
   const isOwner = role === Role.OWNER;
 
   const [error, setError] = useState<string>("");
@@ -37,22 +49,23 @@ export default function EditTeamFormSection({ team, role }: Props) {
   const queryClient = useQueryClient();
   const deleteMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .delete(team.id)
+        .then(() => {
+          queryClient.invalidateQueries({ queryKey: ["participations"] });
+          queryClient.removeQueries({ queryKey: ["participations", team.id] });
+          queryClient.removeQueries({
+            queryKey: ["participations", team.id, "me"],
+          });
+          router.push("/home");
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations"] });
-      queryClient.removeQueries({ queryKey: ["participations", team.id] });
-      queryClient.removeQueries({
-        queryKey: ["participations", team.id, "me"],
-      });
-      router.push("/home");
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
@@ -61,26 +74,30 @@ export default function EditTeamFormSection({ team, role }: Props) {
 
   const updateMutation = useMutation({
     mutationFn: async () => {
-      return Api.client()
+      return await Api.client()
         .teams()
         .update(team.id, data)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["participations", team.id],
+          });
+          router.push(`/home/teams/${team.id}`);
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["participations", team.id] });
-      router.push(`/home/teams/${team.id}`);
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
     },
   });
 
-  const isPending = updateMutation.isPending || deleteMutation.isPending;
+  const isPending =
+    isLoading || updateMutation.isPending || deleteMutation.isPending;
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({

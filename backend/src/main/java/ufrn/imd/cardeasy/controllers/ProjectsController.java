@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
+import ufrn.imd.cardeasy.dtos.project.MoveCardListDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
-import ufrn.imd.cardeasy.dtos.project.SwapProjectsDTO;
 import ufrn.imd.cardeasy.dtos.project.UpdateProjectDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 import ufrn.imd.cardeasy.services.ProjectsService;
 import ufrn.imd.cardeasy.services.TeamsService;
@@ -33,37 +34,40 @@ import ufrn.imd.cardeasy.services.TeamsService;
 public class ProjectsController {
   private TeamsService teams;
   private ParticipationsService participations;
+  private CardListsService cardLists;
   private ProjectsService projects;
 
   @Autowired
   public ProjectsController(
     TeamsService teams,
     ParticipationsService participations,
-    ProjectsService projects
+    ProjectsService projects,
+    CardListsService cardLists
   ) {
     this.teams = teams;
     this.participations = participations;
     this.projects = projects;
+    this.cardLists = cardLists;
   };
 
   @Authenticate
   @PostMapping
   public ResponseEntity<ProjectDTO> create(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid CreateProjectDTO project
+    @RequestBody @Valid CreateProjectDTO body
   ) {
-    this.teams.existsById(project.team());
+    this.teams.existsById(body.team());
 
     this.participations.checkAccess(
       Role.ADMIN,
       account.getId(),
-      project.team()
+      body.team()
     );
 
     Project created = this.projects.create(
-      project.team(),
-      project.title(),
-      project.description()
+      body.team(),
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity
@@ -108,7 +112,7 @@ public class ProjectsController {
   public ResponseEntity<ProjectDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
-    @RequestBody @Valid UpdateProjectDTO project
+    @RequestBody @Valid UpdateProjectDTO body
   ) {
     this.projects.existsById(id);
 
@@ -119,8 +123,8 @@ public class ProjectsController {
 
     Project updated = this.projects.update(
       id,
-      project.title(),
-      project.description()
+      body.title(),
+      body.description()
     );
 
     return ResponseEntity.ok(
@@ -150,29 +154,29 @@ public class ProjectsController {
   };
 
   @Authenticate
-  @PostMapping("/swap")
-  public ResponseEntity<Void> swap(
+  @PostMapping("/{id}/card-lists/move")
+  public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
-    @RequestBody @Valid SwapProjectsDTO projects
+    @RequestBody @Valid MoveCardListDTO body,
+    @PathVariable Integer id
   ) {
-    this.projects.existsById(projects.first());
-    this.projects.existsById(projects.second());
+    this.projects.existsById(id);
+    this.cardLists.existsById(body.cardList());
     
-    this.participations.checkProjectAccess(
-      Role.ADMIN,
+    this.participations.checkCardListAccess(
       account.getId(),
-      projects.first()
+      body.cardList()
     );
 
     this.participations.checkProjectAccess(
-      Role.ADMIN,
       account.getId(),
-      projects.second()
+      id
     );
     
-    this.projects.swap(
-      projects.first(),
-      projects.second()
+    this.cardLists.move(
+      body.cardList(),
+      body.index(),
+      id
     );
 
     return ResponseEntity.ok()

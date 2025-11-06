@@ -43,8 +43,8 @@ public class Project {
   @ToString.Exclude
   private Team team;
 
-  @JoinColumn(name = "budget_id", nullable = true)
   @OneToOne(
+    mappedBy = "project",
     fetch = FetchType.LAZY,
     cascade = CascadeType.ALL,
     orphanRemoval = true

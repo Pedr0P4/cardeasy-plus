@@ -1,6 +1,7 @@
 import type { UUID } from "crypto";
 import { Service } from "./base/services";
 import type { CardList } from "./cardLists";
+import type { Card } from "./cards";
 import type { Stage } from "./stages";
 
 export type Budget = {
@@ -54,15 +55,6 @@ export class ProjectsService extends Service {
     return this.api.delete(`/projects/${id}`);
   }
 
-  async swap(first: number, second: number) {
-    return this.api
-      .post<Project>("/projects/swap", {
-        first,
-        second,
-      })
-      .then((res) => res.data);
-  }
-
   async stages(id: number) {
     return this.api
       .get<Stage[]>(`/stages/project/${id}`)
@@ -73,5 +65,16 @@ export class ProjectsService extends Service {
     return this.api
       .get<CardList[]>(`/card-lists/project/${id}`)
       .then((res) => res.data);
+  }
+
+  async cards(id: number) {
+    return this.api.get<Card[]>(`/cards/project/${id}`).then((res) => res.data);
+  }
+
+  async move(team: UUID, project: number, index: number) {
+    return this.api.post(`/teams/${team}/projects/move`, {
+      project,
+      index,
+    });
   }
 }

@@ -13,6 +13,7 @@ import { Axios } from "./base/axios";
 import { client } from "./base/client";
 import { BudgetsService } from "./budgets";
 import { CardListsService } from "./cardLists";
+import { CardsService } from "./cards";
 import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
@@ -110,8 +111,16 @@ export class Api {
     );
   }
 
-  public cardList() {
+  public cardLists() {
     return new CardListsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public cards() {
+    return new CardsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,
