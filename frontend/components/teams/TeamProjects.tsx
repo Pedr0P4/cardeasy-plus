@@ -11,25 +11,31 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import { rectSortingStrategy, SortableContext } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { type Participation, Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import handleProjectDragStart from "@/utils/dragging/handleProjectDragStart";
 import handleProjectInsert from "@/utils/dragging/handleProjectInsert";
+import Input from "../Input";
 import TeamProjectsItem from "./TeamProjectsItem";
 
 interface Props {
   participation: Participation;
-  projects: Project[];
 }
 
-export default function TeamProjects({ participation, projects }: Props) {
+export default function TeamProjects({ participation }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [overlay, setOverlay] = useState<Project | null>(null);
 
@@ -43,10 +49,31 @@ export default function TeamProjects({ participation, projects }: Props) {
     participationQuery.data.role,
   );
 
-  const query = useQuery({
-    queryKey: ["participations", participation.team.id, "projects"],
-    queryFn: () => Api.client().teams().projects(participation.team.id),
-    initialData: projects,
+  const query = useInfiniteQuery({
+    queryKey: [
+      "participations",
+      participation.team.id,
+      "projects",
+      `query-${searchQuery}`,
+    ],
+    queryFn: ({ pageParam }) =>
+      Api.client()
+        .projects()
+        .search(participation.team.id, pageParam, searchQuery),
+    getNextPageParam: (lastPageData) => {
+      if (lastPageData.page < lastPageData.lastPage) {
+        return lastPageData.page + 1;
+      }
+      return undefined;
+    },
+    select: (data) => {
+      return data.pages.flatMap((page) => page.items);
+    },
+    initialPageParam: 0,
+    initialData: {
+      pages: [],
+      pageParams: [],
+    },
   });
 
   const [_projects, setProjects] = useState(query.data);
@@ -122,15 +149,6 @@ export default function TeamProjects({ participation, projects }: Props) {
 
   const content = (
     <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {_projects.map((project) => {
-        return (
-          <TeamProjectsItem
-            key={`${participation.team.id}-${project.id}`}
-            team={participationQuery.data.team}
-            project={project}
-          />
-        );
-      })}
       {isAdmin && (
         <li className="w-full">
           <Link
@@ -146,6 +164,15 @@ export default function TeamProjects({ participation, projects }: Props) {
           </Link>
         </li>
       )}
+      {_projects.map((project) => {
+        return (
+          <TeamProjectsItem
+            key={`${participation.team.id}-${project.id}`}
+            team={participationQuery.data.team}
+            project={project}
+          />
+        );
+      })}
     </ul>
   );
 
@@ -161,10 +188,23 @@ export default function TeamProjects({ participation, projects }: Props) {
         <SortableContext
           items={_projects.map((project) => project.id)}
           strategy={rectSortingStrategy}
+          disabled={!!searchQuery}
         >
-          <p className="-mt-1 mb-2 font-thin">
-            Segure, espere um pouco e depois arraste para mudar a ordem.
-          </p>
+          <Input
+            name="title"
+            type="text"
+            className="mb-4"
+            placeholder="Pesquisar por título ou descrição"
+            label="Pesquisar por título ou descrição"
+            icon={FaMagnifyingGlass}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {!searchQuery && (
+            <p className="-mt-1 mb-2 font-thin">
+              Segure, espere um pouco e depois arraste para mudar a ordem.
+            </p>
+          )}
           {content}
           <DragOverlay dropAnimation={null}>
             {overlay && (

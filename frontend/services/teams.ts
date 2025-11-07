@@ -1,7 +1,6 @@
 import type { UUID } from "crypto";
 import { Service } from "./base/services";
 import type { Participation } from "./participations";
-import type { Project } from "./projects";
 
 export type Team = {
   id: UUID;
@@ -26,15 +25,11 @@ export type GeneratedCode = {
 };
 
 export class TeamsService extends Service {
-  async participations(id: UUID) {
+  async participations(id: UUID, page: number = 0, query: string = "") {
     return this.api
-      .get<Participation[]>(`/teams/${id}/participations`)
-      .then((res) => res.data);
-  }
-
-  async projects(id: UUID) {
-    return this.api
-      .get<Project[]>(`/teams/${id}/projects`)
+      .get<Page<Participation>>(
+        `/teams/${id}/participations/search?page=${page}&query=${query}`,
+      )
       .then((res) => res.data);
   }
 

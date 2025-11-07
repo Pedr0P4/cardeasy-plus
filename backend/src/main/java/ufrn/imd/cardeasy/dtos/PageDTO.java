@@ -14,7 +14,7 @@ public record PageDTO<T>(
     return new PageDTO<T>(
       page.getContent().stream().map(mapper).toList(),
       page.getNumber(),
-      page.getTotalPages()
+      page.getTotalPages() - 1
     );
   };
 
@@ -22,6 +22,7 @@ public record PageDTO<T>(
     return new PageDTO<T>(
       page.getContent(),
       page.getNumber(),
-      page.getTotalPages());
+      page.getTotalPages() - 1
+    );
   };
 };

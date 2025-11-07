@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +70,19 @@ public class ProjectsService {
   public List<Project> findAllByAccount(UUID accountId) {
     return this.projects.findAllByAccount(accountId);
   };
+
+  public Page<Project> searchAllByTeam(
+    UUID teamId,
+    String query,
+    Pageable pageable
+  ) {
+    return this.projects.searchAllByTeam(
+      teamId, 
+      query, 
+      pageable
+    );
+  };
+
 
   public Project update(
     Integer id, 

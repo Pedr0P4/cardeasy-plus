@@ -15,8 +15,6 @@ import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.repositories.CardListsRepository;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
 
-import java.util.List;
-
 @Service
 public class CardListsService {
   private ProjectsRepository projects;
@@ -51,14 +49,14 @@ public class CardListsService {
     return cardList;
   };
 
-  public Page<CardList> findAllByProject(
+  public Page<CardList> searchAllByProject(
     Integer projectId, 
-    String filter, 
+    String query, 
     Pageable pageable
   ) {
-    return this.cardLists.findAllByProjectAndTitle(
+    return this.cardLists.searchAllByProject(
       projectId,
-      filter,
+      query,
       pageable
     );
   };

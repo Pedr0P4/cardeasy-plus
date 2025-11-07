@@ -1,9 +1,10 @@
 package ufrn.imd.cardeasy.repositories;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -61,11 +62,60 @@ extends JpaRepository<Participation, ParticipationId> {
     // language=sql
     value = """
       SELECT pt.* FROM participation AS pt
+      JOIN team AS tm
+      ON tm.id = pt.team_id
       WHERE pt.account_id = ?1
+      AND (
+        (tm.title LIKE CONCAT('%', ?2, '%'))
+        OR (tm.description LIKE CONCAT('%', ?2, '%'))
+      )
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(pt.team_id, pt.account_id) FROM participation AS pt
+      JOIN team AS tm
+      ON tm.id = pt.team_id
+      WHERE pt.account_id = ?1
+      AND (
+        (tm.title LIKE CONCAT('%', ?2, '%'))
+        OR (tm.description LIKE CONCAT('%', ?2, '%'))
+      )
     """,
     nativeQuery = true
-  ) public List<Participation> findAllByAccount(
-    UUID accountId
+  ) public Page<Participation> searchAllByAccount(
+    UUID accountId,
+    String query, 
+    Pageable page
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN account AS ac
+      ON ac.id = pt.account_id
+      WHERE pt.team_id = ?1
+      AND (
+        (ac.name LIKE CONCAT('%', ?2, '%'))
+        OR (ac.email LIKE CONCAT('%', ?2, '%'))
+      )
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(pt.team_id, pt.account_id) FROM participation AS pt
+      JOIN account AS ac
+      ON ac.id = pt.account_id
+      WHERE pt.team_id = ?1
+      AND (
+        (ac.name LIKE CONCAT('%', ?2, '%'))
+        OR (ac.email LIKE CONCAT('%', ?2, '%'))
+      )
+    """,
+    nativeQuery = true
+  ) public Page<Participation> searchAllByTeam(
+    UUID teamId,
+    String query, 
+    Pageable page
   );
 
   @Query(

@@ -1,8 +1,12 @@
 package ufrn.imd.cardeasy.controllers;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +17,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
 import ufrn.imd.cardeasy.dtos.project.MoveCardListDTO;
 import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
@@ -86,6 +92,35 @@ public class ProjectsController {
 
     return ResponseEntity.ok(
       ProjectDTO.from(projects)
+    );
+  };
+
+  @Authenticate
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<ProjectDTO>> searchAllByTeam(
+    @AuthenticationPrincipal Account account,
+    @RequestParam(name = "team", required = true) UUID teamId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
+  ) {
+    this.teams.existsById(teamId);
+    
+    this.participations.checkAccess(
+      account.getId(),
+      teamId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+
+    Page<Project> projects = this.projects.searchAllByTeam(
+      teamId,
+      query,
+      pageable
+    );
+
+    return ResponseEntity.ok(
+      PageDTO.from(projects, ProjectDTO::from)
     );
   };
 

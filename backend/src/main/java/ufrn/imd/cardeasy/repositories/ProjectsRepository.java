@@ -3,6 +3,8 @@ package ufrn.imd.cardeasy.repositories;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -54,6 +56,32 @@ extends JpaRepository<Project, Integer> {
     UUID accountId
   );
 
+  @Query(
+    // language=sql
+    value = """
+      SELECT pj.* FROM project AS pj
+      WHERE pj.team_id = ?1 
+      AND (
+        (pj.title LIKE CONCAT('%', ?2, '%'))
+        OR (pj.description LIKE CONCAT('%', ?2, '%'))
+      ) ORDER BY pj.index ASC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(pj.id) FROM project AS pj
+      WHERE pj.team_id = ?1 
+      AND (
+        (pj.title LIKE CONCAT('%', ?2, '%'))
+        OR (pj.description LIKE CONCAT('%', ?2, '%'))
+      )
+    """,
+    nativeQuery = true
+  ) public Page<Project> searchAllByTeam(
+    UUID teamId, 
+    String query, 
+    Pageable pageable
+  );
+
   @Modifying
   @Query(
     // language=sql
@@ -95,7 +123,7 @@ extends JpaRepository<Project, Integer> {
       BETWEEN ?2 AND ?3
     """,
     nativeQuery = true
-  ) void shiftIndices(
+  ) public void shiftIndices(
     UUID tramId, 
     Long startIndex, 
     Long endIndex, 

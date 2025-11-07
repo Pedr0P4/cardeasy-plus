@@ -2,10 +2,10 @@ package ufrn.imd.cardeasy.services;
 
 import java.sql.Date;
 import java.time.Instant;
-import java.util.List;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,13 +70,15 @@ public class StagesService {
       .orElseThrow(StageNotFound::new);
   };
 
-  public List<Stage> findAllByAccountAndProject(
-    UUID accountId,
-    Integer projectId
+  public Page<Stage> searchAllByProject(
+    Integer projectId, 
+    String query, 
+    Pageable pageable
   ) {
-    return this.stages.findAllByAccountAndProject(
-      accountId,
-      projectId
+    return this.stages.searchAllByProject(
+      projectId,
+      query,
+      pageable
     );
   };
 

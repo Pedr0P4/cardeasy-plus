@@ -70,22 +70,28 @@ public class CardListsController {
   };
 
   @Authenticate
-  @GetMapping("/project/{id}")
-  public ResponseEntity<PageDTO<CardListDTO>> findAllByProject(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<CardListDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer id,
-    @RequestParam(name = "filter", defaultValue = "") String filter,
+    @RequestParam(name = "project", required = true) Integer projectId,
+    @RequestParam(name = "query", defaultValue = "") String query,
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.projects.existsById(projectId);
+
     this.participations.checkProjectAccess(
       account.getId(),
-      id
+      projectId
     );
 
     Pageable pageable = PageRequest.of(page, itemsPerPage);
 
-    Page<CardList> cardLists = this.cardLists.findAllByProject(id,filter,pageable);
+    Page<CardList> cardLists = this.cardLists.searchAllByProject(
+      projectId,
+      query,
+      pageable
+    );
     
     return ResponseEntity.ok(
       PageDTO.from(cardLists, CardListDTO::from)

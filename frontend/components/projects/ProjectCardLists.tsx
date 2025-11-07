@@ -14,11 +14,16 @@ import {
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { useEffect, useRef, useState } from "react";
+import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
@@ -28,12 +33,12 @@ import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard"
 import handleCardInsertOverCardList from "@/utils/dragging/handleCardInsertOverCardList";
 import handleCardListDragStart from "@/utils/dragging/handleCardListDragStart";
 import handleCardListsInsert from "@/utils/dragging/handleCardListInsert";
+import Input from "../Input";
 import ProjectCardItem from "./ProjectCardItem";
 import ProjectCardListsItem from "./ProjectCardListsItem";
 
 interface Props {
   project: Project;
-  cardLists: CardList[];
   role: Role;
 }
 
@@ -60,7 +65,8 @@ export type MutateRequest = {
   request: () => void;
 } | null;
 
-export default function ProjectCardLists({ project, cardLists, role }: Props) {
+export default function ProjectCardLists({ project, role }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
   const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
 
@@ -72,10 +78,24 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     initialData: project,
   });
 
-  const query = useQuery({
-    queryKey: ["projects", project.id, "card-lists"],
-    queryFn: () => Api.client().projects().cardList(project.id),
-    initialData: cardLists,
+  const query = useInfiniteQuery({
+    queryKey: ["projects", project.id, "card-lists", `query-${searchQuery}`],
+    queryFn: ({ pageParam }) =>
+      Api.client().cardLists().search(project.id, pageParam, searchQuery),
+    getNextPageParam: (lastPageData) => {
+      if (lastPageData.page < lastPageData.lastPage) {
+        return lastPageData.page + 1;
+      }
+      return undefined;
+    },
+    select: (data) => {
+      return data.pages.flatMap((page) => page.items);
+    },
+    initialPageParam: 0,
+    initialData: {
+      pages: [],
+      pageParams: [],
+    },
   });
 
   const cardsQuery = useQuery({
@@ -153,6 +173,38 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       },
     }),
   );
+
+  const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    const targetElement = loadMoreRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        if (
+          firstEntry.isIntersecting &&
+          query.hasNextPage &&
+          !query.isFetchingNextPage
+        ) {
+          query.fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    if (targetElement) {
+      observer.observe(targetElement);
+    }
+
+    return () => {
+      if (targetElement) {
+        observer.unobserve(targetElement);
+      }
+    };
+  }, [query]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -341,10 +393,17 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
   };
 
   const content = (
-    <ul className="flex flex-1 flex-row gap-4">
+    <ul
+      className={clsx(
+        "flex min-w-full flex-row gap-4 overflow-x-auto",
+        "scrollbar scrollbar-thin scrollbar-thumb-base-content",
+        "scrollbar-track-base-200 pb-4",
+      )}
+    >
       {data.cardsLists.map((cardList) => {
         return (
           <ProjectCardListsItem
+            disabledSort={!!searchQuery}
             key={`card-list-${cardList.id}`}
             project={projectQuery.data}
             cardList={cardList}
@@ -353,8 +412,11 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
           />
         );
       })}
-      {isAdmin && (
-        <li className="min-w-3xs min-h-[20rem] overflow-hidden">
+      {isAdmin ? (
+        <li
+          ref={loadMoreRef}
+          className="min-w-3xs min-h-[20rem] overflow-hidden"
+        >
           <Link
             href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
             className={clsx(
@@ -367,6 +429,8 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
             Criar nova coluna
           </Link>
         </li>
+      ) : (
+        <div ref={loadMoreRef} className="!size-1 bg-transparent" />
       )}
     </ul>
   );
@@ -382,12 +446,25 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
         autoScroll={false}
       >
         <SortableContext
+          disabled={!!searchQuery}
           items={data.cardsLists.map((cardList) => `card-list-${cardList.id}`)}
           strategy={horizontalListSortingStrategy}
         >
-          <p className="-mt-1 mb-2 font-thin">
-            Segure, espere um pouco e depois arraste para mudar a ordem.
-          </p>
+          <Input
+            name="title"
+            type="text"
+            className="mb-4"
+            placeholder="Pesquisar por título ou descrição"
+            label="Pesquisar por título ou descrição"
+            icon={FaMagnifyingGlass}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {!searchQuery && (
+            <p className="-mt-1 mb-2 font-thin">
+              Segure, espere um pouco e depois arraste para mudar a ordem.
+            </p>
+          )}
           {content}
           <DragOverlay dropAnimation={null}>
             {overlay &&

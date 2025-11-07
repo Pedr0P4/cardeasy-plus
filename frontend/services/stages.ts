@@ -49,6 +49,14 @@ export class StagesService extends Service {
     return this.api.get<Stage[]>("/stages").then((res) => res.data);
   }
 
+  async search(project: number, page: number = 0, query: string = "") {
+    return this.api
+      .get<Page<Stage>>(
+        `/stages/search?project=${project}&page=${page}&query=${query}`,
+      )
+      .then((res) => res.data);
+  }
+
   async create(data: CreateStageDTO) {
     return this.api.post<Stage>("/stages", data).then((res) => res.data);
   }

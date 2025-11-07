@@ -21,6 +21,7 @@ interface Props {
   cardList: CardList;
   role: Role;
   cards: Card[];
+  disabledSort?: boolean;
 }
 
 export default function ProjectCardListsItem({
@@ -28,6 +29,7 @@ export default function ProjectCardListsItem({
   project,
   role,
   cards,
+  disabledSort,
 }: Props) {
   const {
     attributes,
@@ -76,6 +78,7 @@ export default function ProjectCardListsItem({
           id={`cards-${cardList.id}`}
           items={cards.map((card) => `card-${card.id}`)}
           strategy={verticalListSortingStrategy}
+          disabled={disabledSort}
         >
           <ul className="flex flex-1 flex-col w-full gap-1">
             {cards.map((card) => {

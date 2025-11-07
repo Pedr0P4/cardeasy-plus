@@ -1,8 +1,9 @@
 package ufrn.imd.cardeasy.services;
 
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +26,30 @@ public class ParticipationsService {
     this.participations = participations;
   };
 
-  public List<Participation> findAllByAccount(
-    UUID accountId
+  public Page<Participation> searchAllByAccount(
+    UUID accountId,
+    String query,
+    Pageable page
   ) {
-    return this.participations.findAllByAccount(accountId);
+    return this.participations.searchAllByAccount(
+      accountId,
+      query,
+      page
+    );
   };
+
+  public Page<Participation> searchAllByTeam(
+    UUID teamId,
+    String query,
+    Pageable page
+  ) {
+    return this.participations.searchAllByTeam(
+      teamId,
+      query,
+      page
+    );
+  };
+
 
   public Participation findById(
     UUID accountId,

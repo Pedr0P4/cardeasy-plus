@@ -1,8 +1,10 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.stage.CreateStageDTO;
 import ufrn.imd.cardeasy.dtos.stage.StageDTO;
 import ufrn.imd.cardeasy.dtos.stage.UpdateStageDTO;
@@ -93,18 +97,31 @@ public class StagesController {
   };
 
   @Authenticate
-  @GetMapping("/project/{id}")
-  public ResponseEntity<List<StageDTO>> findAllById(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<StageDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer id
+    @RequestParam(name = "project", required = true) Integer projectId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
-    List<Stage> stages = this.stages.findAllByAccountAndProject(
+    this.projects.existsById(projectId);
+    
+    this.participations.checkProjectAccess(
       account.getId(),
-      id
+      projectId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+
+    Page<Stage> stages = this.stages.searchAllByProject(
+      projectId,
+      query,
+      pageable
     );
     
     return ResponseEntity.ok(
-      StageDTO.from(stages)
+      PageDTO.from(stages, StageDTO::from)
     );
   };
 

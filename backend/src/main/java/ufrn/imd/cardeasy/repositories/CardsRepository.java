@@ -89,7 +89,7 @@ extends JpaRepository<Card, Integer> {
       BETWEEN ?2 AND ?3
     """,
     nativeQuery = true
-  ) void shiftIndices(
+  ) public void shiftIndices(
     Integer listId, 
     Long startIndex, 
     Long endIndex, 

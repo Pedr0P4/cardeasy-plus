@@ -28,7 +28,6 @@ export default async function TeamPage({
   const { team: teamId } = await params;
   const participation = await Api.server().participations().get(teamId);
   const participations = await Api.server().teams().participations(teamId);
-  const projects = await Api.server().teams().projects(teamId);
   const isOwner = participation.role === Role.OWNER;
 
   return (
@@ -73,7 +72,7 @@ export default async function TeamPage({
         </section>
         <Tab name="projects">
           <section className="w-full flex flex-col gap-2 p-6">
-            <TeamProjects projects={projects} participation={participation} />
+            <TeamProjects participation={participation} />
           </section>
         </Tab>
         <Tab name="members">

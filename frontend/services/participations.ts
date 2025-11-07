@@ -37,9 +37,11 @@ export class ParticipationsService extends Service {
       .then((res) => res.data);
   }
 
-  async all() {
+  async search(page: number = 0, query: string = "") {
     return this.api
-      .get<Participation[]>(`/participations`)
+      .get<Page<Participation>>(
+        `/participations/search?page=${page}&query=${query}`,
+      )
       .then((res) => res.data);
   }
 

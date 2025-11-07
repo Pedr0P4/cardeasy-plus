@@ -43,6 +43,14 @@ export class CardListsService extends Service {
     });
   }
 
+  async search(project: number, page: number = 0, query: string = "") {
+    return this.api
+      .get<Page<CardList>>(
+        `/card-lists/search?project=${project}&page=${page}&query=${query}`,
+      )
+      .then((res) => res.data);
+  }
+
   async cards(id: number) {
     return this.api
       .get<Card[]>(`/cards/card-list/${id}`)
