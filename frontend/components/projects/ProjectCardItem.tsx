@@ -2,11 +2,14 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import AssingmentsAvatars from "../assignments/AssignmentsAvatars";
 import ProjectCardContextMenu from "./ProjectCardContextMenu";
 
 interface Props {
@@ -33,9 +36,29 @@ export default function ProjectCardItem({
     id: `card-${card.id}`,
   });
 
+  const query = useQuery({
+    queryKey: [
+      "projects",
+      project.id,
+      "cards-lists",
+      cardList.id,
+      "cards",
+      card.id,
+      "assingments",
+      "simplified",
+    ],
+    queryFn: () => Api.client().assignments().search(card.id, 0, "", 2),
+    initialData: {
+      items: [],
+      page: 0,
+      lastPage: -1,
+      total: 0,
+    },
+  });
+
   // TODO - Visualizar assignments
   // TODO - Visualizar tags
-  // TODO - Paginação em alguns cantos
+
   return (
     <li
       ref={ref}
@@ -62,6 +85,12 @@ export default function ProjectCardItem({
         )}
       >
         <h4 className="font-bold text-start text-sm">{card.title}</h4>
+        {query.data.items.length > 0 && (
+          <AssingmentsAvatars
+            total={query.data.total}
+            participations={query.data.items}
+          />
+        )}
       </div>
       <ProjectCardContextMenu
         card={card}

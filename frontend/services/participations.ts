@@ -37,10 +37,10 @@ export class ParticipationsService extends Service {
       .then((res) => res.data);
   }
 
-  async search(page: number = 0, query: string = "") {
+  async search(team: UUID, page: number = 0, query: string = "") {
     return this.api
       .get<Page<Participation>>(
-        `/participations/search?page=${page}&query=${query}`,
+        `/participations/search?team=${team}&page=${page}&query=${query}`,
       )
       .then((res) => res.data);
   }

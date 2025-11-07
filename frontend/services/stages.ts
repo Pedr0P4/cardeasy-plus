@@ -45,10 +45,6 @@ export class StagesService extends Service {
     return this.api.get<Stage>(`/stages/${id}`).then((res) => res.data);
   }
 
-  async all() {
-    return this.api.get<Stage[]>("/stages").then((res) => res.data);
-  }
-
   async search(project: number, page: number = 0, query: string = "") {
     return this.api
       .get<Page<Stage>>(

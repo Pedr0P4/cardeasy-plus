@@ -56,6 +56,7 @@ export default function ProjectCardListsItem({
       project.id,
       "cards-lists",
       cardList.id,
+      "cards",
       `query-${searchQuery}`,
     ],
     queryFn: ({ pageParam }) =>

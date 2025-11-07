@@ -62,36 +62,6 @@ extends JpaRepository<Participation, ParticipationId> {
     // language=sql
     value = """
       SELECT pt.* FROM participation AS pt
-      JOIN team AS tm
-      ON tm.id = pt.team_id
-      WHERE pt.account_id = ?1
-      AND (
-        (tm.title LIKE CONCAT('%', ?2, '%'))
-        OR (tm.description LIKE CONCAT('%', ?2, '%'))
-      ) ORDER BY tm.id DESC
-    """,
-    // language=sql
-    countQuery = """
-      SELECT COUNT(pt.team_id, pt.account_id) FROM participation AS pt
-      JOIN team AS tm
-      ON tm.id = pt.team_id
-      WHERE pt.account_id = ?1
-      AND (
-        (tm.title LIKE CONCAT('%', ?2, '%'))
-        OR (tm.description LIKE CONCAT('%', ?2, '%'))
-      )
-    """,
-    nativeQuery = true
-  ) public Page<Participation> searchAllByAccount(
-    UUID accountId,
-    String query, 
-    Pageable page
-  );
-
-  @Query(
-    // language=sql
-    value = """
-      SELECT pt.* FROM participation AS pt
       JOIN account AS ac
       ON ac.id = pt.account_id
       WHERE pt.team_id = ?1
@@ -118,6 +88,44 @@ extends JpaRepository<Participation, ParticipationId> {
     nativeQuery = true
   ) public Page<Participation> searchAllByTeam(
     UUID teamId,
+    String query, 
+    Pageable page
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT pt.* FROM participation AS pt
+      JOIN assignments AS ai
+      ON ai.account_id = pt.account_id
+      JOIN account AS ac
+      ON ac.id = ai.account_id
+      WHERE ai.card_id = ?1
+      AND (
+        (ac.name LIKE CONCAT('%', ?2, '%'))
+        OR (ac.email LIKE CONCAT('%', ?2, '%'))
+      ) ORDER BY CASE WHEN pt.role = 'OWNER' THEN 0 
+      WHEN pt.role = 'ADMIN' THEN 1 
+      WHEN pt.role = 'MEMBER' THEN 2 
+      ELSE 3 END ASC,
+      ac.name ASC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(pt.*) FROM participation AS pt
+      JOIN assignments AS ai
+      ON ai.account_id = pt.account_id
+      JOIN account AS ac
+      ON ac.id = ai.account_id
+      WHERE ai.card_id = ?1
+      AND (
+        (ac.name LIKE CONCAT('%', ?2, '%'))
+        OR (ac.email LIKE CONCAT('%', ?2, '%'))
+      ) 
+    """,
+    nativeQuery = true
+  ) public Page<Participation> searchAllByCardAssignment(
+    Integer cardId,
     String query, 
     Pageable page
   );

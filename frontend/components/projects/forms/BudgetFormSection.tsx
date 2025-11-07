@@ -236,7 +236,7 @@ export default function BudgetFormSection({
                 )?.value;
 
                 return (
-                  <option key={value} value={value}>
+                  <option key={`currency-${value}`} value={value}>
                     {value} / {symbol}
                   </option>
                 );

@@ -14,12 +14,13 @@ export default function Teams() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const query = useQuery({
-    queryKey: ["participations", `query-${searchQuery}`],
-    queryFn: () => Api.client().participations().search(page, searchQuery),
+    queryKey: ["teams", `query-${searchQuery}`],
+    queryFn: () => Api.client().teams().search(page, searchQuery),
     initialData: {
       items: [],
       page,
       lastPage: -1,
+      total: 0,
     },
   });
 
@@ -44,8 +45,8 @@ export default function Teams() {
         />
       </div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {query.data.items.map((participation) => (
-          <TeamItem key={participation.team.id} participation={participation} />
+        {query.data.items.map((team) => (
+          <TeamItem key={`team-${team.id}`} team={team} />
         ))}
       </ul>
       <Pagination

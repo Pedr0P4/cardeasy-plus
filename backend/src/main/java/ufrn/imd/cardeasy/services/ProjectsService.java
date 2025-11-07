@@ -63,10 +63,6 @@ public class ProjectsService {
       .orElseThrow(ProjectNotFound::new);
   };
 
-  public List<Project> findAllByAccount(UUID accountId) {
-    return this.projects.findAllByAccount(accountId);
-  };
-
   public Page<Project> searchAllByTeam(
     UUID teamId,
     String query,

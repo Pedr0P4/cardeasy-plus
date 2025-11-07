@@ -33,12 +33,13 @@ export default function TeamMembers({ participation }: Props) {
     ],
     queryFn: () =>
       Api.client()
-        .teams()
-        .participations(participation.team.id, page, searchQuery),
+        .participations()
+        .search(participation.team.id, page, searchQuery),
     initialData: {
       items: [],
       page,
       lastPage: -1,
+      total: 0,
     },
   });
 

@@ -41,6 +41,7 @@ export default function ProjectStages({ project, role }: Props) {
       items: [],
       page,
       lastPage: -1,
+      total: 0,
     },
   });
 

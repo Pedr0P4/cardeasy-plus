@@ -28,20 +28,7 @@ extends JpaRepository<Project, Integer> {
     UUID teamId,
     Integer id
   );
-
-  @Query(
-    // language=sql
-    value = """
-      SELECT pj.* FROM project AS pj
-      JOIN participation AS pt
-      ON pt.team_id = pj.team_id
-      WHERE pt.account_id = ?1
-    """,
-    nativeQuery = true
-  ) public List<Project> findAllByAccount(
-    UUID accountId
-  );
-
+  
   @Query(
     // language=sql
     value = """

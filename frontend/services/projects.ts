@@ -34,10 +34,6 @@ export class ProjectsService extends Service {
     return this.api.get<Project>(`/projects/${id}`).then((res) => res.data);
   }
 
-  async all() {
-    return this.api.get<Project[]>("/projects").then((res) => res.data);
-  }
-
   async search(team: UUID, page: number = 0, query: string = "") {
     return this.api
       .get<Page<Project>>(

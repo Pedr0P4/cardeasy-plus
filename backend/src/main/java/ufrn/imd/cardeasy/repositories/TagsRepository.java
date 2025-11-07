@@ -15,6 +15,7 @@ import ufrn.imd.cardeasy.models.Tag;
 @Repository
 public interface TagsRepository
 extends JpaRepository<Tag, Integer> {
+  // TODO - Vai virar search
   @Query(
     // language=sql
     value = """

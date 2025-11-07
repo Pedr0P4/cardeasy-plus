@@ -90,31 +90,23 @@ public class TeamsController {
   };
 
   @Authenticate
-  @GetMapping("/{id}/participations/search")
-  public ResponseEntity<PageDTO<ParticipationDTO>> searchAllParticipationsByTeam(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<TeamDTO>> searchAllByAccount(
     @AuthenticationPrincipal Account account,
-    @PathVariable UUID id,
     @RequestParam(name = "query", defaultValue = "") String query,
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
-    this.teams.existsById(id);
-
-    this.participations.checkAccess(
-      account.getId(), 
-      id
-    );
-
     Pageable pageable = PageRequest.of(page, itemsPerPage);
 
-    Page<Participation> participations = this.participations.searchAllByTeam(
-      id, 
-      query, 
+    Page<Team> teams = this.teams.searchAllByAccount(
+      account.getId(),
+      query,
       pageable
     );
 
     return ResponseEntity.ok(
-      PageDTO.from(participations, ParticipationDTO::from)
+      PageDTO.from(teams, TeamDTO::from)
     );
   };
 

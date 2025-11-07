@@ -48,19 +48,27 @@ public class ParticipationsController {
     this.accounts = accounts;
   };
 
-  @Authenticate
+   @Authenticate
   @GetMapping("/search")
-  public ResponseEntity<PageDTO<ParticipationDTO>> searchAllByAccount(
+  public ResponseEntity<PageDTO<ParticipationDTO>> searchAllParticipationsByTeam(
     @AuthenticationPrincipal Account account,
+    @RequestParam(name = "team", required = true) UUID teamId,
     @RequestParam(name = "query", defaultValue = "") String query,
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
-    Pageable pageable = PageRequest.of(page, itemsPerPage);
+    this.teams.existsById(teamId);
 
-    Page<Participation> participations = this.participations.searchAllByAccount(
-      account.getId(),
-      query,
+    this.participations.checkAccess(
+      account.getId(), 
+      teamId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+    
+    Page<Participation> participations = this.participations.searchAllByTeam(
+      teamId, 
+      query, 
       pageable
     );
 

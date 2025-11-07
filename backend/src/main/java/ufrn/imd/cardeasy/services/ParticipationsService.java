@@ -25,19 +25,7 @@ public class ParticipationsService {
   ) {
     this.participations = participations;
   };
-
-  public Page<Participation> searchAllByAccount(
-    UUID accountId,
-    String query,
-    Pageable page
-  ) {
-    return this.participations.searchAllByAccount(
-      accountId,
-      query,
-      page
-    );
-  };
-
+  
   public Page<Participation> searchAllByTeam(
     UUID teamId,
     String query,

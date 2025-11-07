@@ -82,20 +82,6 @@ public class ProjectsController {
   };
 
   @Authenticate
-  @GetMapping
-  public ResponseEntity<List<ProjectDTO>> findAll(
-    @AuthenticationPrincipal Account account
-  ) {
-    List<Project> projects = this.projects.findAllByAccount(
-      account.getId()
-    );
-
-    return ResponseEntity.ok(
-      ProjectDTO.from(projects)
-    );
-  };
-
-  @Authenticate
   @GetMapping("/search")
   public ResponseEntity<PageDTO<ProjectDTO>> searchAllByTeam(
     @AuthenticationPrincipal Account account,
@@ -187,7 +173,7 @@ public class ProjectsController {
       .noContent()
       .build();
   };
-
+  
   @Authenticate
   @PostMapping("/{id}/card-lists/move")
   public ResponseEntity<Void> move(
