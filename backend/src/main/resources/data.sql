@@ -64,8 +64,25 @@ VALUES
 INSERT INTO TAG 
 (ID, CONTENT, PROJECT_ID) 
 VALUES
-(1, 'Importante', 1),
-(2, 'Prioridade', 52);
+(1, 'importante', 1),
+(2, 'prioridade', 52),
+(3, 'esquecido', 1),
+(4, 'ok', 1),
+(5, 'mal feito', 1),
+(6, 'bem feito', 1),
+(7, 'feito', 1);
+
+INSERT INTO TAG_CARD
+(TAG_ID, CARD_ID) 
+VALUES
+(1, 4),
+(7, 4),
+(1, 2),
+(2, 2),
+(3, 2),
+(4, 2),
+(5, 2),
+(6, 3);
 
 INSERT INTO ASSIGNMENTS
 (CARD_ID, ACCOUNT_ID, TEAM_ID) 

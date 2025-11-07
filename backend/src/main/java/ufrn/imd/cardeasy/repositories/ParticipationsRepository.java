@@ -92,6 +92,8 @@ extends JpaRepository<Participation, ParticipationId> {
     Pageable page
   );
 
+  // TODO - Tem que ter controle no service para não permitir
+  // designar usuários já designados
   @Query(
     // language=sql
     value = """
@@ -104,7 +106,8 @@ extends JpaRepository<Participation, ParticipationId> {
       AND (
         (ac.name LIKE CONCAT('%', ?2, '%'))
         OR (ac.email LIKE CONCAT('%', ?2, '%'))
-      ) ORDER BY CASE WHEN pt.role = 'OWNER' THEN 0 
+      )
+      ORDER BY CASE WHEN pt.role = 'OWNER' THEN 0 
       WHEN pt.role = 'ADMIN' THEN 1 
       WHEN pt.role = 'MEMBER' THEN 2 
       ELSE 3 END ASC,
@@ -121,7 +124,7 @@ extends JpaRepository<Participation, ParticipationId> {
       AND (
         (ac.name LIKE CONCAT('%', ?2, '%'))
         OR (ac.email LIKE CONCAT('%', ?2, '%'))
-      ) 
+      )
     """,
     nativeQuery = true
   ) public Page<Participation> searchAllByCardAssignment(

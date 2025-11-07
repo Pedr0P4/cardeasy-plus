@@ -1,8 +1,7 @@
 package ufrn.imd.cardeasy.configurations;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.SecurityProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -26,12 +25,15 @@ import ufrn.imd.cardeasy.services.AccountsService;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+  private AppSecurityProperties properties;
   private AccountsService accounts;
   
   @Autowired
   public SecurityConfig(
+    AppSecurityProperties properties,
     AccountsService accounts
   ) {
+    this.properties = properties;
     this.accounts = accounts;
   };
   
@@ -73,9 +75,9 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
     
-    configuration.setAllowedOrigins(List.of("http://localhost:3000")); 
-    configuration.setAllowedMethods(List.of("*")); 
-    configuration.setAllowedHeaders(List.of("*")); 
+    configuration.setAllowedOrigins(this.properties.getCors().getAllowed().getOrigins()); 
+    configuration.setAllowedMethods(this.properties.getCors().getAllowed().getMethods()); 
+    configuration.setAllowedHeaders(this.properties.getCors().getAllowed().getHeaders()); 
  
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 

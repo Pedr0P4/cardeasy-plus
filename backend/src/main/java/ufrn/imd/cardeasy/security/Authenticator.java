@@ -7,23 +7,25 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import ufrn.imd.cardeasy.configurations.AppSecurityProperties;
 import ufrn.imd.cardeasy.errors.Unauthorized;
 
 @Component
 public class Authenticator {
   private SecretKey key;
 
+  @Autowired
   public Authenticator(
-    @Value("${jwt.secret}") String secret
+    AppSecurityProperties properties
   ) {
     this.key = Keys.hmacShaKeyFor(
-      Base64.getDecoder().decode(secret)
+      Base64.getDecoder().decode(properties.getJwt().getSecret())
     );
   };
 

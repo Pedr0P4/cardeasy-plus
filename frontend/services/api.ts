@@ -19,6 +19,7 @@ import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
 import { StagesService } from "./stages";
+import { TagsService } from "./tags";
 import { TeamsService } from "./teams";
 
 export class Api {
@@ -130,6 +131,14 @@ export class Api {
 
   public assignments() {
     return new AssignmentsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public tags() {
+    return new TagsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,

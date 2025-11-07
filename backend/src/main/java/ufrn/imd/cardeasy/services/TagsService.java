@@ -49,12 +49,21 @@ public class TagsService {
       .orElseThrow(TagNotFound::new);
   };
 
+  public Page<Tag> searchAllByCard(
+    Integer cardId,
+    String query,
+    Pageable page
+  ) {
+    return this.tags.searchAllByCard(cardId, query, page);
+  };
+
   public Page<Tag> searchAllByProject( 
     Integer projectId,
+    Integer cardId,
     String query,
     Pageable page
   ){
-    return this.tags.searchAllByProject(projectId, query, page);
+    return this.tags.searchAllByProject(projectId, cardId, query, page);
   };
 
   public Tag update(

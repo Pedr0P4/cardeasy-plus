@@ -1,6 +1,5 @@
 package ufrn.imd.cardeasy.repositories;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -10,7 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.models.Team;
 
 @Repository
@@ -33,7 +31,7 @@ extends JpaRepository<Team, UUID> {
     """,
     // language=sql
     countQuery = """
-      SELECt tm.* FROM team AS tm
+      SELECT tm.* FROM team AS tm
       JOIN participation AS pt
       ON tm.id = pt.team_id
       WHERE pt.account_id = ?1

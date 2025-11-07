@@ -2,17 +2,22 @@ import type { Participation } from "@/services/participations";
 import AssingmentsAvatar from "./AssignmentAvatar";
 
 interface Props {
+  card: number;
   participations: Participation[];
   total: number;
 }
 
-export default function AssingmentsAvatars({ participations, total }: Props) {
+export default function AssingmentsAvatars({
+  card,
+  participations,
+  total,
+}: Props) {
   return (
     <div className="avatar-group -space-x-3">
       {participations.map((participation) => (
         <AssingmentsAvatar
           participation={participation}
-          key={`assignment-avatar-${participation.account.id}`}
+          key={`cards-${card}-assignment-avatar-${participation.account.id}`}
         />
       ))}
       {total > 2 && (

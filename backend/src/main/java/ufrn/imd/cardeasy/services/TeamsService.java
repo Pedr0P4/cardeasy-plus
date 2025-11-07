@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ufrn.imd.cardeasy.errors.AccountNotFound;
+import ufrn.imd.cardeasy.errors.AlreadyInTeam;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Account;
@@ -144,6 +145,14 @@ public class TeamsService {
       .orElseThrow(AccountNotFound::new);
     
     Team team = this.findByCode(code);
+
+    Boolean alreadyInTeam = this.participations.findByAccountAndTeam(
+      accountId,
+      team.getId()
+    ).isPresent();
+
+    if(alreadyInTeam) 
+      throw new AlreadyInTeam();
 
     ParticipationId participationId = new ParticipationId();
     Participation participation = new Participation();

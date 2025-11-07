@@ -98,6 +98,7 @@ public class TagsController {
   public ResponseEntity<PageDTO<TagDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "project", required = true) Integer projectId,
+    @RequestParam(name = "card", required = true) Integer cardId,
     @RequestParam(name = "query", defaultValue = "") String query,
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
@@ -111,6 +112,7 @@ public class TagsController {
 
     Page<Tag> tags = this.tags.searchAllByProject( 
       projectId,
+      cardId,
       query,
       pageable
     );
@@ -118,7 +120,34 @@ public class TagsController {
     return ResponseEntity.ok(
       PageDTO.from(tags, TagDTO::from)
     );
-  }
+  };
+  
+  @Authenticate
+  @GetMapping("/usages/search")
+  public ResponseEntity<PageDTO<TagDTO>> searchAllByCard(
+    @AuthenticationPrincipal Account account,
+    @RequestParam(name = "card", required = true) Integer cardId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
+  ) {
+    this.participations.checkCardAccess(
+      account.getId(),
+      cardId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+
+    Page<Tag> tags = this.tags.searchAllByCard( 
+      cardId,
+      query,
+      pageable
+    );
+
+    return ResponseEntity.ok(
+      PageDTO.from(tags, TagDTO::from)
+    );
+  };
 
   @Authenticate
   @PutMapping("/{id}")
