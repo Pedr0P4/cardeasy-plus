@@ -35,6 +35,7 @@ type Props = {
   optional?: boolean;
   hidden?: boolean;
   disabled?: boolean;
+  divClassName?: string;
   onChangeOptional?: (event: ChangeEvent<HTMLInputElement>) => void;
   label?: string;
   error?: string;
@@ -63,6 +64,7 @@ export default function Input({
   name = "",
   icon: Icon,
   optional = false,
+  divClassName,
   className,
   disabled,
   onChangeOptional = () => {},
@@ -78,7 +80,7 @@ export default function Input({
   const message = error ? error : errors ? errors[name] : error;
 
   return (
-    <div className="flex flex-col gap-1.5 w-full">
+    <div className={clsx("flex flex-col gap-1.5 w-full", divClassName)}>
       {label && (
         <label
           htmlFor={optional ? checkboxId : inputId}

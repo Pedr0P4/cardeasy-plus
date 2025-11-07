@@ -1,52 +1,58 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useState } from "react";
-import { FaMagnifyingGlass } from "react-icons/fa6";
+import { FaDungeon, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import Input from "../Input";
+import Pagination from "../Pagination";
 import TeamItem from "./TeamItem";
 
 export default function Teams() {
+  const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const query = useInfiniteQuery({
+  const query = useQuery({
     queryKey: ["participations", `query-${searchQuery}`],
-    queryFn: ({ pageParam }) =>
-      Api.client().participations().search(pageParam, searchQuery),
-    getNextPageParam: (lastPageData) => {
-      if (lastPageData.page < lastPageData.lastPage) {
-        return lastPageData.page + 1;
-      }
-      return undefined;
-    },
-    select: (data) => {
-      return data.pages.flatMap((page) => page.items);
-    },
-    initialPageParam: 0,
+    queryFn: () => Api.client().participations().search(page, searchQuery),
     initialData: {
-      pages: [],
-      pageParams: [],
+      items: [],
+      page,
+      lastPage: -1,
     },
   });
 
   return (
     <>
-      <Input
-        name="title"
-        type="text"
-        className="mb-4"
-        placeholder="Pesquisar por título ou descrição"
-        label="Pesquisar por título ou descrição"
-        icon={FaMagnifyingGlass}
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div className="flex flex-col md:flex-row gap-4 mb-2 md:items-end">
+        <Link href="/home/teams/create" className="btn btn-neutral">
+          <FaPlus />
+          Criar novo time
+        </Link>
+        <Link href="/home/teams/join" className="btn btn">
+          <FaDungeon />
+          Entrar por código
+        </Link>
+        <Input
+          name="search"
+          type="text"
+          placeholder="Pesquisar por título ou descrição"
+          icon={FaMagnifyingGlass}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {query.data.map((participation) => (
+        {query.data.items.map((participation) => (
           <TeamItem key={participation.team.id} participation={participation} />
         ))}
       </ul>
+      <Pagination
+        current={page}
+        last={query.data.lastPage}
+        onChange={setPage}
+      />
     </>
   );
 }

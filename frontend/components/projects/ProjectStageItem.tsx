@@ -2,9 +2,9 @@
 
 import clsx from "clsx";
 import { format } from "date-fns";
+import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import { type Stage, StageStatus } from "@/services/stages";
-import type { Role } from "@/services/teams";
 import ProjectStageContextMenu from "./ProjectStageContextMenu";
 
 interface Props {

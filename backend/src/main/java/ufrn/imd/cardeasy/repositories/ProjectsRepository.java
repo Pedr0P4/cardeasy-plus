@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.models.Project;
 
 @Repository

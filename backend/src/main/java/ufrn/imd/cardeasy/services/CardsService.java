@@ -1,8 +1,8 @@
 package ufrn.imd.cardeasy.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -65,19 +65,19 @@ public class CardsService {
     return card;
   };
 
+  public Page<Card> searchAllByCardList(
+    Integer cardListId, 
+    String query, 
+    Pageable pageable
+  ) {
+    return this.cards.searchAllByCardList(cardListId, query, pageable);
+  };
+
   @Transactional
   public void deleteById(Integer id) {
     Card card = this.findById(id);
     this.cards.shiftUp(card.getList().getId(), card.getIndex());
     this.cards.deleteById(id);
-  };
-
-  public List<Card> findAllByCardList(Integer cardListId) {
-    return this.cards.findAllByCardList(cardListId);
-  };
-
-  public List<Card> findAllByProject(Integer projectId) {
-    return this.cards.findAllByProject(projectId);
   };
 
   public Card findById(Integer id) {

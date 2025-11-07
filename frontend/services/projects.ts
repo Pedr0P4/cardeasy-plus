@@ -1,6 +1,5 @@
 import type { UUID } from "crypto";
 import { Service } from "./base/services";
-import type { Card } from "./cards";
 
 export type Budget = {
   id: number;
@@ -59,10 +58,6 @@ export class ProjectsService extends Service {
 
   async delete(id: number) {
     return this.api.delete(`/projects/${id}`);
-  }
-
-  async cards(id: number) {
-    return this.api.get<Card[]>(`/cards/project/${id}`).then((res) => res.data);
   }
 
   async move(team: UUID, project: number, index: number) {

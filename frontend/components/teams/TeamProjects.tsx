@@ -17,10 +17,9 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import clsx from "clsx";
 import type { UUID } from "crypto";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { type Participation, Role } from "@/services/participations";
@@ -112,6 +111,38 @@ export default function TeamProjects({ participation }: Props) {
     }),
   );
 
+  const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    const targetElement = loadMoreRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        if (
+          firstEntry.isIntersecting &&
+          query.hasNextPage &&
+          !query.isFetchingNextPage
+        ) {
+          query.fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    if (targetElement) {
+      observer.observe(targetElement);
+    }
+
+    return () => {
+      if (targetElement) {
+        observer.unobserve(targetElement);
+      }
+    };
+  }, [query]);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
@@ -147,36 +178,7 @@ export default function TeamProjects({ participation }: Props) {
     }
   };
 
-  const content = (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {isAdmin && (
-        <li className="w-full">
-          <Link
-            href={`/home/teams/${participation.team.id}/projects/create`}
-            className={clsx(
-              "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
-              "items-center justify-center rounded-md px-6 py-4",
-              "font-bold text-lg",
-            )}
-          >
-            <FaPlus />
-            Criar novo projeto
-          </Link>
-        </li>
-      )}
-      {_projects.map((project) => {
-        return (
-          <TeamProjectsItem
-            key={`${participation.team.id}-${project.id}`}
-            team={participationQuery.data.team}
-            project={project}
-          />
-        );
-      })}
-    </ul>
-  );
-
-  if (isMounted && isAdmin)
+  if (isMounted)
     return (
       <DndContext
         sensors={sensors}
@@ -188,24 +190,44 @@ export default function TeamProjects({ participation }: Props) {
         <SortableContext
           items={_projects.map((project) => project.id)}
           strategy={rectSortingStrategy}
-          disabled={!!searchQuery}
+          disabled={!!searchQuery || !isAdmin}
         >
-          <Input
-            name="title"
-            type="text"
-            className="mb-4"
-            placeholder="Pesquisar por título ou descrição"
-            label="Pesquisar por título ou descrição"
-            icon={FaMagnifyingGlass}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          {!searchQuery && (
+          <div className="flex flex-col md:flex-row gap-4 mb-2 md:items-end">
+            {isAdmin && (
+              <Link
+                href={`/home/teams/${participation.team.id}/projects/create`}
+                className="btn btn-neutral"
+              >
+                <FaPlus />
+                Criar novo projeto
+              </Link>
+            )}
+            <Input
+              name="search"
+              type="text"
+              placeholder="Pesquisar por título ou descrição"
+              icon={FaMagnifyingGlass}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          {!searchQuery && _projects.length > 0 && (
             <p className="-mt-1 mb-2 font-thin">
               Segure, espere um pouco e depois arraste para mudar a ordem.
             </p>
           )}
-          {content}
+          <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {_projects.map((project) => {
+              return (
+                <TeamProjectsItem
+                  key={`${participation.team.id}-${project.id}`}
+                  team={participationQuery.data.team}
+                  project={project}
+                />
+              );
+            })}
+            <div ref={loadMoreRef} className="!size-1 bg-transparent" />
+          </ul>
           <DragOverlay dropAnimation={null}>
             {overlay && (
               <TeamProjectsItem
@@ -218,6 +240,5 @@ export default function TeamProjects({ participation }: Props) {
         </SortableContext>
       </DndContext>
     );
-  else if (isMounted) return content;
   else return null;
 }

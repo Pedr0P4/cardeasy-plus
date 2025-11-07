@@ -19,11 +19,12 @@ extends JpaRepository<Stage, Integer> {
       AND (
         (st.name LIKE CONCAT('%', ?2, '%'))
         OR (st.description LIKE CONCAT('%', ?2, '%'))
-      ) ORDER BY CASE WHEN state = 'STARTED' THEN 0 
-      WHEN state = 'PLANNED' THEN 1 
-      WHEN state = 'FINISHED' THEN 2 
+      ) ORDER BY CASE WHEN st.state = 'STARTED' THEN 0 
+      WHEN st.state = 'PLANNED' THEN 1 
+      WHEN st.state = 'FINISHED' THEN 2 
       ELSE 3 END ASC, 
-      expected_start_in ASC
+      st.expected_start_in ASC,
+      st.name ASC
     """,
     // language=sql
     countQuery = """

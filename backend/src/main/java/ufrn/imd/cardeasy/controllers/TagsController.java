@@ -1,8 +1,9 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,9 +14,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.tag.CreateTagDTO;
 import ufrn.imd.cardeasy.dtos.tag.TagDTO;
 import ufrn.imd.cardeasy.dtos.tag.UpdateTagDTO;
@@ -91,18 +94,29 @@ public class TagsController {
   };
 
   @Authenticate
-  @GetMapping("/project/{id}")
-  public ResponseEntity<List<TagDTO>> findAllById(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<TagDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer id
+    @RequestParam(name = "project", required = true) Integer projectId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
   ) {
-    List<Tag> tags = this.tags.findAllByAccountAndProject(
-      account.getId(), 
-      id
+    this.participations.checkProjectAccess(
+      account.getId(),
+      projectId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+
+    Page<Tag> tags = this.tags.searchAllByProject( 
+      projectId,
+      query,
+      pageable
     );
 
     return ResponseEntity.ok(
-      TagDTO.from(tags)
+      PageDTO.from(tags, TagDTO::from)
     );
   }
 

@@ -1,0 +1,16 @@
+- [] Busca
+  - [x] Accounts (via participations)
+  - [x] Teams (via participations)
+  - [x] CardLists
+  - [x] Cards
+  - [x] Projects
+  - [x] Stages
+  - [-] Tags
+- [] Paginação
+  - [x] Accounts (via participations)
+  - [x] Teams (via participations)
+  - [x] CardLists
+  - [x] Cards
+  - [x] Projects
+  - [x] Stages
+  - [-] Tags

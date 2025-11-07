@@ -1,20 +1,20 @@
 "use client";
 
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { FaMagnifyingGlass } from "react-icons/fa6";
 import { Api } from "@/services/api";
-import { type Participation, Role } from "@/services/participations";
+import type { Participation } from "@/services/participations";
 import Input from "../Input";
+import Pagination from "../Pagination";
 import TeamMemberItem from "./TeamMembersItem";
 
 interface Props {
   participation: Participation;
 }
 
-const roles = [Role.OWNER, Role.ADMIN, Role.MEMBER];
-
 export default function TeamMembers({ participation }: Props) {
+  const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
 
   const participationQuery = useQuery({
@@ -24,53 +24,51 @@ export default function TeamMembers({ participation }: Props) {
     initialData: participation,
   });
 
-  const query = useInfiniteQuery({
-    queryKey: ["participations", participation.team.id, `query-${searchQuery}`],
-    queryFn: ({ pageParam }) =>
+  const query = useQuery({
+    queryKey: [
+      "participations",
+      participation.team.id,
+      `page-${page}`,
+      `query-${searchQuery}`,
+    ],
+    queryFn: () =>
       Api.client()
         .teams()
-        .participations(participation.team.id, pageParam, searchQuery),
-    getNextPageParam: (lastPageData) => {
-      if (lastPageData.page < lastPageData.lastPage) {
-        return lastPageData.page + 1;
-      }
-      return undefined;
-    },
-    select: (data) => {
-      return data.pages.flatMap((page) => page.items);
-    },
-    initialPageParam: 0,
+        .participations(participation.team.id, page, searchQuery),
     initialData: {
-      pages: [],
-      pageParams: [],
+      items: [],
+      page,
+      lastPage: -1,
     },
   });
 
   return (
     <>
       <Input
-        name="title"
+        name="search"
         type="text"
         className="mb-4"
         placeholder="Pesquisar por nome ou email"
-        label="Pesquisar por nome ou email"
         icon={FaMagnifyingGlass}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {query.data
-          .sort((a, b) => roles.indexOf(a.role) - roles.indexOf(b.role))
-          .map((participation) => {
-            return (
-              <TeamMemberItem
-                key={`${participation.team.id}-${participation.account.id}`}
-                viewer={participationQuery.data}
-                participation={participation}
-              />
-            );
-          })}
+        {query.data.items.map((participation) => {
+          return (
+            <TeamMemberItem
+              key={`${participation.team.id}-${participation.account.id}`}
+              viewer={participationQuery.data}
+              participation={participation}
+            />
+          );
+        })}
       </ul>
+      <Pagination
+        current={page}
+        last={query.data.lastPage}
+        onChange={setPage}
+      />
     </>
   );
 }

@@ -1,5 +1,4 @@
 import { Service } from "./base/services";
-import type { Card } from "./cards";
 
 export type CardList = {
   id: number;
@@ -48,12 +47,6 @@ export class CardListsService extends Service {
       .get<Page<CardList>>(
         `/card-lists/search?project=${project}&page=${page}&query=${query}`,
       )
-      .then((res) => res.data);
-  }
-
-  async cards(id: number) {
-    return this.api
-      .get<Card[]>(`/cards/card-list/${id}`)
       .then((res) => res.data);
   }
 }

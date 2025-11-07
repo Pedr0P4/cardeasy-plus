@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
@@ -47,11 +49,12 @@ public class TagsService {
       .orElseThrow(TagNotFound::new);
   };
 
-  public List<Tag> findAllByAccountAndProject(
-    UUID accountId, 
-    Integer projectId
+  public Page<Tag> searchAllByProject( 
+    Integer projectId,
+    String query,
+    Pageable page
   ){
-    return this.tags.findAllByAccountAndProject(accountId, projectId);
+    return this.tags.searchAllByProject(projectId, query, page);
   };
 
   public Tag update(

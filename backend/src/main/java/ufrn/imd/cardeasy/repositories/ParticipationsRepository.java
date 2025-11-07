@@ -101,11 +101,12 @@ extends JpaRepository<Participation, ParticipationId> {
       ) ORDER BY CASE WHEN pt.role = 'OWNER' THEN 0 
       WHEN pt.role = 'ADMIN' THEN 1 
       WHEN pt.role = 'MEMBER' THEN 2 
-      ELSE 3 END ASC
+      ELSE 3 END ASC,
+      ac.name ASC
     """,
     // language=sql
     countQuery = """
-      SELECT COUNT(pt.team_id, pt.account_id) FROM participation AS pt
+      SELECT COUNT(pt.*) FROM participation AS pt
       JOIN account AS ac
       ON ac.id = pt.account_id
       WHERE pt.team_id = ?1
