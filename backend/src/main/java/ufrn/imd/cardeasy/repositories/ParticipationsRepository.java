@@ -68,7 +68,7 @@ extends JpaRepository<Participation, ParticipationId> {
       AND (
         (tm.title LIKE CONCAT('%', ?2, '%'))
         OR (tm.description LIKE CONCAT('%', ?2, '%'))
-      )
+      ) ORDER BY tm.id DESC
     """,
     // language=sql
     countQuery = """
@@ -98,7 +98,10 @@ extends JpaRepository<Participation, ParticipationId> {
       AND (
         (ac.name LIKE CONCAT('%', ?2, '%'))
         OR (ac.email LIKE CONCAT('%', ?2, '%'))
-      )
+      ) ORDER BY CASE WHEN pt.role = 'OWNER' THEN 0 
+      WHEN pt.role = 'ADMIN' THEN 1 
+      WHEN pt.role = 'MEMBER' THEN 2 
+      ELSE 3 END ASC
     """,
     // language=sql
     countQuery = """

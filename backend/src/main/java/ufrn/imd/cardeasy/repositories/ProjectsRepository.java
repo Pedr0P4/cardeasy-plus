@@ -33,19 +33,6 @@ extends JpaRepository<Project, Integer> {
   @Query(
     // language=sql
     value = """
-      SELECT COALESCE(MIN(pj.index), 0) AS min, 
-      COALESCE(MAX(pj.index), 0) AS max 
-      FROM project AS pj
-      WHERE pj.team_id = ?1
-    """,
-    nativeQuery = true
-  ) public IntervalDTO getIndexIntervalByTeam(
-    UUID teamId
-  );
-
-  @Query(
-    // language=sql
-    value = """
       SELECT pj.* FROM project AS pj
       JOIN participation AS pt
       ON pt.team_id = pj.team_id

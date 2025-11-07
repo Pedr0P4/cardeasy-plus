@@ -36,6 +36,7 @@ public class ProjectsService {
     this.teams = teams;
   };
 
+  @Transactional
   public Project create(
     UUID teamId, 
     String title, 
@@ -44,19 +45,14 @@ public class ProjectsService {
     Team team = this.teams.findById(teamId)
       .orElseThrow(TeamNotFound::new);
 
-    IntervalDTO interval = this.projects.getIndexIntervalByTeam(teamId);
-
     Project project = new Project();
     
-    if(interval.min() > 1) 
-      project.setIndex(interval.min() - 1);
-    else 
-      project.setIndex(interval.max() + 1);
-    
+    project.setIndex(0l);
     project.setTeam(team);
     project.setTitle(title);
     project.setDescription(description);
 
+    this.projects.shiftDown(teamId, 0l);
     this.projects.save(project);
 
     return project;
@@ -100,7 +96,8 @@ public class ProjectsService {
 
   @Transactional
   public void deleteById(Integer id) {
-    this.existsById(id);
+    Project project = this.findById(id);
+    this.projects.shiftUp(project.getTeam().getId(), project.getIndex());
     this.budgets.deleteByProject(id);
     this.projects.deleteById(id);
   };

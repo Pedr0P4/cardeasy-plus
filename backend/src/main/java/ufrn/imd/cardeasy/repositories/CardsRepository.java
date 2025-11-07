@@ -35,19 +35,6 @@ extends JpaRepository<Card, Integer> {
     nativeQuery = true
   ) public List<Card> findAllByProject(Integer projectId);
   
-  @Query(
-    // language=sql
-    value = """
-      SELECT COALESCE(MIN(cd.index), 0) AS min, 
-      COALESCE(MAX(cd.index), 0) AS max 
-      FROM card AS cd
-      WHERE cd.list_id = ?1
-    """,
-    nativeQuery = true
-  ) public IntervalDTO getIndexIntervalByCardList(
-    Integer cardListId
-  );
-
   @Modifying
   @Query(
     // language=sql

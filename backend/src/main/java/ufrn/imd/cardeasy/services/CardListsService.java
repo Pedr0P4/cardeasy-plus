@@ -29,6 +29,7 @@ public class CardListsService {
     this.cardLists = cardLists;
   };
 
+  @Transactional
   public CardList create(Integer projectId, String title) {
     Project project = projects.findById(projectId)
       .orElseThrow(ProjectNotFound::new);
@@ -39,7 +40,7 @@ public class CardListsService {
     
     if(interval.min() > 1) 
       cardList.setIndex(interval.min() - 1);
-    else 
+    else
       cardList.setIndex(interval.max() + 1);
 
     cardList.setTitle(title);
@@ -75,7 +76,10 @@ public class CardListsService {
     return cardList;
   };
 
+  @Transactional
   public void deleteById(Integer id) {
+    CardList cardList = this.findById(id);
+    this.cardLists.shiftUp(cardList.getProject().getId(), cardList.getIndex());
     this.cardLists.deleteById(id);
   };
 
