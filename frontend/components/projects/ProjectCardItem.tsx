@@ -67,7 +67,7 @@ export default function ProjectCardItem({
       "tags",
       "simplified",
     ],
-    queryFn: () => Api.client().tags().searchUsages(card.id, 0, "", 2),
+    queryFn: () => Api.client().tags().search(card.id, 0, "", 2),
     initialData: {
       items: [],
       page: 0,
@@ -98,7 +98,7 @@ export default function ProjectCardItem({
           "btn h-min flex flex-col",
           "items-start justify-start",
           "rounded-md px-3 py-2 touch-none gap-0",
-          "bg-base-300 w-[calc(100%-1rem)] mx-2 pr-14",
+          "bg-base-300 w-[calc(100%-1rem)] mx-2 pr-10",
         )}
       >
         <h4 className="font-bold text-start text-sm">{card.title}</h4>
@@ -130,7 +130,7 @@ export default function ProjectCardItem({
                     {tag.content}
                   </div>
                 ))}
-                {queryTags.data.total > 3 && (
+                {queryTags.data.total > 2 && (
                   <div className="badge badge-xs badge-outline badge-primary">
                     +{queryTags.data.total - 2}
                   </div>

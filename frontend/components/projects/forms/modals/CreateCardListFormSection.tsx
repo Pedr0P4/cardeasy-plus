@@ -48,11 +48,11 @@ export default function CreateCardListFormSection({ project }: Props) {
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 

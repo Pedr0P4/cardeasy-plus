@@ -1,6 +1,6 @@
 import clsx from "clsx";
+import AssignmentsSection from "@/components/assignments/AssignmentsSection";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
-import AssignmentsSection from "@/components/projects/forms/modals/AssignmentsSection";
 import { Api } from "@/services/api";
 
 export default async function AssignmentsModal({

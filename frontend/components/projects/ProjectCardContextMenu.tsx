@@ -93,7 +93,7 @@ export default function ProjectCardContextMenu({
             href={`/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/${card.id}/assignments`}
           >
             <FaUserGroup />
-            Editar atribuições
+            Atribuições
           </Link>
         </li>
         <li>
@@ -102,7 +102,7 @@ export default function ProjectCardContextMenu({
             href={`/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/${card.id}/tags`}
           >
             <FaBookmark />
-            Editar etiquetas
+            Etiquetas
           </Link>
         </li>
         <li>

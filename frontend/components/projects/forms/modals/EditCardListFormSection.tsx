@@ -47,11 +47,11 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
           });
 
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 
@@ -76,11 +76,11 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 

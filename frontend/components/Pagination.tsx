@@ -5,6 +5,7 @@ import Input from "./Input";
 interface Props {
   current: number;
   last: number;
+  className?: string;
   onChange: (page: number) => void;
 }
 
@@ -74,11 +75,21 @@ const getPages = (last: number, current: number): PageButton[] => {
   return pages;
 };
 
-export default function Pagination({ last, current, onChange }: Props) {
+export default function Pagination({
+  last,
+  current,
+  onChange,
+  className,
+}: Props) {
   if (last <= 0) return null;
 
   return (
-    <div className="mt-4 mb-2 self-center max-w-full join mt-4 mb-2">
+    <div
+      className={clsx(
+        "mt-4 mb-2 self-center max-w-full join mt-4 mb-2",
+        className,
+      )}
+    >
       <button
         disabled={current === 0}
         type="button"

@@ -15,7 +15,7 @@ import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
-import AssignmentCandidateItem from "./assignments/AssignmentCandidateItem";
+import AssignmentCandidateItem from "./AssignmentCandidateItem";
 
 interface Props {
   project: Project;
@@ -72,11 +72,11 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
               "assignments",
             ],
           });
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 
@@ -97,11 +97,11 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
               "assignments",
             ],
           });
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 
@@ -118,7 +118,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
         )}
       >
         <FaUserGroup className="size-6" />
-        Editar atribuições
+        Atribuições
       </h1>
       <div
         className={clsx(
@@ -128,6 +128,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
         )}
       >
         <Input
+          disabled={isPending}
           name="search"
           type="text"
           className="mb-2"
@@ -145,6 +146,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
               <AssignmentCandidateItem
                 disabled={isPending}
                 onClick={() => {
+                  setIsLoading(true);
                   if (assignment.assigned)
                     deselectMutation.mutate(assignment.account);
                   else selectMutation.mutate(assignment.account);
@@ -160,7 +162,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
                 <li
                   className="w-full"
                   key={`candidates-${
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    // biome-ignore lint/suspicious/noArrayIndexKey: not needed
                     i
                   }`}
                   tabIndex={-1}
@@ -177,7 +179,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
             )}
         </ul>
         <Pagination
-          current={0}
+          current={page}
           last={queryCandidates.data.lastPage}
           onChange={setPage}
         />

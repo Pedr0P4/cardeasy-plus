@@ -26,7 +26,7 @@ function isErrorResponse(data: any): data is ErrorResponse {
   return data && typeof data.error === "string" && data.error !== null;
 }
 
-// biome-ignore lint/complexity/noStaticOnlyClass: <explanation>
+// biome-ignore lint/complexity/noStaticOnlyClass: not needed
 export class Axios {
   public static create() {
     const api = axios.create({

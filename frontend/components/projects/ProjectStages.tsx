@@ -79,6 +79,7 @@ export default function ProjectStages({ project, role }: Props) {
         })}
       </ul>
       <Pagination
+        className="outline outline-2 rounded-lg outline-base-100"
         current={page}
         last={query.data.lastPage}
         onChange={setPage}

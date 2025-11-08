@@ -1,8 +1,5 @@
 package ufrn.imd.cardeasy.repositories;
 
-import java.util.List;
-import java.util.UUID;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,35 +12,6 @@ import ufrn.imd.cardeasy.models.Tag;
 @Repository
 public interface TagsRepository
 extends JpaRepository<Tag, Integer> {
-  @Query(
-    // language=sql
-    value = """
-      SELECT tg.*, MAX(tc.card_id = :cardId) AS used FROM tag AS tg
-      JOIN tag_card AS tc
-      ON tc.tag_id = tg.id
-      WHERE tg.project_id = :projectId
-      AND tg.content LIKE CONCAT('%', :query, '%')
-      GROUP BY tg.id
-      ORDER BY used DESC,
-      tg.content ASC
-    """,
-    // language=sql
-    countQuery = """
-      SELECT COUNT(tg.*) FROM tag AS tg
-      JOIN tag_card AS tc
-      ON tc.tag_id = tg.id
-      WHERE tg.project_id = :projectId
-      AND tg.content LIKE CONCAT('%', :query, '%')
-      GROUP BY tg.id
-    """,
-    nativeQuery = true
-  ) public Page<TagDTO> searchAllByProject(
-    Integer projectId, 
-    Integer cardId,
-    String query, 
-    Pageable pageable
-  );
-
   // TODO - Tem que ter controle no service para não permitir
   // associar tags já associadas
   @Query(
@@ -66,6 +34,46 @@ extends JpaRepository<Tag, Integer> {
     """,
     nativeQuery = true
   ) public Page<Tag> searchAllByCard(
+    Integer cardId,
+    String query, 
+    Pageable pageable
+  );
+
+  @Query(
+    // language=sql
+    value = """
+      SELECT tg.id AS id,
+      tg.content AS content,
+      SUM(COALESCE(tc.card_id = :cardId, FALSE)) AS usages,
+      MAX(COALESCE(tc.card_id = :cardId, FALSE)) AS used
+      FROM tag AS tg
+      LEFT JOIN tag_card AS tc
+      ON tc.tag_id = tg.id
+      JOIN card_list AS cl
+      ON cl.project_id = tg.project_id
+      JOIN card AS cd
+      ON cd.list_id = cl.id
+      WHERE tg.content LIKE CONCAT('%', :query, '%')
+      AND cd.id = :cardId
+      GROUP BY tg.id, tg.content
+      ORDER BY used DESC,
+      tg.content ASC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(DISTINCT tg.id)
+      FROM tag AS tg
+      LEFT JOIN tag_card AS tc
+      ON tc.tag_id = tg.id
+      JOIN card_list AS cl
+      ON cl.project_id = tg.project_id
+      JOIN card AS cd
+      ON cd.list_id = cl.id
+      WHERE tg.content LIKE CONCAT('%', :query, '%')
+      AND cd.id = :cardId
+    """,
+    nativeQuery = true
+  ) public Page<TagDTO> searchAllByCardWithCandidates(
     Integer cardId,
     String query, 
     Pageable pageable

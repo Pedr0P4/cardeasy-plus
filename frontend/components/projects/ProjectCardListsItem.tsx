@@ -129,7 +129,7 @@ export default function ProjectCardListsItem({
         transition,
       }}
       className={clsx(
-        "relative min-w-3xs max-w-4xs min-h-[20rem] overflow-hidden",
+        "relative min-w-2xs max-w-sm min-h-[20rem] overflow-hidden",
         isDragging && "z-10",
         isDragging && "opacity-40",
         searchType === "card" && cards.length <= 0 && !!searchQuery && "hidden",

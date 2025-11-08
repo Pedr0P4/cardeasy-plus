@@ -53,11 +53,11 @@ export default function EditStageFormSection({ project, stage }: Props) {
           });
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 
@@ -81,11 +81,11 @@ export default function EditStageFormSection({ project, stage }: Props) {
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
           throw err;
-        });
+        })
+        .finally(() => setIsLoading(false));
     },
     onError: (error) => {
       console.log(error);
-      setIsLoading(false);
     },
   });
 
