@@ -25,10 +25,12 @@ import Link from "next/link";
 import { type ChangeEvent, useEffect, useRef, useState } from "react";
 import { FaBuffer, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard";
 import handleCardInsertOverCardList from "@/utils/dragging/handleCardInsertOverCardList";
 import handleCardListDragStart from "@/utils/dragging/handleCardListDragStart";
@@ -81,7 +83,7 @@ export default function ProjectCardLists({ project, role }: Props) {
   });
 
   const query = useInfiniteQuery({
-    queryKey: ["projects", project.id, "card-lists", `query-${searchQuery}`],
+    queryKey: ["projects", project.id, "cards-lists", `query-${searchQuery}`],
     queryFn: ({ pageParam }) =>
       Api.client().cardLists().search(project.id, pageParam, searchQuery),
     getNextPageParam: (lastPageData) => {
@@ -119,14 +121,15 @@ export default function ProjectCardLists({ project, role }: Props) {
       return await Api.client()
         .cardLists()
         .move(project, cardList, index)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: ["projects", project, "card-lists"],
+            queryKey: ["projects", project, "cards-lists"],
           });
         });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -143,14 +146,15 @@ export default function ProjectCardLists({ project, role }: Props) {
       return await Api.client()
         .cards()
         .move(cardList, card, index)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
           queryClient.invalidateQueries({
             queryKey: ["projects", project.id, "cards"],
           });
         });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

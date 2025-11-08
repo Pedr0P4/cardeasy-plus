@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import { notFound } from "next/navigation";
 import {
   FaDiagramProject,
   FaGear,
@@ -26,7 +27,10 @@ export default async function TeamPage({
   params: Promise<{ team: UUID }>;
 }>) {
   const { team: teamId } = await params;
-  const participation = await Api.server().participations().get(teamId);
+  const participation = await Api.server()
+    .participations()
+    .get(teamId)
+    .catch(() => notFound());
   const isOwner = participation.role === Role.OWNER;
 
   return (

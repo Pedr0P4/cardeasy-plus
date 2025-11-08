@@ -3,18 +3,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { useState } from "react";
-import {
-  FaBookmark,
-  FaMagnifyingGlass,
-  FaPlus,
-  FaTriangleExclamation,
-} from "react-icons/fa6";
+import { FaBookmark, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import Input from "@/components/Input";
 import Pagination from "@/components/Pagination";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import TagCandidateItem from "./TagCandidateItem";
 
 interface Props {
@@ -27,9 +24,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
 
-  // TODO - Toast?
   const queryCandidates = useQuery({
     queryKey: [
       "projects",
@@ -61,6 +56,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
         .tags()
         .update(id, { content })
         .then(() => {
+          Toasts.success("Etiqueta atualizada com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -73,10 +70,11 @@ export default function TagsSection({ project, cardList, card }: Props) {
             ],
           });
         })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -90,6 +88,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
           project: project.id,
         })
         .then(() => {
+          Toasts.success("Etiqueta criada com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -102,10 +102,11 @@ export default function TagsSection({ project, cardList, card }: Props) {
             ],
           });
         })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -115,6 +116,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
         .tags()
         .delete(id)
         .then(() => {
+          Toasts.success("Etiqueta apagada com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -127,10 +130,11 @@ export default function TagsSection({ project, cardList, card }: Props) {
             ],
           });
         })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -140,6 +144,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
         .tags()
         .select(id, card.id)
         .then(() => {
+          Toasts.success("Etiqueta marcada com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -152,10 +158,11 @@ export default function TagsSection({ project, cardList, card }: Props) {
             ],
           });
         })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -165,6 +172,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
         .tags()
         .deselect(id, card.id)
         .then(() => {
+          Toasts.success("Etiqueta desmarcada com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -177,10 +186,11 @@ export default function TagsSection({ project, cardList, card }: Props) {
             ],
           });
         })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -189,7 +199,8 @@ export default function TagsSection({ project, cardList, card }: Props) {
     selectMutation.isPending ||
     deselectMutation.isPending ||
     createMutation.isPending ||
-    deleteMutation.isPending;
+    deleteMutation.isPending ||
+    updateMutation.isPending;
 
   return (
     <>
@@ -292,18 +303,6 @@ export default function TagsSection({ project, cardList, card }: Props) {
           onChange={setPage}
         />
       </div>
-      {error && (
-        <div
-          role="alert"
-          className={clsx(
-            "alert alert-error alert-soft",
-            "w-full rounded-none sm:px-6",
-          )}
-        >
-          <FaTriangleExclamation className="size-4 -mr-1" />
-          <span className="first-letter:uppercase">{error}</span>
-        </div>
-      )}
     </>
   );
 }

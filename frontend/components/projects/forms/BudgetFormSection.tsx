@@ -24,6 +24,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { Budget, UpdateBudgetData } from "@/services/budgets";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import Input from "../../Input";
 
 interface Props {
@@ -55,18 +56,15 @@ export default function BudgetFormSection({
         .budgets()
         .delete(budget.id)
         .then(() => {
+          Toasts.success("Verba removida com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
           setHasBudget(false);
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -79,18 +77,15 @@ export default function BudgetFormSection({
           deadline: withDeadline ? data.deadline : undefined,
         })
         .then(() => {
+          Toasts.success("Verba atualizada com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -104,18 +99,15 @@ export default function BudgetFormSection({
           project: project.id,
         })
         .then(() => {
+          Toasts.success("Verba criada com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

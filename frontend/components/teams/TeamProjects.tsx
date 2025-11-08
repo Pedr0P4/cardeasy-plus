@@ -22,8 +22,10 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import { type Participation, Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import handleProjectDragStart from "@/utils/dragging/handleProjectDragStart";
 import handleProjectInsert from "@/utils/dragging/handleProjectInsert";
 import Input from "../Input";
@@ -91,14 +93,15 @@ export default function TeamProjects({ participation }: Props) {
       return await Api.client()
         .projects()
         .move(team, project, index)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
           queryClient.invalidateQueries({
             queryKey: ["participations", participation.team.id, "projects"],
           });
         });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

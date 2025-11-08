@@ -4,17 +4,15 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import type { UUID } from "crypto";
 import { useState } from "react";
-import {
-  FaMagnifyingGlass,
-  FaTriangleExclamation,
-  FaUserGroup,
-} from "react-icons/fa6";
+import { FaMagnifyingGlass, FaUserGroup } from "react-icons/fa6";
 import Input from "@/components/Input";
 import Pagination from "@/components/Pagination";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import AssignmentCandidateItem from "./AssignmentCandidateItem";
 
 interface Props {
@@ -27,9 +25,7 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string>("");
 
-  // TODO - Toast?
   const queryCandidates = useQuery({
     queryKey: [
       "projects",
@@ -60,7 +56,12 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
       return await Api.client()
         .assignments()
         .create({ account, card: card.id })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
+          Toasts.success("Atribuição feita com sucesso!");
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -74,9 +75,6 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -85,7 +83,12 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
       return await Api.client()
         .assignments()
         .delete({ account, card: card.id })
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
+          Toasts.success("Atribuição desfeita com sucesso!");
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
@@ -99,9 +102,6 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -184,18 +184,6 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
           onChange={setPage}
         />
       </div>
-      {error && (
-        <div
-          role="alert"
-          className={clsx(
-            "alert alert-error alert-soft",
-            "w-full rounded-none sm:px-6",
-          )}
-        >
-          <FaTriangleExclamation className="size-4 -mr-1" />
-          <span className="first-letter:uppercase">{error}</span>
-        </div>
-      )}
     </>
   );
 }

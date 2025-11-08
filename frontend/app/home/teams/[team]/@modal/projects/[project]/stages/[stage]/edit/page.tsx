@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { notFound } from "next/navigation";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
 import EditStageFormSection from "@/components/projects/forms/modals/EditStageFormSection";
 import { Api } from "@/services/api";
@@ -10,11 +11,15 @@ export default async function EditStageModal({
 }>) {
   const { project: projectId, stage: stageId } = await params;
 
-  const stage = await Api.server().stages().get(Number.parseInt(stageId, 10));
+  const stage = await Api.server()
+    .stages()
+    .get(Number.parseInt(stageId, 10))
+    .catch(() => notFound());
 
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
   return (
     <dialog open className="modal">

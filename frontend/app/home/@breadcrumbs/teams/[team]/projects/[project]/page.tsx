@@ -1,5 +1,6 @@
 import type { UUID } from "crypto";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { FaDiagramProject, FaHouse, FaUsers } from "react-icons/fa6";
 import { Api } from "@/services/api";
 
@@ -9,11 +10,16 @@ export default async function ProjectBreadcrumbs({
   params: Promise<{ team: UUID; project: string }>;
 }>) {
   const { project: projectId, team: teamId } = await params;
+
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
-  const participation = await Api.server().participations().get(teamId);
+  const participation = await Api.server()
+    .participations()
+    .get(teamId)
+    .catch(() => notFound());
 
   return (
     <>

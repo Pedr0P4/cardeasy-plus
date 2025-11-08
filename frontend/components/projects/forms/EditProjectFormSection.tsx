@@ -21,6 +21,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Role } from "@/services/participations";
 import type { Project, UpdateProjectData } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import Input from "../../Input";
 
 interface Props {
@@ -53,6 +54,7 @@ export default function EditProjectFormSection({
         .projects()
         .delete(project.id)
         .then(() => {
+          Toasts.success("Projeto apagado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", project.team, "projects"],
           });
@@ -62,12 +64,8 @@ export default function EditProjectFormSection({
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -77,6 +75,7 @@ export default function EditProjectFormSection({
         .projects()
         .update(project.id, data)
         .then(() => {
+          Toasts.success("Projeto atualizado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", project.team, "projects"],
           });
@@ -86,12 +85,8 @@ export default function EditProjectFormSection({
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

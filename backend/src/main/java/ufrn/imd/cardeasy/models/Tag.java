@@ -24,7 +24,7 @@ public class Tag {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(nullable = false, unique = true)
+  @Column(nullable = false, unique = false)
   private String content;
 
   @JoinColumn(name = "project_id", nullable = false)

@@ -22,7 +22,7 @@ function isValidationError(data: any): data is ValidationErrorResponse {
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: is a type guard
-function isErrorResponse(data: any): data is ErrorResponse {
+export function isErrorResponse(data: any): data is ErrorResponse {
   return data && typeof data.error === "string" && data.error !== null;
 }
 

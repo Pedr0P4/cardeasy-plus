@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { notFound } from "next/navigation";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
 import TagsSection from "@/components/tags/TagsSection";
 import { Api } from "@/services/api";
@@ -16,13 +17,18 @@ export default async function TagsModal({
 
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
   const cardList = await Api.server()
     .cardLists()
-    .get(Number.parseInt(cardListId, 10));
+    .get(Number.parseInt(cardListId, 10))
+    .catch(() => notFound());
 
-  const card = await Api.server().cards().get(Number.parseInt(cardId, 10));
+  const card = await Api.server()
+    .cards()
+    .get(Number.parseInt(cardId, 10))
+    .catch(() => notFound());
 
   return (
     <dialog open className="modal">

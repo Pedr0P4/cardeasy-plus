@@ -12,6 +12,8 @@ import ufrn.imd.cardeasy.dtos.tag.TagDTO;
 import ufrn.imd.cardeasy.errors.CardNotFound;
 import ufrn.imd.cardeasy.errors.CardNotLinkedToTheProject;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
+import ufrn.imd.cardeasy.errors.TagAlreadyExists;
+import ufrn.imd.cardeasy.errors.TagAlreadyLinked;
 import ufrn.imd.cardeasy.errors.TagNotFound;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.models.Project;
@@ -45,9 +47,15 @@ public class TagsService {
   ) {
     Project project = this.projects.findById(projectId)
       .orElseThrow(ProjectNotFound::new);
-
+    
     Card card = this.cards.findById(cardId)
       .orElseThrow(CardNotFound::new);
+
+    Boolean alreadyExists = this.tags.findByProjectAndContent(projectId, content)
+      .isPresent();
+
+    if(alreadyExists)
+      throw new TagAlreadyExists();
 
     if(card.getList().getProject().getId() != project.getId())
       throw new CardNotLinkedToTheProject();
@@ -120,6 +128,9 @@ public class TagsService {
 
     if(tag.getProject().getId() != card.getList().getProject().getId())
       throw new CardNotLinkedToTheProject();
+
+    if(tag.getCards().contains(card))
+      throw new TagAlreadyLinked();
     
     tag.getCards().add(card);
     this.tags.save(tag);

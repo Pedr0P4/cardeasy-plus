@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.repositories;
 
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,8 +14,19 @@ import ufrn.imd.cardeasy.models.Tag;
 @Repository
 public interface TagsRepository
 extends JpaRepository<Tag, Integer> {
-  // TODO - Tem que ter controle no service para não permitir
-  // associar tags já associadas
+  @Query(
+    // language=sql
+    value = """
+      SELECT tg.* FROM tag AS tg
+      WHERE tg.project_id = ?1
+      AND tg.content = ?2
+    """,
+    nativeQuery = true
+  ) public Optional<Tag> findByProjectAndContent(
+    Integer projectId,
+    String content
+  );
+
   @Query(
     // language=sql
     value = """

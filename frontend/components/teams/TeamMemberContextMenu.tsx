@@ -15,6 +15,7 @@ import {
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { type Participation, Role } from "@/services/participations";
+import { Toasts } from "@/services/toats";
 
 interface Props {
   viewer: Participation;
@@ -36,8 +37,6 @@ export default function TeamMemberContextMenu({
   const level = levels[viewer.role] - levels[participation.role];
   const [isLoading, setIsLoading] = useState(false);
 
-  // TODO - Toast?
-
   const router = useRouter();
   const queryClient = useQueryClient();
   const promoteToAdminMutation = useMutation({
@@ -50,20 +49,16 @@ export default function TeamMemberContextMenu({
           role: Role.ADMIN,
         })
         .then(() => {
+          Toasts.success("Membro promovido com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", participation.team.id],
           });
         })
-        .catch((err: ApiErrorResponse) => {
-          // if (err.isValidationError()) setErrors(err.errors);
-          // else if (err.isErrorResponse()) setError(err.error);
-          // else setError("Erro inesperado!");
-          throw err;
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -77,20 +72,16 @@ export default function TeamMemberContextMenu({
           role: Role.MEMBER,
         })
         .then(() => {
+          Toasts.success("Membro rebaixado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", participation.team.id],
           });
         })
-        .catch((err: ApiErrorResponse) => {
-          // if (err.isValidationError()) setErrors(err.errors);
-          // else if (err.isErrorResponse()) setError(err.error);
-          // else setError("Erro inesperado!");
-          throw err;
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -100,6 +91,8 @@ export default function TeamMemberContextMenu({
         .teams()
         .transfer(participation.team.id, participation.account.id)
         .then(() => {
+          Toasts.success("Posse do time transferida com sucesso!");
+
           queryClient.invalidateQueries({
             queryKey: ["participations", participation.team.id],
           });
@@ -107,16 +100,11 @@ export default function TeamMemberContextMenu({
             queryKey: ["participations", participation.team.id, "me"],
           });
         })
-        .catch((err: ApiErrorResponse) => {
-          // if (err.isValidationError()) setErrors(err.errors);
-          // else if (err.isErrorResponse()) setError(err.error);
-          // else setError("Erro inesperado!");
-          throw err;
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -129,20 +117,16 @@ export default function TeamMemberContextMenu({
           team: participation.team.id,
         })
         .then(() => {
+          Toasts.success("Membro expulso do time com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", participation.team.id],
           });
         })
-        .catch((err: ApiErrorResponse) => {
-          // if (err.isValidationError()) setErrors(err.errors);
-          // else if (err.isErrorResponse()) setError(err.error);
-          // else setError("Erro inesperado!");
-          throw err;
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -154,6 +138,7 @@ export default function TeamMemberContextMenu({
           team: viewer.team.id,
         })
         .then(() => {
+          Toasts.success("Você saiu do time com sucesso!");
           queryClient.removeQueries({
             queryKey: ["participations", participation.team.id],
           });
@@ -162,16 +147,11 @@ export default function TeamMemberContextMenu({
           });
           router.push("/home");
         })
-        .catch((err: ApiErrorResponse) => {
-          // if (err.isValidationError()) setErrors(err.errors);
-          // else if (err.isErrorResponse()) setError(err.error);
-          // else setError("Erro inesperado!");
-          throw err;
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

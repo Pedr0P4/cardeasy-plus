@@ -5,6 +5,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { FaBars, FaPenToSquare, FaRightToBracket } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
+import { Toasts } from "@/services/toats";
 import { useAccount } from "@/stores/useAccount";
 import Avatar from "./Avatar";
 
@@ -15,7 +17,12 @@ export default function Header() {
     Api.client()
       .accounts()
       .logout()
+      .catch((error: ApiErrorResponse) => {
+        if (error.isErrorResponse()) Toasts.error(error.error);
+        else Toasts.error("Erro inesperado!");
+      })
       .then(() => {
+        Toasts.success("Ate mais!");
         redirect("/login");
       });
   };

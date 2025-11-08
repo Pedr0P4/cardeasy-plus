@@ -20,6 +20,7 @@ import Input from "@/components/Input";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CreateProjectData } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 
 export default function CreateProjectPage() {
   const { team } = useParams<{ team: UUID }>();
@@ -49,7 +50,10 @@ export default function CreateProjectPage() {
           return undefined;
         });
 
-      if (project) redirect(`/home/teams/${team}/projects/${project.id}`);
+      if (project) {
+        Toasts.success("Projeto criado com sucesso!");
+        redirect(`/home/teams/${team}/projects/${project.id}`);
+      }
     });
   };
 

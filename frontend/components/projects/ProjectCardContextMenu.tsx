@@ -12,9 +12,11 @@ import {
   FaUserGroup,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 
 interface Props {
   project: Project;
@@ -29,27 +31,27 @@ export default function ProjectCardContextMenu({
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const queryClient = useQueryClient();
+
   const deleteMutation = useMutation({
     mutationFn: async () => {
       return await Api.client()
         .cards()
         .delete(card.id)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
+          Toasts.success("Cartão apagado com sucesso!");
           queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "card-lists",
-              cardList.id,
-              "cards",
-            ],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
 
           queryClient.removeQueries({
             queryKey: [
               "projects",
               project.id,
-              "card-lists",
+              "cards-lists",
               cardList.id,
               "cards",
               card.id,
@@ -57,9 +59,6 @@ export default function ProjectCardContextMenu({
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

@@ -16,6 +16,7 @@ import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { CreateCardData } from "@/services/cards";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import Input from "../../../Input";
 
 interface Props {
@@ -41,14 +42,10 @@ export default function CreateCardFormSection({ project, cardList }: Props) {
         .cards()
         .create(data)
         .then(() => {
+          Toasts.success("Cartão criado com sucesso!");
+
           queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "card-lists",
-              cardList.id,
-              "cards",
-            ],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
 
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
@@ -57,12 +54,8 @@ export default function CreateCardFormSection({ project, cardList }: Props) {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

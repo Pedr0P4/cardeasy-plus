@@ -74,10 +74,16 @@ export default function TagCandidateItem({
           </div>
         </div>
       ) : (
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={onClick}
+        // biome-ignore lint/a11y/useKeyWithClickEvents: not needed
+        // biome-ignore lint/a11y/useSemanticElements: not needed
+        <div
+          role="button"
+          tabIndex={0}
+          aria-pressed
+          aria-disabled={disabled}
+          onClick={() => {
+            if (!disabled) onClick();
+          }}
           className={clsx(
             "btn bg-base-300 h-10 flex flex-row",
             "items-center justify-start",
@@ -112,7 +118,7 @@ export default function TagCandidateItem({
               <FaTrash />
             </button>
           </div>
-        </button>
+        </div>
       )}
     </li>
   );

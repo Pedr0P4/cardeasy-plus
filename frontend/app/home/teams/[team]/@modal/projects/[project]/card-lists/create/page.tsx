@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { notFound } from "next/navigation";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
 import CreateCardListFormSection from "@/components/projects/forms/modals/CreateCardListFormSection";
 import { Api } from "@/services/api";
@@ -12,7 +13,8 @@ export default async function CreateCardListModal({
 
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
   return (
     <dialog open className="modal">

@@ -19,6 +19,7 @@ import Input from "@/components/Input";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CreateTeamData } from "@/services/teams";
+import { Toasts } from "@/services/toats";
 
 export default function CreateTeamPage() {
   const [isLoading, startTransition] = useTransition();
@@ -45,7 +46,10 @@ export default function CreateTeamPage() {
           return undefined;
         });
 
-      if (team) redirect(`/home/teams/${team.id}`);
+      if (team) {
+        Toasts.success("Time criado com sucesso!");
+        redirect(`/home/teams/${team.id}`);
+      }
     });
   };
 
