@@ -17,6 +17,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { Project } from "@/services/projects";
 import type { Stage, UpdateStageDTO } from "@/services/stages";
+import { Toasts } from "@/services/toats";
 import Input from "../../../Input";
 
 interface Props {
@@ -48,16 +49,15 @@ export default function EditStageFormSection({ project, stage }: Props) {
         .stages()
         .delete(stage.id)
         .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "stages"],
-          });
+          Toasts.success("Etapa apagada com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+        })
+        .finally(() => setIsLoading(false));
     },
   });
 
@@ -70,9 +70,7 @@ export default function EditStageFormSection({ project, stage }: Props) {
           expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
         })
         .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "stages"],
-          });
+          Toasts.success("Etapa atualizada com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
@@ -80,12 +78,8 @@ export default function EditStageFormSection({ project, stage }: Props) {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
+        })
+        .finally(() => setIsLoading(false));
     },
   });
 

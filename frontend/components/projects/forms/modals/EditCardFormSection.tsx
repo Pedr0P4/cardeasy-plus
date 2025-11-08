@@ -17,6 +17,7 @@ import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card, UpdateCardData } from "@/services/cards";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import Input from "../../../Input";
 
 interface Props {
@@ -46,11 +47,12 @@ export default function EditCardFormSection({
         .cards()
         .delete(card.id)
         .then(() => {
+          Toasts.success("Cartão apagado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: [
               "projects",
               project.id,
-              "card-lists",
+              "cards-lists",
               cardList.id,
               "cards",
             ],
@@ -60,43 +62,7 @@ export default function EditCardFormSection({
             queryKey: [
               "projects",
               project.id,
-              "card-lists",
-              cardList.id,
-              "cards",
-              card.id,
-            ],
-          });
-
-          router.push(`/home/teams/${project.team}/projects/${project.id}`);
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
-    },
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async () => {
-      return await Api.client()
-        .cards()
-        .update(card.id, data)
-        .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "card-lists",
-              cardList.id,
-              "cards",
-            ],
-          });
-
-          queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "card-lists",
+              "cards-lists",
               cardList.id,
               "cards",
               card.id,
@@ -106,15 +72,39 @@ export default function EditCardFormSection({
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
         })
         .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+        })
+        .finally(() => setIsLoading(false));
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async () => {
+      return await Api.client()
+        .cards()
+        .update(card.id, data)
+        .then(() => {
+          Toasts.success("Cartão atualizado com sucesso!");
+
+          queryClient.invalidateQueries({
+            queryKey: [
+              "projects",
+              project.id,
+              "cards-lists",
+              cardList.id,
+              "cards",
+            ],
+          });
+
+          router.push(`/home/teams/${project.team}/projects/${project.id}`);
+        })
+        .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
+        })
+        .finally(() => setIsLoading(false));
     },
   });
 

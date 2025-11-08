@@ -8,7 +8,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -18,7 +17,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.services.AccountsService;
 
-@Component
 public class AuthenticationMiddleware extends OncePerRequestFilter {
   private AccountsService accounts;
 

@@ -1,5 +1,4 @@
 import { Service } from "./base/services";
-import type { Card } from "./cards";
 
 export type CardList = {
   id: number;
@@ -43,9 +42,11 @@ export class CardListsService extends Service {
     });
   }
 
-  async cards(id: number) {
+  async search(project: number, page: number = 0, query: string = "") {
     return this.api
-      .get<Card[]>(`/cards/card-list/${id}`)
+      .get<Page<CardList>>(
+        `/card-lists/search?project=${project}&page=${page}&query=${query}`,
+      )
       .then((res) => res.data);
   }
 }

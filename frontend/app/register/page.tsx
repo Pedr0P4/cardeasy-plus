@@ -21,6 +21,7 @@ import Input from "@/components/Input";
 import type { RegisterData } from "@/services/accounts";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import { Toasts } from "@/services/toats";
 
 export default function RegisterPage() {
   const [isLoading, startTransition] = useTransition();
@@ -49,7 +50,10 @@ export default function RegisterPage() {
           return false;
         });
 
-      if (success) redirect(`/login?email=${data.email}`);
+      if (success) {
+        Toasts.success("Conta registrada com sucesso!");
+        redirect(`/login?email=${data.email}`);
+      }
     });
   };
 

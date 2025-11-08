@@ -1,4 +1,4 @@
-package ufrn.imd.cardeasy.dtos.participations;
+package ufrn.imd.cardeasy.dtos.participation;
 
 import java.util.UUID;
 

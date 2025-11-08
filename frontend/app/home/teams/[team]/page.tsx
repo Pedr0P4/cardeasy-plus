@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import { notFound } from "next/navigation";
 import {
   FaDiagramProject,
   FaGear,
@@ -26,9 +27,10 @@ export default async function TeamPage({
   params: Promise<{ team: UUID }>;
 }>) {
   const { team: teamId } = await params;
-  const participation = await Api.server().participations().get(teamId);
-  const participations = await Api.server().teams().participations(teamId);
-  const projects = await Api.server().teams().projects(teamId);
+  const participation = await Api.server()
+    .participations()
+    .get(teamId)
+    .catch(() => notFound());
   const isOwner = participation.role === Role.OWNER;
 
   return (
@@ -73,15 +75,12 @@ export default async function TeamPage({
         </section>
         <Tab name="projects">
           <section className="w-full flex flex-col gap-2 p-6">
-            <TeamProjects projects={projects} participation={participation} />
+            <TeamProjects participation={participation} />
           </section>
         </Tab>
         <Tab name="members">
           <section className="w-full flex flex-col gap-2 p-6">
-            <TeamMembers
-              participations={participations}
-              participation={participation}
-            />
+            <TeamMembers participation={participation} />
           </section>
         </Tab>
         {isOwner && (

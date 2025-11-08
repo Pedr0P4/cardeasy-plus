@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.repositories;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -8,7 +10,6 @@ import org.springframework.stereotype.Repository;
 import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.models.CardList;
 
-import java.util.List;
 
 @Repository
 public interface CardListsRepository 
@@ -17,12 +18,21 @@ extends JpaRepository<CardList, Integer> {
     // language=sql
     value = """
       SELECT cl.* FROM card_list AS cl
+      WHERE cl.project_id = ?1 
+      AND cl.title LIKE CONCAT('%', ?2, '%')
+      ORDER BY cl.index ASC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(cl.id) FROM card_list AS cl
       WHERE cl.project_id = ?1
-      ORDER BY index ASC
+      AND cl.title LIKE CONCAT('%', ?2, '%')
     """,
     nativeQuery = true
-  ) public List<CardList> findAllByProject(
-    Integer projectId
+  ) public Page<CardList> searchAllByProject(
+    Integer projectId, 
+    String query, 
+    Pageable pageable
   );
 
   @Query(
@@ -79,7 +89,7 @@ extends JpaRepository<CardList, Integer> {
       BETWEEN ?2 AND ?3
     """,
     nativeQuery = true
-  ) void shiftIndices(
+  ) public void shiftIndices(
     Integer projectId, 
     Long startIndex, 
     Long endIndex, 

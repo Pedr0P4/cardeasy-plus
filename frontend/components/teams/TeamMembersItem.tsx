@@ -1,10 +1,9 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useEffect, useState } from "react";
 import { FaCrown, FaShieldHalved } from "react-icons/fa6";
 import { Api } from "@/services/api";
-import type { ImageData } from "@/services/image";
 import type { Participation } from "@/services/participations";
 import Avatar from "../Avatar";
 import TeamMemberContextMenu from "./TeamMemberContextMenu";
@@ -21,15 +20,20 @@ const icons = {
 };
 
 export default function TeamMemberItem({ viewer, participation }: Props) {
-  const [avatar, setAvatar] = useState<ImageData>();
-
-  useEffect(() => {
-    Api.client()
-      .images()
-      .urlToData(`/avatars/${participation.account.id}.webp`)
-      .then((res) => setAvatar(res))
-      .catch(() => {});
-  }, [participation.account.id]);
+  const query = useQuery({
+    queryKey: [
+      "participations",
+      participation.team.id,
+      "account",
+      participation.account.id,
+      "avatar",
+    ],
+    queryFn: () =>
+      Api.client()
+        .images()
+        .urlToData(`/avatars/${participation.account.id}.webp`),
+    retry: false,
+  });
 
   return (
     <li className="w-full" tabIndex={-1}>
@@ -44,7 +48,7 @@ export default function TeamMemberItem({ viewer, participation }: Props) {
           <Avatar
             className="!size-8"
             name={participation.account.name ?? ""}
-            avatar={avatar}
+            avatar={query.data}
           />
         </div>
         <div className="flex flex-col justify-start items-start flex-1 overflow-hidden">

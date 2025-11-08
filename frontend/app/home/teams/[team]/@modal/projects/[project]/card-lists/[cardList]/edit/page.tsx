@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { notFound } from "next/navigation";
 import CloseButtonParallelRoute from "@/components/CloseButtonParallelRoute";
 import EditCardListFormSection from "@/components/projects/forms/modals/EditCardListFormSection";
 import { Api } from "@/services/api";
@@ -12,11 +13,13 @@ export default async function EditCardListModal({
 
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
   const cardList = await Api.server()
     .cardLists()
-    .get(Number.parseInt(cardListId, 10));
+    .get(Number.parseInt(cardListId, 10))
+    .catch(() => notFound());
 
   return (
     <dialog open className="modal">

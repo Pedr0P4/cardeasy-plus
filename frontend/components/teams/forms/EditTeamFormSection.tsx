@@ -21,6 +21,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Role } from "@/services/participations";
 import type { Team, UpdateTeamData } from "@/services/teams";
+import { Toasts } from "@/services/toats";
 import Input from "../../Input";
 
 interface Props {
@@ -53,6 +54,7 @@ export default function EditTeamFormSection({
         .teams()
         .delete(team.id)
         .then(() => {
+          Toasts.success("Time apagado com sucesso!");
           queryClient.invalidateQueries({ queryKey: ["participations"] });
           queryClient.removeQueries({ queryKey: ["participations", team.id] });
           queryClient.removeQueries({
@@ -63,12 +65,8 @@ export default function EditTeamFormSection({
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -78,8 +76,9 @@ export default function EditTeamFormSection({
         .teams()
         .update(team.id, data)
         .then(() => {
+          Toasts.success("Time atualizado com sucesso!");
           queryClient.invalidateQueries({
-            queryKey: ["participations", team.id],
+            queryKey: ["participations"],
           });
           router.push(`/home/teams/${team.id}`);
         })
@@ -87,12 +86,8 @@ export default function EditTeamFormSection({
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

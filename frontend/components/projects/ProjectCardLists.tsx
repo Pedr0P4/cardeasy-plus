@@ -14,26 +14,33 @@ import {
   horizontalListSortingStrategy,
   SortableContext,
 } from "@dnd-kit/sortable";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FaPlus } from "react-icons/fa6";
+import { type ChangeEvent, useEffect, useRef, useState } from "react";
+import { FaBuffer, FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard";
 import handleCardInsertOverCardList from "@/utils/dragging/handleCardInsertOverCardList";
 import handleCardListDragStart from "@/utils/dragging/handleCardListDragStart";
 import handleCardListsInsert from "@/utils/dragging/handleCardListInsert";
+import Input from "../Input";
 import ProjectCardItem from "./ProjectCardItem";
 import ProjectCardListsItem from "./ProjectCardListsItem";
 
 interface Props {
   project: Project;
-  cardLists: CardList[];
   role: Role;
 }
 
@@ -60,8 +67,11 @@ export type MutateRequest = {
   request: () => void;
 } | null;
 
-export default function ProjectCardLists({ project, cardLists, role }: Props) {
+export default function ProjectCardLists({ project, role }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchCardQuery, setSearchCardQuery] = useState("");
   const [isMounted, setIsMounted] = useState(false);
+  const [searchType, setSearchType] = useState<"list" | "card">("card");
   const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
 
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
@@ -72,28 +82,29 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     initialData: project,
   });
 
-  const query = useQuery({
-    queryKey: ["projects", project.id, "card-lists"],
-    queryFn: () => Api.client().projects().cardList(project.id),
-    initialData: cardLists,
-  });
-
-  const cardsQuery = useQuery({
-    queryKey: ["projects", project.id, "cards"],
-    queryFn: () => Api.client().projects().cards(project.id),
-    initialData: [],
+  const query = useInfiniteQuery({
+    queryKey: ["projects", project.id, "cards-lists", `query-${searchQuery}`],
+    queryFn: ({ pageParam }) =>
+      Api.client().cardLists().search(project.id, pageParam, searchQuery),
+    getNextPageParam: (lastPageData) => {
+      if (lastPageData.page < lastPageData.lastPage) {
+        return lastPageData.page + 1;
+      }
+      return undefined;
+    },
+    select: (data) => {
+      return data.pages.flatMap((page) => page.items);
+    },
+    initialPageParam: 0,
+    initialData: {
+      pages: [],
+      pageParams: [],
+    },
   });
 
   const [data, setData] = useState<ProjectCardListsData>({
     cardsLists: query.data,
-    cards: cardsQuery.data.reduce(
-      (prev, cur) => {
-        prev[cur.cardList] = [...(prev[cur.cardList] ?? []), cur];
-
-        return prev;
-      },
-      {} as Record<number, Card[]>,
-    ),
+    cards: {},
   });
 
   const queryClient = useQueryClient();
@@ -110,14 +121,15 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       return await Api.client()
         .cardLists()
         .move(project, cardList, index)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: ["projects", project, "card-lists"],
+            queryKey: ["projects", project, "cards-lists"],
           });
         });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -134,14 +146,15 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
       return await Api.client()
         .cards()
         .move(cardList, card, index)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
           queryClient.invalidateQueries({
             queryKey: ["projects", project.id, "cards"],
           });
         });
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -154,36 +167,50 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     }),
   );
 
+  const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    const targetElement = loadMoreRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        if (
+          firstEntry.isIntersecting &&
+          query.hasNextPage &&
+          !query.isFetchingNextPage
+        ) {
+          query.fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    if (targetElement) {
+      observer.observe(targetElement);
+    }
+
+    return () => {
+      if (targetElement) {
+        observer.unobserve(targetElement);
+      }
+    };
+  }, [query]);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
   useEffect(() => {
-    if (
-      !query.isFetching &&
-      query.isSuccess &&
-      !cardsQuery.isFetching &&
-      cardsQuery.isSuccess
-    ) {
-      setData({
-        cards: cardsQuery.data.reduce(
-          (prev, cur) => {
-            prev[cur.cardList] = [...(prev[cur.cardList] ?? []), cur];
-            return prev;
-          },
-          {} as Record<number, Card[]>,
-        ),
+    if (!query.isFetching && query.isSuccess) {
+      setData((previous) => ({
+        cards: previous.cards,
         cardsLists: query.data,
-      });
+      }));
     }
-  }, [
-    query.data,
-    query.isFetching,
-    query.isSuccess,
-    cardsQuery.data,
-    cardsQuery.isFetching,
-    cardsQuery.isSuccess,
-  ]);
+  }, [query.data, query.isFetching, query.isSuccess]);
 
   const onDragStart = async (event: DragStartEvent) => {
     handleCardListDragStart(event, data, setOverlay);
@@ -340,37 +367,6 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
     }
   };
 
-  const content = (
-    <ul className="flex flex-1 flex-row gap-4">
-      {data.cardsLists.map((cardList) => {
-        return (
-          <ProjectCardListsItem
-            key={`card-list-${cardList.id}`}
-            project={projectQuery.data}
-            cardList={cardList}
-            cards={data.cards[cardList.id] ?? []}
-            role={role}
-          />
-        );
-      })}
-      {isAdmin && (
-        <li className="min-w-3xs min-h-[20rem] overflow-hidden">
-          <Link
-            href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
-            className={clsx(
-              "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
-              "items-center justify-center rounded-md px-6 py-4",
-              "font-bold text-lg",
-            )}
-          >
-            <FaPlus />
-            Criar nova coluna
-          </Link>
-        </li>
-      )}
-    </ul>
-  );
-
   if (isMounted)
     return (
       <DndContext
@@ -382,13 +378,96 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
         autoScroll={false}
       >
         <SortableContext
+          disabled={!!searchQuery && !!searchCardQuery}
           items={data.cardsLists.map((cardList) => `card-list-${cardList.id}`)}
           strategy={horizontalListSortingStrategy}
         >
-          <p className="-mt-1 mb-2 font-thin">
-            Segure, espere um pouco e depois arraste para mudar a ordem.
-          </p>
-          {content}
+          <div className="flex flex-col md:flex-row gap-4 mb-2 md:items-end">
+            {isAdmin && (
+              <Link
+                href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
+                className="btn btn-neutral"
+              >
+                <FaPlus />
+                Criar nova coluna
+              </Link>
+            )}
+            <Input
+              name="search"
+              type="text"
+              placeholder="Pesquisar por título ou descrição"
+              icon={FaMagnifyingGlass}
+              value={searchType === "list" ? searchQuery : searchCardQuery}
+              onChange={(e) =>
+                searchType === "list"
+                  ? setSearchQuery(e.target.value)
+                  : setSearchCardQuery(e.target.value)
+              }
+            />
+            <Input
+              name="search-type"
+              type="select"
+              placeholder="Tipo de pesquisa"
+              divClassName="md:max-w-54"
+              icon={FaBuffer}
+              value={searchType}
+              onChange={(e: ChangeEvent<HTMLSelectElement>) => {
+                setSearchType((previous) => {
+                  if (previous !== e.target.value) {
+                    if (previous === "list") {
+                      setSearchQuery((query) => {
+                        setSearchCardQuery(query);
+                        return "";
+                      });
+                    } else {
+                      setSearchCardQuery((query) => {
+                        setSearchQuery(query);
+                        return "";
+                      });
+                    }
+                  }
+
+                  return e.target.value as "list" | "card";
+                });
+              }}
+            >
+              <option key="list" value="list">
+                Pesquisa por coluna
+              </option>
+              <option key="card" value="card">
+                Pesquisa por cartão
+              </option>
+            </Input>
+          </div>
+          {!searchQuery && !searchCardQuery && data.cardsLists.length > 0 && (
+            <p className="-mt-1 mb-2 font-thin">
+              Segure, espere um pouco e depois arraste para mudar a ordem.
+            </p>
+          )}
+          <ul
+            className={clsx(
+              "flex min-w-full flex-row gap-4 overflow-x-auto",
+              "scrollbar scrollbar-thin scrollbar-thumb-base-content",
+              "scrollbar-track-base-200 pb-4",
+            )}
+          >
+            {data.cardsLists.map((cardList) => {
+              return (
+                <ProjectCardListsItem
+                  onFetch={setData}
+                  searchType={searchType}
+                  disabledSort={!!searchCardQuery}
+                  key={`card-list-${cardList.id}`}
+                  searchQuery={searchCardQuery}
+                  project={projectQuery.data}
+                  cardList={cardList}
+                  cards={data.cards[cardList.id] ?? []}
+                  role={role}
+                />
+              );
+            })}
+            <div ref={loadMoreRef} className="!size-1 bg-transparent" />
+          </ul>
           <DragOverlay dropAnimation={null}>
             {overlay &&
               (overlay.type === "card" ? (
@@ -400,6 +479,10 @@ export default function ProjectCardLists({ project, cardLists, role }: Props) {
                 />
               ) : (
                 <ProjectCardListsItem
+                  onFetch={setData}
+                  searchType={searchType}
+                  searchQuery={searchCardQuery}
+                  disabledSort={!!searchQuery && !!searchCardQuery}
                   project={projectQuery.data}
                   cardList={overlay.cardList}
                   cards={overlay.cards}

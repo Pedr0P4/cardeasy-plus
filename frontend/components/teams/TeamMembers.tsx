@@ -1,18 +1,22 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { FaMagnifyingGlass } from "react-icons/fa6";
 import { Api } from "@/services/api";
-import { type Participation, Role } from "@/services/participations";
+import type { Participation } from "@/services/participations";
+import Input from "../Input";
+import Pagination from "../Pagination";
 import TeamMemberItem from "./TeamMembersItem";
 
 interface Props {
   participation: Participation;
-  participations: Participation[];
 }
 
-const roles = [Role.OWNER, Role.ADMIN, Role.MEMBER];
+export default function TeamMembers({ participation }: Props) {
+  const [page, setPage] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
 
-export default function TeamMembers({ participation, participations }: Props) {
   const participationQuery = useQuery({
     queryKey: ["participations", participation.team.id, "me"],
     queryFn: async () =>
@@ -21,17 +25,37 @@ export default function TeamMembers({ participation, participations }: Props) {
   });
 
   const query = useQuery({
-    queryKey: ["participations", participation.team.id],
-    queryFn: async () =>
-      Api.client().teams().participations(participation.team.id),
-    initialData: participations,
+    queryKey: [
+      "participations",
+      participation.team.id,
+      `page-${page}`,
+      `query-${searchQuery}`,
+    ],
+    queryFn: () =>
+      Api.client()
+        .participations()
+        .search(participation.team.id, page, searchQuery),
+    initialData: {
+      items: [],
+      page,
+      lastPage: -1,
+      total: 0,
+    },
   });
 
   return (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {query.data
-        .sort((a, b) => roles.indexOf(a.role) - roles.indexOf(b.role))
-        .map((participation) => {
+    <>
+      <Input
+        name="search"
+        type="text"
+        className="mb-4"
+        placeholder="Pesquisar por nome ou email"
+        icon={FaMagnifyingGlass}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+      />
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {query.data.items.map((participation) => {
           return (
             <TeamMemberItem
               key={`${participation.team.id}-${participation.account.id}`}
@@ -40,6 +64,12 @@ export default function TeamMembers({ participation, participations }: Props) {
             />
           );
         })}
-    </ul>
+      </ul>
+      <Pagination
+        current={page}
+        last={query.data.lastPage}
+        onChange={setPage}
+      />
+    </>
   );
 }

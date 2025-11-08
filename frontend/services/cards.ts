@@ -42,4 +42,12 @@ export class CardsService extends Service {
       index,
     });
   }
+
+  async search(cardList: number, page: number = 0, query: string = "") {
+    return this.api
+      .get<Page<Card>>(
+        `/cards/search?list=${cardList}&page=${page}&query=${query}`,
+      )
+      .then((res) => res.data);
+  }
 }

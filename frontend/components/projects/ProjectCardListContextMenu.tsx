@@ -6,8 +6,10 @@ import Link from "next/link";
 import { useState } from "react";
 import { FaGear, FaPenRuler, FaTrash } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 
 interface Props {
   project: Project;
@@ -25,25 +27,28 @@ export default function ProjectCardListContextMenu({
       return await Api.client()
         .cardLists()
         .delete(cardList.id)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
+          Toasts.success("Coluna apagada com sucesso!");
+
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "card-lists"],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
 
           queryClient.removeQueries({
             queryKey: [
               "projects",
               project.id,
-              "card-lists",
+              "cards-lists",
               cardList.id,
               "cards",
             ],
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

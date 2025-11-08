@@ -4,9 +4,12 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ufrn.imd.cardeasy.errors.AccountNotFound;
+import ufrn.imd.cardeasy.errors.AlreadyInTeam;
 import ufrn.imd.cardeasy.errors.ParticipationNotFound;
 import ufrn.imd.cardeasy.errors.TeamNotFound;
 import ufrn.imd.cardeasy.models.Account;
@@ -71,9 +74,18 @@ public class TeamsService {
       .orElseThrow(TeamNotFound::new);
   };
 
-  public List<Team> findAllByAccount(UUID accountId) {
-    return this.teams.findAllByAccount(accountId);
+  public Page<Team> searchAllByAccount(
+    UUID accountId,
+    String query,
+    Pageable page
+  ) {
+    return this.teams.searchAllByAccount(
+      accountId,
+      query,
+      page
+    );
   };
+
 
   public Team update(
     UUID id, 
@@ -133,6 +145,14 @@ public class TeamsService {
       .orElseThrow(AccountNotFound::new);
     
     Team team = this.findByCode(code);
+
+    Boolean alreadyInTeam = this.participations.findByAccountAndTeam(
+      accountId,
+      team.getId()
+    ).isPresent();
+
+    if(alreadyInTeam) 
+      throw new AlreadyInTeam();
 
     ParticipationId participationId = new ParticipationId();
     Participation participation = new Participation();

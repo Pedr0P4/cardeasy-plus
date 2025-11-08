@@ -23,6 +23,15 @@ public class DatabaseConfig {
   @Value("${spring.datasource.password}")
   private String password;
 
+  @Value("${spring.datasource.pool.size.max:#{10}}")
+  private Integer maxPoolSize;
+
+  @Value("${spring.datasource.pool.size.idle:#{2}}")
+  private Integer idlePoolSize;
+
+   @Value("${spring.datasource.pool.name:#{'datasource-poll'}}")
+  private String poolName;
+
   @Bean
   public DataSource dataSource() {
     HikariConfig config = new HikariConfig();
@@ -30,9 +39,9 @@ public class DatabaseConfig {
     config.setDriverClassName(this.driver);
     config.setUsername(this.username);
     config.setPassword(this.password);
-    config.setMaximumPoolSize(10);
-    config.setMinimumIdle(2);
-    config.setPoolName("h2-pool");
+    config.setMaximumPoolSize(this.maxPoolSize);
+    config.setMinimumIdle(this.idlePoolSize);
+    config.setPoolName(this.poolName);
 
     return new HikariDataSource(config);
   };

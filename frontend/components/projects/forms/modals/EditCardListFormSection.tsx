@@ -15,6 +15,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList, UpdateCardListData } from "@/services/cardLists";
 import type { Project } from "@/services/projects";
+import { Toasts } from "@/services/toats";
 import Input from "../../../Input";
 
 interface Props {
@@ -38,20 +39,23 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
         .cardLists()
         .delete(cardList.id)
         .then(() => {
+          Toasts.success("Coluna apagada com sucesso!");
+
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "card-lists"],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
 
           queryClient.removeQueries({
-            queryKey: ["projects", project.id, "card-lists", cardList.id],
+            queryKey: ["projects", project.id, "cards-lists", cardList.id],
           });
 
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
+        })
+        .catch((err: ApiErrorResponse) => {
+          if (err.isErrorResponse()) setError(err.error);
+          else setError("erro inesperado");
+        })
+        .finally(() => setIsLoading(false));
     },
   });
 
@@ -61,12 +65,10 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
         .cardLists()
         .update(cardList.id, data)
         .then(() => {
-          queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "card-lists"],
-          });
+          Toasts.success("Coluna atualizada com sucesso!");
 
           queryClient.invalidateQueries({
-            queryKey: ["projects", project.id, "card-lists", cardList.id],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
 
           router.push(`/home/teams/${project.team}/projects/${project.id}`);
@@ -75,12 +77,8 @@ export default function EditCardListFormSection({ project, cardList }: Props) {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
-        });
-    },
-    onError: (error) => {
-      console.log(error);
-      setIsLoading(false);
+        })
+        .finally(() => setIsLoading(false));
     },
   });
 

@@ -13,9 +13,11 @@ import {
   FaTrash,
 } from "react-icons/fa6";
 import { Api } from "@/services/api";
+import type { ApiErrorResponse } from "@/services/base/axios";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import { type Stage, StageState } from "@/services/stages";
+import { Toasts } from "@/services/toats";
 
 interface Props {
   project: Project;
@@ -37,15 +39,17 @@ export default function ProjectStageContextMenu({
       return await Api.client()
         .stages()
         .delete(stage.id)
+        .catch((error: ApiErrorResponse) => {
+          if (error.isErrorResponse()) Toasts.error(error.error);
+          else Toasts.error("Erro inesperado!");
+        })
         .then(() => {
+          Toasts.success("Etapa apagada com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["projects", project.id, "stages"],
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -61,14 +65,12 @@ export default function ProjectStageContextMenu({
           expectedStartIn: stage.expectedStartIn,
         })
         .then(() => {
+          Toasts.success("Estado da etapa atualizada com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["projects", project.id, "stages"],
           });
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

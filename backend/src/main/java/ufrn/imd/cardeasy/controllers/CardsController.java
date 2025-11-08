@@ -1,8 +1,9 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,14 +14,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.card.CardDTO;
 import ufrn.imd.cardeasy.dtos.card.CreateCardDTO;
 import ufrn.imd.cardeasy.dtos.card.UpdateCardDTO;
+import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Card;
+import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.CardsService;
@@ -128,38 +133,29 @@ public class CardsController {
   };
 
   @Authenticate
-  @GetMapping("/card-list/{id}")
-  public ResponseEntity<List<CardDTO>> findAllByCardList(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<CardDTO>> searchAllByCardList(
     @AuthenticationPrincipal Account account,
-    @PathVariable Integer id
+    @RequestParam(name = "list", required = true) Integer cardListId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
     this.participations.checkCardListAccess(
-      account.getId(), 
-      id
+      account.getId(),
+      cardListId
     );
 
-    List<Card> cards = this.cards.findAllByCardList(id);
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+
+    Page<Card> cards = this.cards.searchAllByCardList(
+      cardListId,
+      query,
+      pageable
+    );
     
     return ResponseEntity.ok(
-      CardDTO.from(cards)
-    );
-  };
-
-  @Authenticate
-  @GetMapping("/project/{id}")
-  public ResponseEntity<List<CardDTO>> findAllByProject(
-    @AuthenticationPrincipal Account account,
-    @PathVariable Integer id
-  ) {
-    this.participations.checkProjectAccess(
-      account.getId(), 
-      id
-    );
-
-    List<Card> cards = this.cards.findAllByProject(id);
-    
-    return ResponseEntity.ok(
-      CardDTO.from(cards)
+      PageDTO.from(cards, CardDTO::from)
     );
   };
 };

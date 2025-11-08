@@ -14,6 +14,7 @@ import {
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { Team } from "@/services/teams";
+import { Toasts } from "@/services/toats";
 import Input from "../../Input";
 
 interface Props {
@@ -37,6 +38,7 @@ export default function InviteCodeTeamFormSection({
         .teams()
         .deleteCode(team.id as UUID)
         .then(() => {
+          Toasts.success("Codigo apagado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", team.id],
           });
@@ -45,12 +47,8 @@ export default function InviteCodeTeamFormSection({
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 
@@ -60,6 +58,7 @@ export default function InviteCodeTeamFormSection({
         .teams()
         .generateCode(team.id as UUID)
         .then(() => {
+          Toasts.success("Codigo gerado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", team.id],
           });
@@ -68,12 +67,8 @@ export default function InviteCodeTeamFormSection({
         .catch((err: ApiErrorResponse) => {
           if (err.isErrorResponse()) setError(err.error);
           else setError("erro inesperado");
-          throw err;
         })
         .finally(() => setIsLoading(false));
-    },
-    onError: (error) => {
-      console.log(error);
     },
   });
 

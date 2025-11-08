@@ -1,6 +1,8 @@
 package ufrn.imd.cardeasy.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -12,8 +14,6 @@ import ufrn.imd.cardeasy.models.CardList;
 import ufrn.imd.cardeasy.models.Project;
 import ufrn.imd.cardeasy.repositories.CardListsRepository;
 import ufrn.imd.cardeasy.repositories.ProjectsRepository;
-
-import java.util.List;
 
 @Service
 public class CardListsService {
@@ -29,6 +29,7 @@ public class CardListsService {
     this.cardLists = cardLists;
   };
 
+  @Transactional
   public CardList create(Integer projectId, String title) {
     Project project = projects.findById(projectId)
       .orElseThrow(ProjectNotFound::new);
@@ -39,7 +40,7 @@ public class CardListsService {
     
     if(interval.min() > 1) 
       cardList.setIndex(interval.min() - 1);
-    else 
+    else
       cardList.setIndex(interval.max() + 1);
 
     cardList.setTitle(title);
@@ -49,8 +50,16 @@ public class CardListsService {
     return cardList;
   };
 
-  public List<CardList> findAllByProject(Integer projectId) {
-    return this.cardLists.findAllByProject(projectId);
+  public Page<CardList> searchAllByProject(
+    Integer projectId, 
+    String query, 
+    Pageable pageable
+  ) {
+    return this.cardLists.searchAllByProject(
+      projectId,
+      query,
+      pageable
+    );
   };
 
   public CardList findById(Integer id) {
@@ -67,7 +76,10 @@ public class CardListsService {
     return cardList;
   };
 
+  @Transactional
   public void deleteById(Integer id) {
+    CardList cardList = this.findById(id);
+    this.cardLists.shiftUp(cardList.getProject().getId(), cardList.getIndex());
     this.cardLists.deleteById(id);
   };
 

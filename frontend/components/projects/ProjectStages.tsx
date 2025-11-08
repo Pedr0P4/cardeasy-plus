@@ -1,22 +1,24 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import clsx from "clsx";
 import Link from "next/link";
-import { FaPlus } from "react-icons/fa6";
+import { useState } from "react";
+import { FaMagnifyingGlass, FaPlus } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
-import type { Stage } from "@/services/stages";
+import Input from "../Input";
+import Pagination from "../Pagination";
 import ProjectStageItem from "./ProjectStageItem";
 
 interface Props {
   project: Project;
-  stages: Stage[];
   role: Role;
 }
 
-export default function ProjectStages({ project, stages, role }: Props) {
+export default function ProjectStages({ project, role }: Props) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(0);
   const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
 
   const projectQuery = useQuery({
@@ -26,38 +28,62 @@ export default function ProjectStages({ project, stages, role }: Props) {
   });
 
   const query = useQuery({
-    queryKey: ["projects", project.id, "stages"],
-    queryFn: () => Api.client().projects().stages(projectQuery.data.id),
-    initialData: stages,
+    queryKey: [
+      "projects",
+      project.id,
+      "stages",
+      `page-${page}`,
+      `query-${searchQuery}`,
+    ],
+    queryFn: () =>
+      Api.client().stages().search(projectQuery.data.id, page, searchQuery),
+    initialData: {
+      items: [],
+      page,
+      lastPage: -1,
+      total: 0,
+    },
   });
 
   return (
-    <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {query.data.map((stage) => {
-        return (
-          <ProjectStageItem
-            key={`stage-${stage.id}`}
-            project={projectQuery.data}
-            stage={stage}
-            role={role}
-          />
-        );
-      })}
-      {isAdmin && (
-        <li className="w-full">
+    <>
+      <div className="flex flex-col md:flex-row gap-4 mb-4 md:items-end">
+        {isAdmin && (
           <Link
             href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/stages/create`}
-            className={clsx(
-              "btn btn-soft btn-neutral min-h-22 flex h-full flex-row",
-              "items-center justify-center rounded-md px-6 py-4",
-              "font-bold text-lg",
-            )}
+            className="btn btn-neutral"
           >
             <FaPlus />
             Criar nova etapa
           </Link>
-        </li>
-      )}
-    </ul>
+        )}
+        <Input
+          name="search"
+          type="text"
+          placeholder="Pesquisar por título ou descrição"
+          icon={FaMagnifyingGlass}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        {query.data.items.map((stage) => {
+          return (
+            <ProjectStageItem
+              key={`stage-${stage.id}`}
+              project={projectQuery.data}
+              stage={stage}
+              role={role}
+            />
+          );
+        })}
+      </ul>
+      <Pagination
+        className="outline outline-2 rounded-lg outline-base-100"
+        current={page}
+        last={query.data.lastPage}
+        onChange={setPage}
+      />
+    </>
   );
 }

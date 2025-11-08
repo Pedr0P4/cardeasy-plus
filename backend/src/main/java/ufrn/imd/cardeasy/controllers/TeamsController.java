@@ -1,8 +1,10 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,11 +15,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
-import ufrn.imd.cardeasy.dtos.project.ProjectDTO;
+import ufrn.imd.cardeasy.dtos.PageDTO;
+import ufrn.imd.cardeasy.dtos.participation.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.MoveProjectDTO;
@@ -69,20 +72,6 @@ public class TeamsController {
   };
 
   @Authenticate
-  @GetMapping
-  public ResponseEntity<List<ParticipationDTO>> findAllParticipationsByAccount(
-    @AuthenticationPrincipal Account account
-  ) {
-    List<Participation> participations = this.participations.findAllByAccount(
-      account.getId()
-    );
-
-    return ResponseEntity.ok(
-      ParticipationDTO.from(participations)
-    );
-  };
-
-  @Authenticate
   @GetMapping("/{id}")
   public ResponseEntity<ParticipationDTO> findById(
     @AuthenticationPrincipal Account account,
@@ -101,38 +90,23 @@ public class TeamsController {
   };
 
   @Authenticate
-  @GetMapping("/{id}/participations")
-  public ResponseEntity<List<ParticipationDTO>> findAllParticipationsById(
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<TeamDTO>> searchAllByAccount(
     @AuthenticationPrincipal Account account,
-    @PathVariable UUID id
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
-    Team team = this.teams.findById(id);
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
 
-    this.participations.checkAccess(
-      account.getId(), 
-      id
+    Page<Team> teams = this.teams.searchAllByAccount(
+      account.getId(),
+      query,
+      pageable
     );
 
     return ResponseEntity.ok(
-      ParticipationDTO.from(team)
-    );
-  };
-
-  @Authenticate
-  @GetMapping("/{id}/projects")
-  public ResponseEntity<List<ProjectDTO>> findAllProjectsById(
-    @AuthenticationPrincipal Account account,
-    @PathVariable UUID id
-  ) {
-    this.teams.existsById(id);
-
-    Participation participation = this.participations.checkAccess(
-      account.getId(), 
-      id
-    );
-
-    return ResponseEntity.ok(
-      ProjectDTO.from(participation.getTeam().getProjects())
+      PageDTO.from(teams, TeamDTO::from)
     );
   };
 

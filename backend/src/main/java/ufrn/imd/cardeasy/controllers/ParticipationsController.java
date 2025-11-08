@@ -1,9 +1,11 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,13 +14,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
-import ufrn.imd.cardeasy.dtos.participations.DeleteParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.ExitParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.UpdateParticipationDTO;
+import ufrn.imd.cardeasy.dtos.PageDTO;
+import ufrn.imd.cardeasy.dtos.participation.DeleteParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.ExitParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.ParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.UpdateParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.security.Authenticate;
@@ -44,17 +48,32 @@ public class ParticipationsController {
     this.accounts = accounts;
   };
 
-  @Authenticate
-  @GetMapping
-  public ResponseEntity<List<ParticipationDTO>> findAll(
-    @AuthenticationPrincipal Account account
+   @Authenticate
+  @GetMapping("/search")
+  public ResponseEntity<PageDTO<ParticipationDTO>> searchAllParticipationsByTeam(
+    @AuthenticationPrincipal Account account,
+    @RequestParam(name = "team", required = true) UUID teamId,
+    @RequestParam(name = "query", defaultValue = "") String query,
+    @RequestParam(name = "page", defaultValue = "0") Integer page,
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
-    List<Participation> participations = this.participations.findAllByAccount(
-      account.getId()
+    this.teams.existsById(teamId);
+
+    this.participations.checkAccess(
+      account.getId(), 
+      teamId
+    );
+
+    Pageable pageable = PageRequest.of(page, itemsPerPage);
+    
+    Page<Participation> participations = this.participations.searchAllByTeam(
+      teamId, 
+      query, 
+      pageable
     );
 
     return ResponseEntity.ok(
-      ParticipationDTO.from(participations)
+      PageDTO.from(participations, ParticipationDTO::from)
     );
   };
 

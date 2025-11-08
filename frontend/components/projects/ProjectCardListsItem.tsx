@@ -6,21 +6,29 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
+import { type Dispatch, type SetStateAction, useEffect, useRef } from "react";
 import { FaPlus } from "react-icons/fa6";
+import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
 import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import ProjectCardItem from "./ProjectCardItem";
 import ProjectCardListContextMenu from "./ProjectCardListContextMenu";
+import type { ProjectCardListsData } from "./ProjectCardLists";
 
 interface Props {
   project: Project;
   cardList: CardList;
   role: Role;
   cards: Card[];
+  disabledSort?: boolean;
+  searchQuery: string;
+  onFetch?: Dispatch<SetStateAction<ProjectCardListsData>>;
+  searchType: "list" | "card";
 }
 
 export default function ProjectCardListsItem({
@@ -28,6 +36,10 @@ export default function ProjectCardListsItem({
   project,
   role,
   cards,
+  disabledSort,
+  searchQuery,
+  onFetch,
+  searchType,
 }: Props) {
   const {
     attributes,
@@ -38,6 +50,77 @@ export default function ProjectCardListsItem({
     isDragging,
   } = useSortable({ id: `card-list-${cardList.id}` });
 
+  const query = useInfiniteQuery({
+    queryKey: [
+      "projects",
+      project.id,
+      "cards-lists",
+      cardList.id,
+      "cards",
+      `query-${searchQuery}`,
+    ],
+    queryFn: ({ pageParam }) =>
+      Api.client().cards().search(cardList.id, pageParam, searchQuery),
+    getNextPageParam: (lastPageData) => {
+      if (lastPageData.page < lastPageData.lastPage) {
+        return lastPageData.page + 1;
+      }
+      return undefined;
+    },
+    select: (data) => {
+      return data.pages.flatMap((page) => page.items);
+    },
+    initialPageParam: 0,
+    initialData: {
+      pages: [],
+      pageParams: [],
+    },
+  });
+
+  const loadMoreRef = useRef(null);
+
+  useEffect(() => {
+    const targetElement = loadMoreRef.current;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const firstEntry = entries[0];
+        if (
+          firstEntry.isIntersecting &&
+          query.hasNextPage &&
+          !query.isFetchingNextPage
+        ) {
+          query.fetchNextPage();
+        }
+      },
+      {
+        threshold: 0.5,
+      },
+    );
+
+    if (targetElement) {
+      observer.observe(targetElement);
+    }
+
+    return () => {
+      if (targetElement) {
+        observer.unobserve(targetElement);
+      }
+    };
+  }, [query]);
+
+  useEffect(() => {
+    if (!query.isFetching && query.isSuccess && onFetch) {
+      onFetch((previous) => ({
+        cards: {
+          ...previous.cards,
+          [cardList.id]: query.data,
+        },
+        cardsLists: previous.cardsLists,
+      }));
+    }
+  }, [onFetch, query.data, query.isFetching, query.isSuccess, cardList.id]);
+
   return (
     <li
       ref={ref}
@@ -46,9 +129,10 @@ export default function ProjectCardListsItem({
         transition,
       }}
       className={clsx(
-        "relative min-w-3xs max-w-4xs min-h-[20rem] overflow-hidden",
+        "relative min-w-2xs max-w-sm min-h-[20rem] overflow-hidden",
         isDragging && "z-10",
         isDragging && "opacity-40",
+        searchType === "card" && cards.length <= 0 && !!searchQuery && "hidden",
       )}
       {...attributes}
       tabIndex={-1}
@@ -76,6 +160,7 @@ export default function ProjectCardListsItem({
           id={`cards-${cardList.id}`}
           items={cards.map((card) => `card-${card.id}`)}
           strategy={verticalListSortingStrategy}
+          disabled={disabledSort}
         >
           <ul className="flex flex-1 flex-col w-full gap-1">
             {cards.map((card) => {
@@ -89,6 +174,7 @@ export default function ProjectCardListsItem({
                 />
               );
             })}
+            <div ref={loadMoreRef} className="!size-1 bg-transparent" />
           </ul>
         </SortableContext>
         <Link

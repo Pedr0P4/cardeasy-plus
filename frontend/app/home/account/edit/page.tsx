@@ -21,6 +21,7 @@ import Input from "@/components/Input";
 import type { EditAccountData } from "@/services/accounts";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import { Toasts } from "@/services/toats";
 import { useAccount } from "@/stores/useAccount";
 
 export default function EditAccountPage() {
@@ -60,7 +61,10 @@ export default function EditAccountPage() {
           return false;
         });
 
-      if (success) redirect("/home");
+      if (success) {
+        Toasts.success("Alterações salvas com sucesso!");
+        redirect("/home");
+      }
     });
   };
 

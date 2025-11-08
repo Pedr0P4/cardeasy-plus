@@ -1,4 +1,10 @@
 package ufrn.imd.cardeasy.dtos.tag;
 
-public record UpdateTagDTO(String content) {
-}
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
+public record UpdateTagDTO(
+  @NotBlank
+  @Size(min = 3, max = 30)
+  String content
+) {};

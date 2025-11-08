@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class ProjectsService {
     this.teams = teams;
   };
 
+  @Transactional
   public Project create(
     UUID teamId, 
     String title, 
@@ -42,19 +45,14 @@ public class ProjectsService {
     Team team = this.teams.findById(teamId)
       .orElseThrow(TeamNotFound::new);
 
-    IntervalDTO interval = this.projects.getIndexIntervalByTeam(teamId);
-
     Project project = new Project();
     
-    if(interval.min() > 1) 
-      project.setIndex(interval.min() - 1);
-    else 
-      project.setIndex(interval.max() + 1);
-    
+    project.setIndex(0l);
     project.setTeam(team);
     project.setTitle(title);
     project.setDescription(description);
 
+    this.projects.shiftDown(teamId, 0l);
     this.projects.save(project);
 
     return project;
@@ -65,9 +63,18 @@ public class ProjectsService {
       .orElseThrow(ProjectNotFound::new);
   };
 
-  public List<Project> findAllByAccount(UUID accountId) {
-    return this.projects.findAllByAccount(accountId);
+  public Page<Project> searchAllByTeam(
+    UUID teamId,
+    String query,
+    Pageable pageable
+  ) {
+    return this.projects.searchAllByTeam(
+      teamId, 
+      query, 
+      pageable
+    );
   };
+
 
   public Project update(
     Integer id, 
@@ -85,7 +92,8 @@ public class ProjectsService {
 
   @Transactional
   public void deleteById(Integer id) {
-    this.existsById(id);
+    Project project = this.findById(id);
+    this.projects.shiftUp(project.getTeam().getId(), project.getIndex());
     this.budgets.deleteByProject(id);
     this.projects.deleteById(id);
   };

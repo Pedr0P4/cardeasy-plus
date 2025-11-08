@@ -1,12 +1,11 @@
 package ufrn.imd.cardeasy.services;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.errors.CardListNotFound;
 import ufrn.imd.cardeasy.errors.CardNotFound;
 import ufrn.imd.cardeasy.models.Card;
@@ -28,6 +27,7 @@ public class CardsService {
     this.cards = cards;
   };
 
+  @Transactional
   public Card create(
     Integer cardListId,
     String title,
@@ -36,19 +36,14 @@ public class CardsService {
     CardList list = cardLists.findById(cardListId)
       .orElseThrow(CardListNotFound::new);
 
-    IntervalDTO interval = this.cards.getIndexIntervalByCardList(cardListId);
-
     Card card = new Card();
     
-    if(interval.min() > 1) 
-      card.setIndex(interval.min() - 1);
-    else 
-      card.setIndex(interval.max() + 1);
-    
+    card.setIndex(0l);
     card.setTitle(title);
     card.setList(list);
     card.setDescription(description);
 
+    this.cards.shiftDown(cardListId, 0l);
     this.cards.save(card);
 
     return card;
@@ -70,16 +65,19 @@ public class CardsService {
     return card;
   };
 
+  public Page<Card> searchAllByCardList(
+    Integer cardListId, 
+    String query, 
+    Pageable pageable
+  ) {
+    return this.cards.searchAllByCardList(cardListId, query, pageable);
+  };
+
+  @Transactional
   public void deleteById(Integer id) {
+    Card card = this.findById(id);
+    this.cards.shiftUp(card.getList().getId(), card.getIndex());
     this.cards.deleteById(id);
-  };
-
-  public List<Card> findAllByCardList(Integer cardListId) {
-    return this.cards.findAllByCardList(cardListId);
-  };
-
-  public List<Card> findAllByProject(Integer projectId) {
-    return this.cards.findAllByProject(projectId);
   };
 
   public Card findById(Integer id) {

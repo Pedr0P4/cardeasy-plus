@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import type { UUID } from "crypto";
+import { notFound } from "next/navigation";
 import {
   FaCalendarDays,
   FaGear,
@@ -27,14 +28,15 @@ export default async function ProjectPage({
 }>) {
   const { team: teamId, project: projectId } = await params;
 
-  const participation = await Api.server().participations().get(teamId);
+  const participation = await Api.server()
+    .participations()
+    .get(teamId)
+    .catch(() => notFound());
+
   const project = await Api.server()
     .projects()
-    .get(Number.parseInt(projectId, 10));
-
-  const stages = await Api.server().projects().stages(project.id);
-
-  const cardLists = await Api.server().projects().cardList(project.id);
+    .get(Number.parseInt(projectId, 10))
+    .catch(() => notFound());
 
   const isAdmin = [Role.OWNER, Role.ADMIN].includes(participation.role);
 
@@ -79,27 +81,13 @@ export default async function ProjectPage({
           </AccordionContext>
         </section>
         <Tab name="cards">
-          <section
-            className={clsx(
-              "w-full flex flex-1 flex-col gap-2 p-6 overflow-x-auto",
-              "scrollbar scrollbar-thin scrollbar-thumb-base-content",
-              "scrollbar-track-base-200",
-            )}
-          >
-            <ProjectCardLists
-              project={project}
-              role={participation.role}
-              cardLists={cardLists}
-            />
+          <section className={clsx("w-full flex flex-1 flex-col gap-2 p-6")}>
+            <ProjectCardLists project={project} role={participation.role} />
           </section>
         </Tab>
         <Tab name="stages">
           <section className="w-full flex flex-col gap-2 p-6">
-            <ProjectStages
-              project={project}
-              role={participation.role}
-              stages={stages}
-            />
+            <ProjectStages project={project} role={participation.role} />
           </section>
         </Tab>
         {isAdmin && (

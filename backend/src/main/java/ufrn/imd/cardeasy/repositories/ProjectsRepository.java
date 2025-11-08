@@ -3,12 +3,13 @@ package ufrn.imd.cardeasy.repositories;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import ufrn.imd.cardeasy.dtos.IntervalDTO;
 import ufrn.imd.cardeasy.models.Project;
 
 @Repository
@@ -27,31 +28,31 @@ extends JpaRepository<Project, Integer> {
     UUID teamId,
     Integer id
   );
-
-  @Query(
-    // language=sql
-    value = """
-      SELECT COALESCE(MIN(pj.index), 0) AS min, 
-      COALESCE(MAX(pj.index), 0) AS max 
-      FROM project AS pj
-      WHERE pj.team_id = ?1
-    """,
-    nativeQuery = true
-  ) public IntervalDTO getIndexIntervalByTeam(
-    UUID teamId
-  );
-
+  
   @Query(
     // language=sql
     value = """
       SELECT pj.* FROM project AS pj
-      JOIN participation AS pt
-      ON pt.team_id = pj.team_id
-      WHERE pt.account_id = ?1
+      WHERE pj.team_id = ?1 
+      AND (
+        (pj.title LIKE CONCAT('%', ?2, '%'))
+        OR (pj.description LIKE CONCAT('%', ?2, '%'))
+      ) ORDER BY pj.index ASC
+    """,
+    // language=sql
+    countQuery = """
+      SELECT COUNT(pj.id) FROM project AS pj
+      WHERE pj.team_id = ?1 
+      AND (
+        (pj.title LIKE CONCAT('%', ?2, '%'))
+        OR (pj.description LIKE CONCAT('%', ?2, '%'))
+      )
     """,
     nativeQuery = true
-  ) public List<Project> findAllByAccount(
-    UUID accountId
+  ) public Page<Project> searchAllByTeam(
+    UUID teamId, 
+    String query, 
+    Pageable pageable
   );
 
   @Modifying
@@ -95,7 +96,7 @@ extends JpaRepository<Project, Integer> {
       BETWEEN ?2 AND ?3
     """,
     nativeQuery = true
-  ) void shiftIndices(
+  ) public void shiftIndices(
     UUID tramId, 
     Long startIndex, 
     Long endIndex, 

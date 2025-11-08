@@ -17,8 +17,9 @@ import {
 } from "react-icons/fa6";
 import Input from "@/components/Input";
 import type { LoginData } from "@/services/accounts";
+import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
-import { Api } from "../../services/api";
+import { Toasts } from "@/services/toats";
 
 export default function LoginPage() {
   const params = useSearchParams();
@@ -44,7 +45,10 @@ export default function LoginPage() {
           return false;
         });
 
-      if (success) redirect("/home");
+      if (success) {
+        Toasts.success("Login realizado com sucesso!");
+        redirect("/home");
+      }
     });
   };
 

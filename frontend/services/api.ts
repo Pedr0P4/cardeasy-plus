@@ -9,6 +9,7 @@ import {
   setCookie as setServerCookie,
 } from "cookies-next/server";
 import { AccountsService } from "./accounts";
+import { AssignmentsService } from "./assignments";
 import { Axios } from "./base/axios";
 import { client } from "./base/client";
 import { BudgetsService } from "./budgets";
@@ -18,6 +19,7 @@ import { ImagesService } from "./image";
 import { ParticipationsService } from "./participations";
 import { ProjectsService } from "./projects";
 import { StagesService } from "./stages";
+import { TagsService } from "./tags";
 import { TeamsService } from "./teams";
 
 export class Api {
@@ -121,6 +123,22 @@ export class Api {
 
   public cards() {
     return new CardsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public assignments() {
+    return new AssignmentsService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public tags() {
+    return new TagsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,
