@@ -4,7 +4,13 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { useState } from "react";
-import { FaGear, FaPenRuler, FaTrash } from "react-icons/fa6";
+import {
+  FaBookmark,
+  FaGear,
+  FaPenRuler,
+  FaTrash,
+  FaUserGroup,
+} from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
@@ -79,6 +85,24 @@ export default function ProjectCardContextMenu({
           >
             <FaPenRuler />
             Editar cartão
+          </Link>
+        </li>
+        <li>
+          <Link
+            onClick={(e) => e.currentTarget.blur()}
+            href={`/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/${card.id}/assignments`}
+          >
+            <FaUserGroup />
+            Editar atribuições
+          </Link>
+        </li>
+        <li>
+          <Link
+            onClick={(e) => e.currentTarget.blur()}
+            href={`/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/${card.id}/tags`}
+          >
+            <FaBookmark />
+            Editar etiquetas
           </Link>
         </li>
         <li>

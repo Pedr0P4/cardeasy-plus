@@ -110,7 +110,7 @@ public class TagsController {
 
     Pageable pageable = PageRequest.of(page, itemsPerPage);
 
-    Page<Tag> tags = this.tags.searchAllByProject( 
+    Page<TagDTO> tags = this.tags.searchAllByProject( 
       projectId,
       cardId,
       query,
@@ -118,7 +118,7 @@ public class TagsController {
     );
 
     return ResponseEntity.ok(
-      PageDTO.from(tags, TagDTO::from)
+      PageDTO.from(tags)
     );
   };
   

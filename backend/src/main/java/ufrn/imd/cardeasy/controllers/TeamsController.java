@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
-import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.ParticipationDTO;
 import ufrn.imd.cardeasy.dtos.team.CreateTeamDTO;
 import ufrn.imd.cardeasy.dtos.team.GeneratedCodeDTO;
 import ufrn.imd.cardeasy.dtos.team.MoveProjectDTO;

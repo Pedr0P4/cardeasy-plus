@@ -2,25 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Image from "next/image";
 import { Api } from "@/services/api";
-import type { Participation } from "@/services/participations";
+import type { Assignment } from "@/services/assignments";
 
 interface Props {
-  participation: Participation;
+  assignment: Assignment;
 }
 
-export default function AssingmentsAvatar({ participation }: Props) {
+export default function AssingmentsAvatar({ assignment }: Props) {
   const query = useQuery({
     queryKey: [
       "participations",
-      participation.team.id,
+      assignment.team,
       "account",
-      participation.account.id,
+      assignment.account,
       "avatar",
     ],
     queryFn: () =>
-      Api.client()
-        .images()
-        .urlToData(`/avatars/${participation.account.id}.webp`),
+      Api.client().images().urlToData(`/avatars/${assignment.account}.webp`),
+    retry: false,
   });
 
   return (
@@ -41,8 +40,8 @@ export default function AssingmentsAvatar({ participation }: Props) {
           />
         ) : (
           <span className="text-sm">
-            {participation.account.name.length > 0
-              ? participation.account.name[0].toUpperCase()
+            {assignment.name.length > 0
+              ? assignment.name[0].toUpperCase()
               : "U"}
           </span>
         )}

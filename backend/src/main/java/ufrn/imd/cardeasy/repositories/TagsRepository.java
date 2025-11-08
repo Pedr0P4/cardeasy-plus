@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import ufrn.imd.cardeasy.dtos.tag.TagDTO;
 import ufrn.imd.cardeasy.models.Tag;
 
 @Repository
@@ -17,13 +18,13 @@ extends JpaRepository<Tag, Integer> {
   @Query(
     // language=sql
     value = """
-      SELECT tg.* FROM tag AS tg
+      SELECT tg.*, MAX(tc.card_id = :cardId) AS used FROM tag AS tg
       JOIN tag_card AS tc
       ON tc.tag_id = tg.id
       WHERE tg.project_id = :projectId
       AND tg.content LIKE CONCAT('%', :query, '%')
       GROUP BY tg.id
-      ORDER BY MAX(tc.card_id = :cardId) DESC,
+      ORDER BY used DESC,
       tg.content ASC
     """,
     // language=sql
@@ -36,7 +37,7 @@ extends JpaRepository<Tag, Integer> {
       GROUP BY tg.id
     """,
     nativeQuery = true
-  ) public Page<Tag> searchAllByProject(
+  ) public Page<TagDTO> searchAllByProject(
     Integer projectId, 
     Integer cardId,
     String query, 

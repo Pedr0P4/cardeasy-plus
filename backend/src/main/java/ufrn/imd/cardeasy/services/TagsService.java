@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import ufrn.imd.cardeasy.dtos.tag.TagDTO;
 import ufrn.imd.cardeasy.errors.ProjectNotFound;
 import ufrn.imd.cardeasy.errors.TagNotFound;
 import ufrn.imd.cardeasy.models.Project;
@@ -57,7 +58,7 @@ public class TagsService {
     return this.tags.searchAllByCard(cardId, query, page);
   };
 
-  public Page<Tag> searchAllByProject( 
+  public Page<TagDTO> searchAllByProject( 
     Integer projectId,
     Integer cardId,
     String query,

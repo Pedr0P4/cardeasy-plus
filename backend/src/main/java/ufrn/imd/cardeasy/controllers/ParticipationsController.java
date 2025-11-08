@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
-import ufrn.imd.cardeasy.dtos.participations.DeleteParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.ExitParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.ParticipationDTO;
-import ufrn.imd.cardeasy.dtos.participations.UpdateParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.DeleteParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.ExitParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.ParticipationDTO;
+import ufrn.imd.cardeasy.dtos.participation.UpdateParticipationDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Participation;
 import ufrn.imd.cardeasy.security.Authenticate;

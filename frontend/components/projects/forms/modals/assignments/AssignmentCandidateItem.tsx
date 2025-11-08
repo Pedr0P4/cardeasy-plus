@@ -3,14 +3,14 @@
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import { FaCrown, FaShieldHalved } from "react-icons/fa6";
+import Avatar from "@/components/Avatar";
 import { Api } from "@/services/api";
-import type { Participation } from "@/services/participations";
-import Avatar from "../Avatar";
-import TeamMemberContextMenu from "./TeamMemberContextMenu";
+import type { AssignmentCandidate } from "@/services/assignments";
 
 interface Props {
-  participation: Participation;
-  viewer: Participation;
+  assignment: AssignmentCandidate;
+  disabled?: boolean;
+  onClick: () => void;
 }
 
 const icons = {
@@ -19,51 +19,56 @@ const icons = {
   MEMBER: undefined,
 };
 
-export default function TeamMemberItem({ viewer, participation }: Props) {
+export default function AssignmentCandidateItem({
+  assignment,
+  onClick,
+  disabled = false,
+}: Props) {
   const query = useQuery({
     queryKey: [
       "participations",
-      participation.team.id,
+      assignment.team,
       "account",
-      participation.account.id,
+      assignment.account,
       "avatar",
     ],
     queryFn: () =>
-      Api.client()
-        .images()
-        .urlToData(`/avatars/${participation.account.id}.webp`),
+      Api.client().images().urlToData(`/avatars/${assignment.account}.webp`),
     retry: false,
   });
 
   return (
     <li className="w-full" tabIndex={-1}>
-      <div
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={onClick}
         className={clsx(
-          "bg-base-200 h-22 flex flex-row",
+          "btn bg-base-300 h-22 flex flex-row",
           "items-center justify-start",
-          "rounded-md px-6 py-4 gap-4 relative",
+          "rounded-md px-6 py-4 gap-4 relative w-full",
+          assignment.assigned && "btn-neutral border-2",
         )}
       >
         <div className="not-md:hidden">
           <Avatar
             className="!size-8"
-            name={participation.account.name ?? ""}
+            name={assignment.name ?? ""}
             avatar={query.data}
           />
         </div>
         <div className="flex flex-col justify-start items-start flex-1 overflow-hidden">
           <div className="flex flex-row gap-1.5 items-center justify-start w-full">
-            {icons[participation.role]}
+            {icons[assignment.role]}
             <h3 className="text-lg font-semibold truncate w-full pr-8 text-start">
-              {participation.account.name}
+              {assignment.name}
             </h3>
           </div>
           <p className="font-light -mt-1 text-start truncate w-full pr-8 text-start">
-            {participation.account.email}
+            {assignment.email}
           </p>
         </div>
-        <TeamMemberContextMenu viewer={viewer} participation={participation} />
-      </div>
+      </button>
     </li>
   );
 }

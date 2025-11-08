@@ -44,7 +44,7 @@ export default function ProjectCardItem({
       cardList.id,
       "cards",
       card.id,
-      "assingments",
+      "assignments",
       "simplified",
     ],
     queryFn: () => Api.client().assignments().search(card.id, 0, "", 2),
@@ -112,7 +112,7 @@ export default function ProjectCardItem({
               <AssingmentsAvatars
                 card={card.id}
                 total={queryAvatars.data.total}
-                participations={queryAvatars.data.items}
+                assignments={queryAvatars.data.items}
               />
             )}
             {queryTags.data.items.length > 0 && (

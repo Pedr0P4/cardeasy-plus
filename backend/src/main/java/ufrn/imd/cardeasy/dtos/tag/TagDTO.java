@@ -4,11 +4,16 @@ import java.util.List;
 
 import ufrn.imd.cardeasy.models.Tag;
 
-public record TagDTO(Integer id, String content) {
+public record TagDTO(
+  Integer id, 
+  String content, 
+  Boolean used
+) {
   public static TagDTO from(Tag tag){
     return new TagDTO(
       tag.getId(),
-      tag.getContent()
+      tag.getContent(),
+      tag.getCards().size() > 0
     );
   }
 
