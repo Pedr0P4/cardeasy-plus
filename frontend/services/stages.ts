@@ -21,7 +21,7 @@ export type Stage = {
   status: StageStatus;
   description: string;
   expectedStartIn: number;
-  expectedEndIn: number;
+  expectedEndIn?: number;
 };
 
 export type CreateStageDTO = {

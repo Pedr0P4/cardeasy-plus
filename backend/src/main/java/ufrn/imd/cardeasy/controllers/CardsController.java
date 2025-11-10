@@ -120,7 +120,6 @@ public class CardsController {
     this.cards.existsById(id);
 
     this.participations.checkCardAccess(
-      Role.ADMIN,
       account.getId(), 
       id
     );

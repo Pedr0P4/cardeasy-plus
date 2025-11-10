@@ -28,7 +28,7 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
-import { Role } from "@/services/participations";
+import type { Role } from "@/services/participations";
 import type { Project } from "@/services/projects";
 import { Toasts } from "@/services/toats";
 import handleCardInsertOverCard from "@/utils/dragging/handleCardInsertOverCard";
@@ -73,8 +73,6 @@ export default function ProjectCardLists({ project, role }: Props) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchType, setSearchType] = useState<"list" | "card">("card");
   const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
-
-  const isAdmin = [Role.ADMIN, Role.OWNER].includes(role);
 
   const projectQuery = useQuery({
     queryKey: ["projects", project.id],
@@ -383,15 +381,13 @@ export default function ProjectCardLists({ project, role }: Props) {
           strategy={horizontalListSortingStrategy}
         >
           <div className="flex flex-col md:flex-row gap-4 mb-2 md:items-end">
-            {isAdmin && (
-              <Link
-                href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
-                className="btn btn-neutral"
-              >
-                <FaPlus />
-                Criar nova coluna
-              </Link>
-            )}
+            <Link
+              href={`/home/teams/${projectQuery.data.team}/projects/${projectQuery.data.id}/card-lists/create`}
+              className="btn btn-neutral"
+            >
+              <FaPlus />
+              Criar nova coluna
+            </Link>
             <Input
               name="search"
               type="text"
