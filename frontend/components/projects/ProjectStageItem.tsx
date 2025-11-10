@@ -72,10 +72,14 @@ export default function ProjectStageItem({ stage, project, role }: Props) {
           <span className="bg-base-100 p-1 rounded-md text-start">
             {format(new Date(stage.expectedStartIn), "dd/MM/uuuu")}
           </span>
-          {" ~ "}
-          <span className="bg-base-100 p-1 rounded-md">
-            {format(new Date(stage.expectedEndIn), "dd/MM/uuuu")}
-          </span>
+          {stage.expectedEndIn && (
+            <>
+              {" ~ "}
+              <span className="bg-base-100 p-1 rounded-md">
+                {format(new Date(stage.expectedEndIn), "dd/MM/uuuu")}
+              </span>
+            </>
+          )}
         </p>
         <p className="font-light -mt-1 text-start">{stage.description}</p>
         <ProjectStageContextMenu project={project} role={role} stage={stage} />
