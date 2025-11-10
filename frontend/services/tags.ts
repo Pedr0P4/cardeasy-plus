@@ -46,7 +46,7 @@ export class TagsService extends Service {
     card: number,
     page: number = 0,
     query: string = "",
-    itemsPerPage: number = 6,
+    itemsPerPage: number = 8,
   ) {
     return this.api
       .get<Page<Tag>>(
@@ -59,7 +59,7 @@ export class TagsService extends Service {
     card: number,
     page: number = 0,
     query: string = "",
-    itemsPerPage: number = 6,
+    itemsPerPage: number = 8,
   ) {
     return this.api
       .get<Page<Tag>>(

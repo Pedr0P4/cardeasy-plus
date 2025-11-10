@@ -107,7 +107,14 @@ extends JpaRepository<Participation, ParticipationId> {
       ON ai.account_id = pt.account_id
       JOIN account AS ac
       ON ac.id = ai.account_id
+      JOIN card AS cd
+      ON cd.id = ai.card_id
+      JOIN card_list AS cl
+      ON cl.id = cd.list_id
+      JOIN project AS pj
+      ON cl.project_id = pj.id
       WHERE ai.card_id = ?1
+      AND pj.team_id = pt.team_id
       AND (
         (ac.name LIKE CONCAT('%', ?2, '%'))
         OR (ac.email LIKE CONCAT('%', ?2, '%'))
@@ -126,7 +133,14 @@ extends JpaRepository<Participation, ParticipationId> {
       ON ai.account_id = pt.account_id
       JOIN account AS ac
       ON ac.id = ai.account_id
+      JOIN card AS cd
+      ON cd.id = ai.card_id
+      JOIN card_list AS cl
+      ON cl.id = cd.list_id
+      JOIN project AS pj
+      ON cl.project_id = pj.id
       WHERE ai.card_id = ?1
+      AND pj.team_id = pt.team_id
       AND (
         (ac.name LIKE CONCAT('%', ?2, '%'))
         OR (ac.email LIKE CONCAT('%', ?2, '%'))
