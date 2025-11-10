@@ -8,6 +8,7 @@ Uma reconstrução do [Cardeasy](https://github.com/Pedr0P4/Cardeasy).
 - [Instruções para frontend](#instruções-para-frontend)
   - [Execução](#execução-1)
   - [Next.js](#nextjs)
+  - [Bugs conhecidos](#bugs-conhecidos)
 
 # Instruções para backend
 
@@ -96,3 +97,9 @@ Exemplos de roteamento:
 │   ├── teams/[id]/             # Pasta da rota "/teams/{id}", se não mudou
 │   ├── ├── page.tsx            # Página da rota "/teams/{id}"
 ```
+
+## Bugs conhecidos
+
+Como o foco foi `backend`, deixamos passar os seguintes bugs:
+
+- Falha ao tentar trocar imagem após primeira tentativa de importação.
