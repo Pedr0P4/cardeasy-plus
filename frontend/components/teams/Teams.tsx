@@ -14,7 +14,7 @@ export default function Teams() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const query = useQuery({
-    queryKey: ["teams", `query-${searchQuery}`],
+    queryKey: ["teams", `page-${page}`, `query-${searchQuery}`],
     queryFn: () => Api.client().teams().search(page, searchQuery),
     initialData: {
       items: [],
