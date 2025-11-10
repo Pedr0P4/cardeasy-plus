@@ -74,7 +74,7 @@ extends JpaRepository<Card, Integer> {
     """,
     // language=sql
     countQuery = """
-      SELECT COUNT(cd.id) FROM card AS c
+      SELECT COUNT(cd.id) FROM card AS cd
       WHERE cd.list_id = ?1 
       AND (
         (cd.title LIKE CONCAT('%', ?2, '%'))

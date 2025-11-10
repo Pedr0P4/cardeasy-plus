@@ -27,7 +27,7 @@ extends JpaRepository<Team, UUID> {
       AND (
         (tm.title LIKE CONCAT('%', ?2, '%'))
         OR (tm.description LIKE CONCAT('%', ?2, '%'))
-      ) ORDER BY tm.id DESC
+      ) ORDER BY tm.title ASC
     """,
     // language=sql
     countQuery = """
