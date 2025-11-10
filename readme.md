@@ -102,4 +102,6 @@ Exemplos de roteamento:
 
 Como o foco foi `backend`, deixamos passar os seguintes bugs:
 
-- Falha ao tentar trocar imagem após primeira tentativa de importação.
+- Falha ao tentar trocar imagem após primeira tentativa de importação;
+- Falha de algumas validações de dados;
+- Cache das tags persistindo após alteração as vezes;
