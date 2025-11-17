@@ -18,6 +18,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.participation.ParticipationDTO;
@@ -56,6 +61,12 @@ public class TeamsController {
 
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a new team")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Team created successfully", content = @Content(schema = @Schema(implementation = TeamDTO.class))),
+    @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content),
+    @ApiResponse(responseCode = "401", description = "Não autenticado", content = @Content)
+  })
   public ResponseEntity<TeamDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateTeamDTO body
