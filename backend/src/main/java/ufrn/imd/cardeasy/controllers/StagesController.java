@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.stage.CreateStageDTO;
@@ -33,6 +34,7 @@ import ufrn.imd.cardeasy.services.StagesService;
 
 @RestController
 @RequestMapping("/stages")
+@Tag(name = "Stages")
 public class StagesController {
   private ParticipationsService participations;
   private ProjectsService projects;

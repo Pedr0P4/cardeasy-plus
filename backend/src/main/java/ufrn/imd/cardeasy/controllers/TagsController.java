@@ -35,6 +35,7 @@ import ufrn.imd.cardeasy.services.TagsService;
 
 @RestController
 @RequestMapping("/tags")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 public class TagsController {
   private TagsService tags;
   private ProjectsService projects;

@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import io.swagger.v3.oas.annotations.tags.Tag;
 import ufrn.imd.cardeasy.dtos.budget.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.CreateBudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.UpdateBudgetDTO;
@@ -26,6 +28,7 @@ import ufrn.imd.cardeasy.services.ProjectsService;
 
 @RestController
 @RequestMapping("/budgets")
+@Tag(name = "Budgets")
 public class BudgetsController {
   private ParticipationsService participations;
   private ProjectsService projects;

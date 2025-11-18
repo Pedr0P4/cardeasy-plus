@@ -40,7 +40,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(e.getStatusCode())
       .body(new ValidationErrorDTO(
-        e.getStatusCode(),
+        e.getStatusCode().value(),
         errors
       ));
   };
@@ -52,7 +52,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(e.getStatusCode())
       .body(new ErrorDTO(
-        e.getStatusCode(),
+        e.getStatusCode().value(),
         e.getMessage()
       ));
   };
@@ -75,7 +75,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(new ValidationErrorDTO(
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST.value(),
         errors
       ));
   };
@@ -87,7 +87,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(new ErrorDTO(
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST.value(),
         e.getMessage()
       ));
   };
@@ -99,7 +99,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.BAD_REQUEST)
       .body(new ErrorDTO(
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST.value(),
         e.getMessage()
       ));
   };
@@ -111,7 +111,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.UNAUTHORIZED)
       .body(new ErrorDTO(
-        HttpStatus.UNAUTHORIZED,
+        HttpStatus.UNAUTHORIZED.value(),
         "falha de autenticação"
       ));
   };
@@ -123,8 +123,8 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.FORBIDDEN)
       .body(new ErrorDTO(
-        HttpStatus.FORBIDDEN,
-        "Acesso proibido. Você não tem permissão."
+        HttpStatus.FORBIDDEN.value(),
+        "acesso proibido, você não tem permissão."
       ));
   };
 
@@ -136,7 +136,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(HttpStatus.INTERNAL_SERVER_ERROR)
       .body(new ErrorDTO(
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.INTERNAL_SERVER_ERROR.value(),
         "erro interno do servidor"
       ));
   };
@@ -152,7 +152,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
     return ResponseEntity
       .status(status)
       .body(new ErrorDTO(
-        status,
+        status.value(),
         e.getMessage().toLowerCase()
       ));
   };

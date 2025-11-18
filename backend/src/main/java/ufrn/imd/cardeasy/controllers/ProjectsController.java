@@ -1,6 +1,5 @@
 package ufrn.imd.cardeasy.controllers;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
@@ -37,6 +37,7 @@ import ufrn.imd.cardeasy.services.TeamsService;
 
 @RestController
 @RequestMapping("/projects")
+@Tag(name = "Projects")
 public class ProjectsController {
   private TeamsService teams;
   private ParticipationsService participations;

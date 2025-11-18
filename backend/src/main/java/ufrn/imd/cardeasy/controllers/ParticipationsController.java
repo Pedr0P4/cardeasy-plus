@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.participation.DeleteParticipationDTO;
@@ -32,6 +33,7 @@ import ufrn.imd.cardeasy.services.TeamsService;
 
 @RestController
 @RequestMapping("/participations")
+@Tag(name = "Participations")
 public class ParticipationsController {
   private ParticipationsService participations;
   private TeamsService teams;
@@ -48,7 +50,7 @@ public class ParticipationsController {
     this.accounts = accounts;
   };
 
-   @Authenticate
+  @Authenticate
   @GetMapping("/search")
   public ResponseEntity<PageDTO<ParticipationDTO>> searchAllParticipationsByTeam(
     @AuthenticationPrincipal Account account,

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.assignment.AssignmentCandidateDTO;
@@ -27,6 +28,7 @@ import ufrn.imd.cardeasy.services.AssignmentsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 @RestController
 @RequestMapping("/assignments")
+@Tag(name = "Assignments")
 public class AssignmentsControler {
   private AssignmentsService assignments;
   private ParticipationsService participations;

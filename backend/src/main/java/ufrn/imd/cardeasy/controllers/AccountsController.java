@@ -4,11 +4,11 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 import ufrn.imd.cardeasy.dtos.account.AccountDTO;
@@ -39,7 +41,10 @@ public class AccountsController {
     this.service = service;
   };
 
+  
   @PostMapping
+  @SecurityRequirements
+  @Tag(name = "Accounts")
   public ResponseEntity<Void> create(
     @RequestPart(name = "avatar", required = false) MultipartFile avatar,
     @RequestPart("account") @Valid CreateAccountDTO account
@@ -56,18 +61,20 @@ public class AccountsController {
       .build();
   };
 
-  @PutMapping("/{id}")
+  @Authenticate
+  @PutMapping
+  @Tag(name = "Accounts")
   public ResponseEntity<Void> update(
-    @PathVariable UUID id,
+    @AuthenticationPrincipal Account account,
     @RequestPart(name = "avatar", required = false) MultipartFile avatar,
-    @RequestPart @Valid UpdateAccountDTO account
+    @RequestPart @Valid UpdateAccountDTO body
   ) {
     this.service.update(
-      id,
-      account.name(),
-      account.email(),
-      account.password(),
-      account.newPassword(),
+      account.getId(),
+      body.name(),
+      body.email(),
+      body.password(),
+      body.newPassword(),
       avatar
     );
 
@@ -77,6 +84,8 @@ public class AccountsController {
   };
 
   @PostMapping("/auth")
+  @SecurityRequirements
+  @Tag(name = "Authentication")
   public ResponseEntity<String> authenticate(
     @RequestBody @Valid AuthenticateAccountDTO body
   ) {
@@ -87,9 +96,10 @@ public class AccountsController {
 
     return ResponseEntity.ok(token);
   };
-  
+
   @Authenticate
   @GetMapping("/verify")
+  @Tag(name = "Accounts")
   public ResponseEntity<AccountDTO> verify(
     @AuthenticationPrincipal Account account
   ) {
