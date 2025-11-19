@@ -89,7 +89,7 @@ public class TeamsController {
 
   @Authenticate
   @GetMapping("/{id}")
-  @Operation(summary = "Find team participation by id")
+  @Operation(summary = "Find a team participation by id")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Team participation found"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),

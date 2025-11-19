@@ -89,7 +89,7 @@ public class CardListsController {
 
   @Authenticate
   @GetMapping("/search")
-  @Operation(summary = "Search all project card list")
+  @Operation(summary = "Search all project card lists")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Project card list found"),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
@@ -124,7 +124,7 @@ public class CardListsController {
 
   @Authenticate
   @GetMapping("/{id}")
-  @Operation(summary = "Find card list by id")
+  @Operation(summary = "Find a card list by id")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Card list found"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),

@@ -19,8 +19,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.project.CreateProjectDTO;
 import ufrn.imd.cardeasy.dtos.project.MoveCardListDTO;
@@ -113,6 +119,15 @@ public class ProjectsController {
 
   @Authenticate
   @GetMapping("/{id}")
+  @Operation(summary = "Find a project")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Project found"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<ProjectDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -131,6 +146,15 @@ public class ProjectsController {
 
   @Authenticate
   @PutMapping("/{id}")
+  @Operation(summary = "Update a project")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Project updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<ProjectDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
