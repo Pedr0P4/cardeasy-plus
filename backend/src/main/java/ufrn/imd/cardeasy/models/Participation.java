@@ -27,7 +27,7 @@ public class Participation {
   @JoinColumn(name = "account_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)
   private Account account;
-
+  
   @MapsId("teamId")
   @JoinColumn(name = "team_id", nullable = false)
   @ManyToOne(fetch = FetchType.LAZY)

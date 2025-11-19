@@ -10,6 +10,10 @@ Uma reconstrução do [Cardeasy](https://github.com/Pedr0P4/Cardeasy).
   - [Next.js](#nextjs)
   - [Bugs conhecidos](#bugs-conhecidos)
 
+# Diagrama de classes
+
+![Diagrama de classes](./database/class-diagram.svg)
+
 # Instruções para backend
 
 É necessário ter o [Java 21](https://www.oracle.com/br/java/technologies/downloads/#java21) e o [Maven](https://maven.apache.org/) — estou usando a versão `3.8.7`, mas não acho que a versão se tornará um problema para você. Peço a cautela com a formatação do código, você certamente não estará programando algo que apenas você verá.

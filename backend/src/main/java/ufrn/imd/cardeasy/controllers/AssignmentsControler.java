@@ -15,8 +15,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.PageDTO;
+import ufrn.imd.cardeasy.dtos.ValidationErrorDTO;
 import ufrn.imd.cardeasy.dtos.assignment.AssignmentCandidateDTO;
 import ufrn.imd.cardeasy.dtos.assignment.AssignmentDTO;
 import ufrn.imd.cardeasy.dtos.assignment.CreateAssignmentDTO;
@@ -24,24 +32,39 @@ import ufrn.imd.cardeasy.dtos.assignment.DeleteAssignmentDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.AssignmentsService;
+import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 @RestController
 @RequestMapping("/assignments")
+@Tag(name = "Assignments")
 public class AssignmentsControler {
   private AssignmentsService assignments;
+  private CardListsService cards;
   private ParticipationsService participations;
 
   @Autowired
   public AssignmentsControler(
     AssignmentsService assignments,
+    CardListsService cards,
     ParticipationsService participations
   ) {
     this.assignments = assignments;
+    this.cards = cards;
     this.participations = participations;
   };
 
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a assignment")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Assignment created"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "409", description = "Already assigned", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateAssignmentDTO body
@@ -63,6 +86,15 @@ public class AssignmentsControler {
 
   @Authenticate
   @DeleteMapping
+  @Operation(summary = "Delete a assignment")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Assignment deleted"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid DeleteAssignmentDTO body
@@ -84,6 +116,14 @@ public class AssignmentsControler {
   
   @Authenticate
   @GetMapping("/search")
+  @Operation(summary = "Search all card assignments")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card assignments found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<AssignmentDTO>> searchAllByCardAssignment(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "card", required = true) Integer cardId,
@@ -91,6 +131,8 @@ public class AssignmentsControler {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(), 
       cardId
@@ -113,6 +155,14 @@ public class AssignmentsControler {
 
   @Authenticate
   @GetMapping("/candidates/search")
+  @Operation(summary = "Search all card assignment candidates")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card assignment candidates found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<AssignmentCandidateDTO>> searchAllByCardAssignmentWithCandidates(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "card", required = true) Integer cardId,
@@ -120,6 +170,8 @@ public class AssignmentsControler {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(), 
       cardId

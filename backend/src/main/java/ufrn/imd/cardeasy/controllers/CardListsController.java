@@ -8,8 +8,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import ufrn.imd.cardeasy.dtos.PageDTO;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
+import ufrn.imd.cardeasy.dtos.PageDTO;
+import ufrn.imd.cardeasy.dtos.ValidationErrorDTO;
 import jakarta.validation.Valid;
 import ufrn.imd.cardeasy.dtos.cardlist.CardListDTO;
 import ufrn.imd.cardeasy.dtos.cardlist.CreateCardListDTO;
@@ -26,6 +34,7 @@ import ufrn.imd.cardeasy.services.ProjectsService;
 
 @RestController
 @RequestMapping("/card-lists")
+@Tag(name = "CardLists")
 public class CardListsController {
   private CardsService cards;
   private ProjectsService projects;
@@ -47,6 +56,15 @@ public class CardListsController {
 
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a card list")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Card list created"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<CardListDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateCardListDTO body
@@ -71,6 +89,14 @@ public class CardListsController {
 
   @Authenticate
   @GetMapping("/search")
+  @Operation(summary = "Search all project card lists")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Project card list found"),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<CardListDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "project", required = true) Integer projectId,
@@ -100,6 +126,15 @@ public class CardListsController {
 
   @Authenticate
   @GetMapping("/{id}")
+  @Operation(summary = "Find a card list by id")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card list found"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<CardListDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -118,6 +153,15 @@ public class CardListsController {
 
   @Authenticate
   @PutMapping("/{id}")
+  @Operation(summary = "Update a card list")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card list updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<CardListDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id, 
@@ -142,6 +186,15 @@ public class CardListsController {
 
   @Authenticate
   @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a card list")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Card list deleted"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -161,6 +214,16 @@ public class CardListsController {
 
   @Authenticate
   @PostMapping("/{id}/cards/move")
+  @Operation(summary = "Move two project cards")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Cards moved"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> move(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid MoveCardDTO body,
@@ -185,7 +248,8 @@ public class CardListsController {
       id
     );
 
-    return ResponseEntity.ok()
+    return ResponseEntity
+      .noContent()
       .build();
   };
 };

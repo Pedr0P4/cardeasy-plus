@@ -4,10 +4,19 @@ import ufrn.imd.cardeasy.models.CardList;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record CardListDTO(
+  @Schema(description = "ID", example = "1")
   Integer id,
+
+  @Schema(description = "Index", example = "0")
   Long index,
+  
+  @Schema(description = "Title", example = "Finished")
   String title,
+
+  @Schema(description = "Project ID", example = "1")
   Integer project
 ) {
   public static CardListDTO from(CardList cardList) {

@@ -18,7 +18,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.stage.CreateStageDTO;
 import ufrn.imd.cardeasy.dtos.stage.StageDTO;
@@ -33,6 +40,7 @@ import ufrn.imd.cardeasy.services.StagesService;
 
 @RestController
 @RequestMapping("/stages")
+@Tag(name = "Stages")
 public class StagesController {
   private ParticipationsService participations;
   private ProjectsService projects;
@@ -51,6 +59,15 @@ public class StagesController {
   
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a stage")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Stage created"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<StageDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateStageDTO body
@@ -78,6 +95,15 @@ public class StagesController {
 
   @Authenticate
   @GetMapping("/{id}")
+  @Operation(summary = "Find a stage")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Stage found"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Stage not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<StageDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -98,6 +124,14 @@ public class StagesController {
 
   @Authenticate
   @GetMapping("/search")
+  @Operation(summary = "Search all project stages")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Stages found"),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<StageDTO>> searchAllByProject(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "project", required = true) Integer projectId,
@@ -127,6 +161,15 @@ public class StagesController {
 
   @Authenticate
   @PutMapping("/{id}")
+  @Operation(summary = "Update a stage")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Stage updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Stage not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<StageDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
@@ -156,7 +199,16 @@ public class StagesController {
 
   @Authenticate
   @DeleteMapping("/{id}")
-  public ResponseEntity<Stage> delete(
+  @Operation(summary = "Delete a stage")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Stage deleted"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Stage not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
+  public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
   ) {

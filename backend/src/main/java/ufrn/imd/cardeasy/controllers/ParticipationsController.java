@@ -17,7 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.participation.DeleteParticipationDTO;
 import ufrn.imd.cardeasy.dtos.participation.ExitParticipationDTO;
@@ -32,6 +39,7 @@ import ufrn.imd.cardeasy.services.TeamsService;
 
 @RestController
 @RequestMapping("/participations")
+@Tag(name = "Participations")
 public class ParticipationsController {
   private ParticipationsService participations;
   private TeamsService teams;
@@ -48,8 +56,16 @@ public class ParticipationsController {
     this.accounts = accounts;
   };
 
-   @Authenticate
+  @Authenticate
   @GetMapping("/search")
+  @Operation(summary = "Search all Participations")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Participations found"),
+    @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<ParticipationDTO>> searchAllParticipationsByTeam(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "team", required = true) UUID teamId,
@@ -79,6 +95,15 @@ public class ParticipationsController {
 
   @Authenticate
   @GetMapping("{id}")
+  @Operation(summary = "Find a participation by team id")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Participation found"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<ParticipationDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id
@@ -97,6 +122,16 @@ public class ParticipationsController {
 
   @Authenticate
   @PutMapping
+  @Operation(summary = "Update a participation")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Participation updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Account not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<ParticipationDTO> update(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid UpdateParticipationDTO body
@@ -106,7 +141,7 @@ public class ParticipationsController {
 
     this.participations.checkAccess(
       body.role().nextRole(),
-      account.getId(), 
+      account.getId(),
       body.team()
     );
 
@@ -123,6 +158,16 @@ public class ParticipationsController {
 
   @Authenticate
   @DeleteMapping
+  @Operation(summary = "Delete a participation")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Participation deleted"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Account not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid DeleteParticipationDTO body
@@ -153,6 +198,16 @@ public class ParticipationsController {
 
   @Authenticate
   @DeleteMapping("/exit")
+  @Operation(summary = "Exit from a participation")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Participation deleted"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Account not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> exit(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid ExitParticipationDTO body

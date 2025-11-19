@@ -17,7 +17,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.PageDTO;
 import ufrn.imd.cardeasy.dtos.tag.CreateTagDTO;
 import ufrn.imd.cardeasy.dtos.tag.DeselectTagDTO;
@@ -35,6 +41,7 @@ import ufrn.imd.cardeasy.services.TagsService;
 
 @RestController
 @RequestMapping("/tags")
+@io.swagger.v3.oas.annotations.tags.Tag(name = "Tags")
 public class TagsController {
   private TagsService tags;
   private ProjectsService projects;
@@ -56,6 +63,15 @@ public class TagsController {
 
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Tag created"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<TagDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateTagDTO body
@@ -85,6 +101,15 @@ public class TagsController {
   
   @Authenticate
   @GetMapping("/{id}")
+  @Operation(summary = "Find a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Tag found"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Tag not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<TagDTO> findById(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -106,6 +131,14 @@ public class TagsController {
 
   @Authenticate
   @GetMapping("/candidates/search")
+  @Operation(summary = "Search all card tag candidates")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card tag candidates found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<TagDTO>> searchAllByCardWithCandidates(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "card", required = true) Integer cardId,
@@ -113,6 +146,8 @@ public class TagsController {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(),
       cardId
@@ -133,6 +168,14 @@ public class TagsController {
   
   @Authenticate
   @GetMapping("/search")
+  @Operation(summary = "Search all card tags")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Card tags found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<PageDTO<TagDTO>> searchAllByCard(
     @AuthenticationPrincipal Account account,
     @RequestParam(name = "card", required = true) Integer cardId,
@@ -140,6 +183,8 @@ public class TagsController {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(),
       cardId
@@ -160,6 +205,15 @@ public class TagsController {
 
   @Authenticate
   @PutMapping("/{id}")
+  @Operation(summary = "Update a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Tag updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Tag not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<TagDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
@@ -184,6 +238,15 @@ public class TagsController {
 
   @Authenticate
   @DeleteMapping("/{id}/all")
+  @Operation(summary = "Delete a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Tag deleted"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Tag not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id
@@ -204,6 +267,16 @@ public class TagsController {
 
   @Authenticate
   @DeleteMapping("/{id}")
+  @Operation(summary = "Deselect a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Tag deselected"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Tag not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> deselect(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid DeselectTagDTO body,
@@ -226,6 +299,16 @@ public class TagsController {
 
   @Authenticate
   @PostMapping("/{id}")
+  @Operation(summary = "Select a tag")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Tag selected"),
+    @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Tag not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> select(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid SelectTagDTO body,

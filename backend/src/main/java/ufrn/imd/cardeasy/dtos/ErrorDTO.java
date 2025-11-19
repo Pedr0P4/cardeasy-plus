@@ -1,12 +1,14 @@
 package ufrn.imd.cardeasy.dtos;
 
-import org.springframework.http.HttpStatusCode;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 public record ErrorDTO(
-  HttpStatusCode status,
+  @Schema(description = "Status code", example = "404")
+  Integer status,
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
+  @Schema(description = "Error", example = "team not found")
   String error
 ) {};
