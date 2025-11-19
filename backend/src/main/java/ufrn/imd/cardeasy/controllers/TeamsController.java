@@ -89,9 +89,9 @@ public class TeamsController {
 
   @Authenticate
   @GetMapping("/{id}")
-  @Operation(summary = "Find a team participation by id")
+  @Operation(summary = "Find a Participation by id")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Team participation found"),
+    @ApiResponse(responseCode = "200", description = "Participation found"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -114,7 +114,7 @@ public class TeamsController {
 
   @Authenticate
   @GetMapping("/search")
-  @Operation(summary = "Search all account team participation")
+  @Operation(summary = "Search all account Participation")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Teams participations found"),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
@@ -146,7 +146,7 @@ public class TeamsController {
     @ApiResponse(responseCode = "200", description = "Team updated"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -180,7 +180,7 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Team deleted"),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -209,7 +209,7 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "201", description = "Team invitation code generated"),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -238,11 +238,11 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Team invitation code deleted"),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
-  public ResponseEntity<GeneratedCodeDTO> removeCode(
+  public ResponseEntity<Void> removeCode(
     @AuthenticationPrincipal Account account,
     @PathVariable UUID id
   ) {
@@ -265,7 +265,7 @@ public class TeamsController {
   @PostMapping("/join/{code}")
   @Operation(summary = "Join on a team by invitation code")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "201", description = "Team participation created"),
+    @ApiResponse(responseCode = "201", description = "Participation created"),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "409", description = "Already in team", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
@@ -291,7 +291,7 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "204", description = "Team ownership transferred"),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -323,10 +323,10 @@ public class TeamsController {
   @PostMapping("/{id}/projects/move")
   @Operation(summary = "Move two team projects")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Team projects moved"),
+    @ApiResponse(responseCode = "200", description = "Projects moved"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
     @ApiResponse(responseCode = "404", description = "Team not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -356,7 +356,8 @@ public class TeamsController {
       id
     );
 
-    return ResponseEntity.ok()
+    return ResponseEntity
+      .noContent()
       .build();
   };
 };

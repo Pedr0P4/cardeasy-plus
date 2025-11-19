@@ -32,20 +32,24 @@ import ufrn.imd.cardeasy.dtos.assignment.DeleteAssignmentDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.AssignmentsService;
+import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 @RestController
 @RequestMapping("/assignments")
 @Tag(name = "Assignments")
 public class AssignmentsControler {
   private AssignmentsService assignments;
+  private CardListsService cards;
   private ParticipationsService participations;
 
   @Autowired
   public AssignmentsControler(
     AssignmentsService assignments,
+    CardListsService cards,
     ParticipationsService participations
   ) {
     this.assignments = assignments;
+    this.cards = cards;
     this.participations = participations;
   };
 
@@ -53,10 +57,10 @@ public class AssignmentsControler {
   @PostMapping
   @Operation(summary = "Create a assignment")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Assignment created"),
+    @ApiResponse(responseCode = "201", description = "Assignment created"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "409", description = "Already assigned", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -87,7 +91,7 @@ public class AssignmentsControler {
     @ApiResponse(responseCode = "204", description = "Assignment deleted"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -115,6 +119,8 @@ public class AssignmentsControler {
   @Operation(summary = "Search all card assignments")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Card assignments found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -125,6 +131,8 @@ public class AssignmentsControler {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(), 
       cardId
@@ -150,6 +158,8 @@ public class AssignmentsControler {
   @Operation(summary = "Search all card assignment candidates")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Card assignment candidates found"),
+    @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -160,6 +170,8 @@ public class AssignmentsControler {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.cards.existsById(cardId);
+
     this.participations.checkCardAccess(
       account.getId(), 
       cardId

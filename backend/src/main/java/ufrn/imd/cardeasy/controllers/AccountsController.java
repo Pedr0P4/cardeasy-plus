@@ -79,12 +79,12 @@ public class AccountsController {
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
-  public ResponseEntity<Void> update(
+  public ResponseEntity<AccountDTO> update(
     @AuthenticationPrincipal Account account,
     @RequestPart(name = "avatar", required = false) MultipartFile avatar,
     @RequestPart @Valid UpdateAccountDTO body
   ) {
-    this.service.update(
+    Account _account = this.service.update(
       account.getId(),
       body.name(),
       body.email(),
@@ -93,9 +93,9 @@ public class AccountsController {
       avatar
     );
 
-    return ResponseEntity
-      .status(HttpStatus.OK)
-      .build();
+    return ResponseEntity.ok(
+      AccountDTO.from(_account)
+    );
   };
 
   @PostMapping("/auth")

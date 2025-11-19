@@ -32,6 +32,7 @@ import ufrn.imd.cardeasy.dtos.card.UpdateCardDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.models.Card;
 import ufrn.imd.cardeasy.security.Authenticate;
+import ufrn.imd.cardeasy.services.CardListsService;
 import ufrn.imd.cardeasy.services.CardsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 
@@ -40,14 +41,17 @@ import ufrn.imd.cardeasy.services.ParticipationsService;
 @Tag(name = "Cards")
 public class CardsController {
   private ParticipationsService participations;
+  private CardListsService cardLists;
   private CardsService cards; 
 
   @Autowired
   public CardsController (
     ParticipationsService participations,
+    CardListsService cardLists,
     CardsService cards
   ) {
     this.participations = participations;
+    this.cardLists = cardLists;
     this.cards = cards;
   };
 
@@ -57,7 +61,7 @@ public class CardsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Card found"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -84,7 +88,7 @@ public class CardsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "201", description = "Card created"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -115,7 +119,7 @@ public class CardsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Card updated"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -139,7 +143,7 @@ public class CardsController {
     );
 
     return ResponseEntity.ok(
-        CardDTO.from(card)
+      CardDTO.from(card)
     );
   };
 
@@ -147,9 +151,9 @@ public class CardsController {
   @DeleteMapping("/{id}")
   @Operation(summary = "Delete a card")
   @ApiResponses(value = {
-    @ApiResponse(responseCode = "200", description = "Card deleted"),
+    @ApiResponse(responseCode = "204", description = "Card deleted"),
     @ApiResponse(responseCode = "404", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
@@ -177,6 +181,8 @@ public class CardsController {
   @Operation(summary = "Search all card list cards")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Cards participations found"),
+    @ApiResponse(responseCode = "404", description = "Card list not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
@@ -187,6 +193,8 @@ public class CardsController {
     @RequestParam(name = "page", defaultValue = "0") Integer page,
     @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
+    this.cardLists.existsById(cardListId);
+
     this.participations.checkCardListAccess(
       account.getId(),
       cardListId
