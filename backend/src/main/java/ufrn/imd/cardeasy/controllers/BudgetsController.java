@@ -14,7 +14,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import ufrn.imd.cardeasy.dtos.ErrorDTO;
+import ufrn.imd.cardeasy.dtos.ValidationErrorDTO;
 import ufrn.imd.cardeasy.dtos.budget.BudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.CreateBudgetDTO;
 import ufrn.imd.cardeasy.dtos.budget.UpdateBudgetDTO;
@@ -47,6 +54,15 @@ public class BudgetsController {
 
   @Authenticate
   @PostMapping
+  @Operation(summary = "Create a budget")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "201", description = "Budget created"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<BudgetDTO> create(
     @AuthenticationPrincipal Account account,
     @RequestBody @Valid CreateBudgetDTO body
@@ -74,6 +90,15 @@ public class BudgetsController {
 
   @Authenticate
   @PutMapping("/{id}")
+  @Operation(summary = "Update a budget")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "200", description = "Budget updated"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<BudgetDTO> update(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id,
@@ -102,6 +127,15 @@ public class BudgetsController {
 
   @Authenticate
   @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a budget")
+  @ApiResponses(value = {
+    @ApiResponse(responseCode = "204", description = "Budget deleted"),
+    @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "404", description = "Team participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "404", description = "Project not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+  })
   public ResponseEntity<Void> delete(
     @AuthenticationPrincipal Account account,
     @PathVariable Integer id

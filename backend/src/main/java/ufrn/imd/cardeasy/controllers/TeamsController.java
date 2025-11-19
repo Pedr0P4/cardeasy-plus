@@ -69,7 +69,8 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "201", description = "Team created successfully"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
   public ResponseEntity<TeamDTO> create(
     @AuthenticationPrincipal Account account,
@@ -92,7 +93,8 @@ public class TeamsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Team participation found"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
   public ResponseEntity<ParticipationDTO> findById(
     @AuthenticationPrincipal Account account,
@@ -115,7 +117,8 @@ public class TeamsController {
   @Operation(summary = "Search all account team participation")
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Teams participations found"),
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
+    @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
+    @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = ErrorDTO.class)))
   })
   public ResponseEntity<PageDTO<TeamDTO>> searchAllByAccount(
     @AuthenticationPrincipal Account account,
