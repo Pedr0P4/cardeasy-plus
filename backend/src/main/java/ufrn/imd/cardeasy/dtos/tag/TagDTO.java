@@ -2,12 +2,20 @@ package ufrn.imd.cardeasy.dtos.tag;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import ufrn.imd.cardeasy.models.Tag;
 
 public record TagDTO(
-  Integer id, 
-  String content, 
+  @Schema(description = "Tag ID", example = "1")
+  Integer id,
+
+  @Schema(description = "Content", example = "urgent")
+  String content,
+
+  @Schema(description = "Usages", example = "1")
   Long usages,
+
+  @Schema(description = "Used", example = "true")
   Boolean used
 ) {
   public static TagDTO from(Tag tag){

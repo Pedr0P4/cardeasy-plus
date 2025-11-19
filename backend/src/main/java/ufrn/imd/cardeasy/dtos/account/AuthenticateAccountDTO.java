@@ -5,10 +5,10 @@ import jakarta.validation.constraints.NotBlank;
 
 public record AuthenticateAccountDTO(
   @NotBlank
-  @Schema(name = "E-mail", example = "marcel@gmail.com")
+  @Schema(description = "E-mail", example = "marcel@gmail.com")
   String email,
   
   @NotBlank
-  @Schema(name = "Password", example = "marcel", format = "password")
+  @Schema(description = "Password", example = "marcel", format = "password")
   String password
 ) {};

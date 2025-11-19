@@ -6,21 +6,21 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import ufrn.imd.cardeasy.models.Role;
 
 public record AssignmentCandidateDTO(
-  @Schema(name = "Team ID", example = "184fa9a3-f967-4a98-9d8f-57152e7cbe64", implementation = UUID.class)
+  @Schema(description = "Team ID", example = "184fa9a3-f967-4a98-9d8f-57152e7cbe64", implementation = UUID.class)
   String team,
 
-  @Schema(name = "Account ID", example = "184fa9a3-f967-4a98-9d8f-57152e7cbe64", implementation = UUID.class)
+  @Schema(description = "Account ID", example = "184fa9a3-f967-4a98-9d8f-57152e7cbe64", implementation = UUID.class)
   String account,
 
-  @Schema(name = "Name", example = "Lucas Marcel")
+  @Schema(description = "Name", example = "Lucas Marcel")
   String name,
 
-  @Schema(name = "E-mail", example = "marcel@gmail.com")
+  @Schema(description = "E-mail", example = "marcel@gmail.com")
   String email,
 
-  @Schema(name = "Role", example = "OWNER", implementation = Role.class)
+  @Schema(description = "Role", example = "OWNER", implementation = Role.class)
   String role,
 
-  @Schema(name = "Assgined", example = "true")
+  @Schema(description = "Assgined", example = "true")
   Boolean assigned
 ) {};

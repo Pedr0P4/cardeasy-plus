@@ -8,20 +8,20 @@ import jakarta.validation.constraints.Size;
 public record UpdateAccountDTO(
   @NotBlank
   @Size(min = 3, max = 45)
-  @Schema(name = "Name", example = "Lucas Marcel Silva de Brito")
+  @Schema(description = "Name", example = "Lucas Marcel Silva de Brito")
   String name,
 
   @NotBlank
   @Email
   @Size(min = 3, max = 45)
-  @Schema(name = "E-mail", example = "marcel@gmail.com")
+  @Schema(description = "E-mail", example = "marcel@gmail.com")
   String email,
   
   @NotBlank
-  @Schema(name = "Password", example = "marcel", format = "password")
+  @Schema(description = "Password", example = "marcel", format = "password")
   String password,
 
   @Size(min = 6, max = 36)
-  @Schema(name = "Password", example = "marcel", format = "password")
+  @Schema(description = "Password", example = "marcel", format = "password")
   String newPassword
 ) {};

@@ -2,13 +2,22 @@ package ufrn.imd.cardeasy.dtos;
 
 import org.springframework.data.domain.Page;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 import java.util.List;
 import java.util.function.Function;
 
 public record PageDTO<T>(
+  @Schema(description = "Items")
   List<T> items,
+
+  @Schema(description = "Page", example = "0")
   Integer page,
+
+  @Schema(description = "Last page", example = "1")
   Integer lastPage,
+
+  @Schema(description = "Total", example = "8")
   Long total
 ) {
   public static <T, R> PageDTO<T> from(Page<R> page, Function<R,T> mapper){

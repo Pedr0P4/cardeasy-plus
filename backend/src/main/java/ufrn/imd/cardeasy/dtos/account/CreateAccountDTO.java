@@ -8,17 +8,17 @@ import jakarta.validation.constraints.Size;
 public record CreateAccountDTO(
   @NotBlank
   @Size(min = 3, max = 45)
-  @Schema(name = "Name", example = "Lucas Marcel")
+  @Schema(description = "Name", example = "Lucas Marcel")
   String name,
   
   @NotBlank
   @Email
   @Size(min = 3, max = 45)
-  @Schema(name = "E-mail", example = "marcel@gmail.com")
+  @Schema(description = "E-mail", example = "marcel@gmail.com")
   String email,
 
   @NotBlank
   @Size(min = 6, max = 36)
-  @Schema(name = "Password", example = "marcel", format = "password")
+  @Schema(description = "Password", example = "marcel", format = "password")
   String password
 ) {};
