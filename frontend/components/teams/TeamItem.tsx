@@ -19,7 +19,7 @@ export default function TeamItem({ team }: Props) {
       )}
     >
       <h3 className="text-lg font-semibold text-start">{team.title}</h3>
-      <p className="font-light -mt-1 text-start">{team.description}</p>
+      <p className="font-light -mt-1 text-start break-words">{team.description}</p>
     </Link>
   );
 }
