@@ -57,7 +57,7 @@ export default function InviteCodeTeamFormSection({
       return await Api.client()
         .teams()
         .generateCode(team.id as UUID)
-        .then(() => {
+        .then((code) => {
           Toasts.success("Codigo gerado com sucesso!");
           queryClient.invalidateQueries({
             queryKey: ["participations", team.id],
