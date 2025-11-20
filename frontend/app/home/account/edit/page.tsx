@@ -188,7 +188,7 @@ export default function EditAccountPage() {
           hidden={!updatePassword}
           hiddenError={!!error}
           onChangeOptional={onChangePassword}
-          disabled={isLoading || !updatePassword}
+          disabled={isLoading}
         />
         <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaFloppyDisk />

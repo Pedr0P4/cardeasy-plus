@@ -91,7 +91,7 @@ export default function Input({
               id={checkboxId}
               type="checkbox"
               onChange={onChangeOptional}
-              checked={!disabled}
+              checked={!hidden}
               className="mb-0.5 checkbox checkbox-neutral checkbox-sm rounded-md"
             />
           )}
