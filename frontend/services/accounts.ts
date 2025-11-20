@@ -60,19 +60,19 @@ export class AccountsService extends Service {
     });
   }
 
-  async update(id: UUID, { avatar, ...data }: EditAccountData) {
+  async update({ avatar, ...data }: EditAccountData) {
     const form = new FormData();
 
     if (avatar) form.append("avatar", avatar.blob, avatar.filename);
 
     form.append(
-      "account",
+      "body",
       new Blob([JSON.stringify(data)], {
         type: "application/json",
       }),
     );
 
-    return this.api.put<string>(`/accounts/${id}`, form, {
+    return this.api.put<string>("/accounts", form, {
       headers: {
         "Content-Type": "multipart/form-data",
       },

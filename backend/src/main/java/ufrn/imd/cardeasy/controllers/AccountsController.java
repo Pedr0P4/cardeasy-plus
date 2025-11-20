@@ -82,7 +82,7 @@ public class AccountsController {
   public ResponseEntity<AccountDTO> update(
     @AuthenticationPrincipal Account account,
     @RequestPart(name = "avatar", required = false) MultipartFile avatar,
-    @RequestPart @Valid UpdateAccountDTO body
+    @RequestPart(name = "body", required = true) @Valid UpdateAccountDTO body
   ) {
     Account _account = this.service.update(
       account.getId(),
