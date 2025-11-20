@@ -36,7 +36,7 @@ export default function EditAccountPage() {
     name: account?.name ?? "",
     email: account?.email ?? "",
     password: "",
-    newPassword: undefined,
+    newPassword: "",
   });
 
   const onSubmit = async (e: FormEvent) => {
@@ -52,7 +52,10 @@ export default function EditAccountPage() {
     startTransition(async () => {
       const success = await Api.client()
         .accounts()
-        .update(account.id, data)
+        .update({
+          ...data,
+          newPassword: updatePassword? data.newPassword:undefined
+        })
         .then(() => true)
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -185,7 +188,7 @@ export default function EditAccountPage() {
           hidden={!updatePassword}
           hiddenError={!!error}
           onChangeOptional={onChangePassword}
-          disabled={isLoading}
+          disabled={isLoading || !updatePassword}
         />
         <button disabled={isLoading} type="submit" className="btn btn-neutral">
           <FaFloppyDisk />
