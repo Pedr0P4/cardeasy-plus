@@ -105,6 +105,15 @@ public class ParticipationsService {
       .orElseThrow(ParticipationNotFound::new);
   };
 
+  public Participation findByAccountAndAttachment(
+    UUID accountId,
+    Long attachmentId
+  ) {
+    return this.participations
+      .findByAccountAndAttachment(accountId, attachmentId)
+      .orElseThrow(ParticipationNotFound::new);
+  };
+
   public Participation update(
     UUID accountId,
     UUID teamId,
@@ -306,4 +315,21 @@ public class ParticipationsService {
       tagId
     );
   };
+
+  public Participation checkAttachmentAccess(
+    Role role,
+    UUID accountId,
+    Long  attachmentId
+  ) {
+    Participation participation = this.findByAccountAndAttachment(accountId,attachmentId);
+    if (!participation.getRole().hasAccessOf(role)) throw new Forbidden();
+    return participation;
+  }
+
+  public Participation checkAttachmentAccess(
+    UUID accountId,
+    Long  attachmentId
+  ) {
+    return this.checkAttachmentAccess(Role.MEMBER,accountId,attachmentId);
+  }
 };
