@@ -57,7 +57,7 @@ extends JpaRepository<Tag, Integer> {
     value = """
       SELECT tg.id AS id,
       tg.content AS content,
-      SUM(COALESCE(tc.card_id = :cardId, FALSE)) AS usages,
+      COUNT(tc.card_id) AS usages,
       MAX(COALESCE(tc.card_id = :cardId, FALSE)) AS used
       FROM tag AS tg
       LEFT JOIN tag_card AS tc

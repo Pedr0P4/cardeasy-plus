@@ -8,94 +8,69 @@ export default function handleCardInsertOverCard(
   activeId: number,
   overId: number,
   putOnTop: boolean,
+  data: ProjectCardListsData,
   setData: Dispatch<SetStateAction<ProjectCardListsData>>,
 ) {
-  let index = 0;
-
   if (activeListId !== overListId) {
-    setData((previous) => {
-      if (!previous.cards[activeListId] || !previous.cards[overListId]) {
-        index = -1;
-        return previous;
-      }
+    if (!data.cards[activeListId] || !data.cards[overListId]) return -1;
 
-      const activeIndex = previous.cards[activeListId].findIndex(
-        (card) => card.id === activeId,
-      );
+    const activeIndex = data.cards[activeListId].findIndex(
+      (card) => card.id === activeId,
+    );
 
-      if (activeIndex < 0) {
-        index = -1;
-        return previous;
-      }
+    if (activeIndex < 0) return -1;
 
-      const activeCard = previous.cards[activeListId][activeIndex];
+    const activeCard = data.cards[activeListId][activeIndex];
 
-      const newOverCardList = [
-        ...previous.cards[overListId].filter((card) => card.id !== activeId),
-      ];
+    const newOverCardList = [
+      ...data.cards[overListId].filter((card) => card.id !== activeId),
+    ];
 
-      const newActiveCardList = [
-        ...previous.cards[activeListId].filter((card) => card.id !== activeId),
-      ];
+    const newActiveCardList = [
+      ...data.cards[activeListId].filter((card) => card.id !== activeId),
+    ];
 
-      const overIndex = newOverCardList.findIndex((card) => card.id === overId);
+    const overIndex = newOverCardList.findIndex((card) => card.id === overId);
 
-      if (overIndex < 0) {
-        index = -1;
-        return previous;
-      }
+    if (overIndex < 0) return -1;
 
-      if (putOnTop) {
-        newOverCardList.splice(overIndex, 0, activeCard);
-        index = newOverCardList[overIndex].index;
-      } else {
-        newOverCardList.splice(overIndex + 1, 0, activeCard);
-        index = newOverCardList[overIndex].index + 1;
-      }
+    if (putOnTop) {
+      newOverCardList.splice(overIndex, 0, activeCard);
+    } else {
+      newOverCardList.splice(overIndex + 1, 0, activeCard);
+    }
 
-      return {
-        cards: {
-          ...previous.cards,
-          [activeListId]: newActiveCardList,
-          [overListId]: newOverCardList,
-        },
-        cardsLists: previous.cardsLists,
-      };
+    setData({
+      cards: {
+        ...data.cards,
+        [activeListId]: newActiveCardList,
+        [overListId]: newOverCardList,
+      },
+      cardsLists: data.cardsLists,
     });
+
+    return overIndex;
   } else {
-    setData((previous) => {
-      const cardList = previous.cards[activeListId];
+    const cardList = data.cards[activeListId];
 
-      if (!cardList) {
-        index = -1;
-        return previous;
-      }
+    if (!cardList) return -1;
 
-      const activeIndex = cardList.findIndex((card) => card.id === activeId);
+    const activeIndex = cardList.findIndex((card) => card.id === activeId);
 
-      if (activeIndex < 0) {
-        index = -1;
-        return previous;
-      }
+    if (activeIndex < 0) return -1;
 
-      const overIndex = cardList.findIndex((card) => card.id === overId);
+    const overIndex = cardList.findIndex((card) => card.id === overId);
 
-      if (overIndex < 0) {
-        index = -1;
-        return previous;
-      }
+    if (overIndex < 0) return -1;
 
-      index = cardList[overIndex].index;
-
-      return {
-        cards: {
-          ...previous.cards,
-          [activeListId]: arrayMove(cardList, activeIndex, overIndex),
-        },
-        cardsLists: previous.cardsLists,
-      };
+    setData({
+      cards: {
+        ...data.cards,
+        [activeListId]: arrayMove(cardList, activeIndex, overIndex),
+      },
+      cardsLists: data.cardsLists,
     });
-  }
 
-  return index;
+    return overIndex;
+  }
 }

@@ -59,15 +59,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
           Toasts.success("Etiqueta atualizada com sucesso!");
 
           queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "cards-lists",
-              cardList.id,
-              "cards",
-              card.id,
-              "tags",
-            ],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
         })
         .catch((error: ApiErrorResponse) => {
@@ -119,15 +111,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
           Toasts.success("Etiqueta apagada com sucesso!");
 
           queryClient.invalidateQueries({
-            queryKey: [
-              "projects",
-              project.id,
-              "cards-lists",
-              cardList.id,
-              "cards",
-              card.id,
-              "tags",
-            ],
+            queryKey: ["projects", project.id, "cards-lists"],
           });
         })
         .catch((error: ApiErrorResponse) => {

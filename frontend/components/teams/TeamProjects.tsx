@@ -168,13 +168,19 @@ export default function TeamProjects({ participation }: Props) {
         const activeId = Number.parseInt(active.id as string, 10);
         const overId = Number.parseInt(over.id as string, 10);
 
-        const index = handleProjectInsert(activeId, overId, setProjects);
+        const index = handleProjectInsert(
+          activeId,
+          overId,
+          _projects,
+          setProjects,
+        );
 
-        moveMutation.mutate({
-          project: activeId,
-          team: participation.team.id,
-          index,
-        });
+        if (index >= 0)
+          moveMutation.mutate({
+            project: activeId,
+            team: participation.team.id,
+            index,
+          });
       }
     } finally {
       setOverlay(null);

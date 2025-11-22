@@ -1,6 +1,7 @@
 package ufrn.imd.cardeasy.configurations;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.CacheControl;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -15,6 +16,7 @@ public class ImagesConfig implements WebMvcConfigurer {
   ) {
     registry.addResourceHandler("/avatars/**")
       .addResourceLocations("file:database/files/avatars/")
-      .addResourceLocations("file:../database/files/avatars/");
+      .addResourceLocations("file:../database/files/avatars/")
+      .setCacheControl(CacheControl.noCache().mustRevalidate());
   };
 };

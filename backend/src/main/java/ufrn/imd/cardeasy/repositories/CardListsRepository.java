@@ -48,7 +48,10 @@ extends JpaRepository<CardList, Integer> {
     Integer projectId
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -63,7 +66,10 @@ extends JpaRepository<CardList, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -78,7 +84,10 @@ extends JpaRepository<CardList, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """

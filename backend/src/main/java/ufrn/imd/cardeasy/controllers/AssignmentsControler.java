@@ -32,20 +32,20 @@ import ufrn.imd.cardeasy.dtos.assignment.DeleteAssignmentDTO;
 import ufrn.imd.cardeasy.models.Account;
 import ufrn.imd.cardeasy.security.Authenticate;
 import ufrn.imd.cardeasy.services.AssignmentsService;
-import ufrn.imd.cardeasy.services.CardListsService;
+import ufrn.imd.cardeasy.services.CardsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 @RestController
 @RequestMapping("/assignments")
 @Tag(name = "Assignments")
 public class AssignmentsControler {
   private AssignmentsService assignments;
-  private CardListsService cards;
+  private CardsService cards;
   private ParticipationsService participations;
 
   @Autowired
   public AssignmentsControler(
     AssignmentsService assignments,
-    CardListsService cards,
+    CardsService cards,
     ParticipationsService participations
   ) {
     this.assignments = assignments;

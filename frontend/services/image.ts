@@ -18,8 +18,10 @@ export class ImagesService extends Service {
   }
 
   async urlToData(url: string): Promise<ImageData> {
+    const _url = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
+
     return this.api
-      .get<Blob>(url, {
+      .get<Blob>(_url, {
         responseType: "blob",
       })
       .then(async (response) => {
@@ -27,7 +29,7 @@ export class ImagesService extends Service {
         const base64 = await this.blobToBase64(blob);
 
         return {
-          url: new URL(url, response.config.baseURL).href,
+          url: new URL(_url, response.config.baseURL).href,
           blob,
           base64,
         };

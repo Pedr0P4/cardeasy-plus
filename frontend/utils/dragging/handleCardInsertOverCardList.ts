@@ -6,53 +6,42 @@ export default function handleCardInsertOverCardList(
   overListId: number,
   activeId: number,
   putOnTop: boolean,
+  data: ProjectCardListsData,
   setData: Dispatch<SetStateAction<ProjectCardListsData>>,
 ) {
-  let index = 0;
+  if (activeListId === overListId) return -1;
+  if (!data.cards[activeListId]) return -1;
 
-  if (activeListId !== overListId) {
-    setData((previous) => {
-      if (!previous.cards[activeListId]) {
-        index = -1;
-        return previous;
-      }
+  const activeIndex = data.cards[activeListId].findIndex(
+    (card) => card.id === activeId,
+  );
 
-      const activeIndex = previous.cards[activeListId].findIndex(
-        (card) => card.id === activeId,
-      );
+  if (activeIndex < 0) return -1;
 
-      if (activeIndex < 0) {
-        index = -1;
-        return previous;
-      }
+  const activeCard = data.cards[activeListId][activeIndex];
+  const newOverCardList = [...(data.cards[overListId] ?? [])];
+  const newActiveCardList = [
+    ...data.cards[activeListId].filter((card) => card.id !== activeId),
+  ];
 
-      const activeCard = previous.cards[activeListId][activeIndex];
-      const newOverCardList = [...(previous.cards[overListId] ?? [])];
-      const newActiveCardList = [
-        ...previous.cards[activeListId].filter((card) => card.id !== activeId),
-      ];
+  let index = -1;
 
-      if (putOnTop) {
-        newOverCardList.unshift(activeCard);
-        if (newOverCardList.length > 1) index = newOverCardList[1].index;
-        else index = 0;
-      } else {
-        newOverCardList.push(activeCard);
-        if (newOverCardList.length > 1)
-          index = newOverCardList[newOverCardList.length - 2].index;
-        else index = 0;
-      }
-
-      return {
-        cards: {
-          ...previous.cards,
-          [activeListId]: newActiveCardList,
-          [overListId]: newOverCardList,
-        },
-        cardsLists: previous.cardsLists,
-      };
-    });
+  if (putOnTop) {
+    newOverCardList.unshift(activeCard);
+    index = 0;
+  } else {
+    newOverCardList.push(activeCard);
+    index = newOverCardList.length - 1;
   }
+
+  setData({
+    cards: {
+      ...data.cards,
+      [activeListId]: newActiveCardList,
+      [overListId]: newOverCardList,
+    },
+    cardsLists: data.cardsLists,
+  });
 
   return index;
 }

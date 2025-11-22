@@ -72,7 +72,6 @@ public class CardListsController {
     this.projects.existsById(body.project());
 
     this.participations.checkProjectAccess(
-      Role.ADMIN,
       account.getId(),
       body.project()
     );

@@ -238,9 +238,9 @@ export default function ProjectCardLists({ project, role }: Props) {
           10,
         );
 
-        const index = handleCardListsInsert(_activeId, _overId, setData);
+        const index = handleCardListsInsert(_activeId, _overId, data, setData);
 
-        if (mutate) {
+        if (mutate && index >= 0) {
           moveCardListMutation.mutate({
             project: project.id,
             cardList: _activeId,
@@ -267,9 +267,14 @@ export default function ProjectCardLists({ project, role }: Props) {
           10,
         );
 
-        const index = handleCardListsInsert(_activeId, overListId, setData);
+        const index = handleCardListsInsert(
+          _activeId,
+          overListId,
+          data,
+          setData,
+        );
 
-        if (mutate) {
+        if (mutate && index >= 0) {
           moveCardListMutation.mutate({
             project: project.id,
             cardList: _activeId,
@@ -329,10 +334,11 @@ export default function ProjectCardLists({ project, role }: Props) {
             _activeId,
             _overId,
             isOnTop,
+            data,
             setData,
           );
 
-          if (mutate) {
+          if (mutate && index >= 0) {
             moveCardMutation.mutate({
               cardList: overListId,
               card: _activeId,
@@ -348,10 +354,11 @@ export default function ProjectCardLists({ project, role }: Props) {
             overListId,
             _activeId,
             isOnTop,
+            data,
             setData,
           );
 
-          if (mutate) {
+          if (mutate && index >= 0) {
             moveCardMutation.mutate({
               cardList: overListId,
               card: _activeId,

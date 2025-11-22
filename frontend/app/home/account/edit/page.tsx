@@ -1,10 +1,12 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { redirect } from "next/navigation";
 import {
   type ChangeEvent,
   type FormEvent,
+  useEffect,
   useState,
   useTransition,
 } from "react";
@@ -22,29 +24,61 @@ import type { EditAccountData } from "@/services/accounts";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Toasts } from "@/services/toats";
-import { useAccount } from "@/stores/useAccount";
 
 export default function EditAccountPage() {
-  const account = useAccount((state) => state.account);
+  const queryClient = useQueryClient();
+  const query = useQuery({
+    queryKey: ["me"],
+    queryFn: () =>
+      Api.client()
+        .accounts()
+        .verify()
+        .then(async (account) => {
+          try {
+            const avatar = await Api.client()
+              .images()
+              .urlToData(`/avatars/${account.id}.webp`);
 
-  const [isLoading, startTransition] = useTransition();
+            return {
+              ...account,
+              avatar,
+            };
+          } catch {
+            return account;
+          }
+        }),
+  });
+
+  const [_isLoading, startTransition] = useTransition();
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
   const [updatePassword, setUpdatePassword] = useState<boolean>(false);
   const [data, setData] = useState<EditAccountData>({
-    avatar: account?.avatar,
-    name: account?.name ?? "",
-    email: account?.email ?? "",
+    avatar: query.data?.avatar,
+    name: query.data?.name ?? "",
+    email: query.data?.email ?? "",
     password: "",
     newPassword: "",
   });
+
+  useEffect(() => {
+    if (!query.isFetching && query.isSuccess) {
+      setData({
+        avatar: query.data?.avatar,
+        name: query.data?.name ?? "",
+        email: query.data?.email ?? "",
+        password: "",
+        newPassword: "",
+      });
+    }
+  }, [query.data, query.isFetching, query.isSuccess]);
 
   const onSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
     setErrors({});
 
-    if (!account) {
+    if (!query.data) {
       setError("erro inesperado");
       return;
     }
@@ -54,9 +88,14 @@ export default function EditAccountPage() {
         .accounts()
         .update({
           ...data,
-          newPassword: updatePassword? data.newPassword:undefined
+          newPassword: updatePassword ? data.newPassword : undefined,
         })
-        .then(() => true)
+        .then(() => {
+          queryClient.invalidateQueries({
+            queryKey: ["me"],
+          });
+          return true;
+        })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
           else if (err.isErrorResponse()) setError(err.error);
@@ -98,6 +137,8 @@ export default function EditAccountPage() {
 
   const onChangePassword = (e: ChangeEvent<HTMLInputElement>) =>
     setUpdatePassword(e.target.checked);
+
+  const isLoading = _isLoading || query.isFetching;
 
   return (
     <main

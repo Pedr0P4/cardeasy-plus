@@ -41,7 +41,7 @@ public class StagesService {
   ) {
     Project project = this.projects.findById(projectId)
       .orElseThrow(ProjectNotFound::new);
-
+    
     if(
       expectedEndIn != null && 
       expectedStartIn.compareTo(expectedEndIn) > 0
@@ -55,6 +55,7 @@ public class StagesService {
     stage.setExpectedEndIn(expectedEndIn);
 
     Date now = new Date(Instant.now().toEpochMilli());
+
     if(!expectedStartIn.after(now))
       stage.setState(StageState.STARTED);
     else
@@ -92,6 +93,11 @@ public class StagesService {
     Date expectedEndIn
   ) {
     Stage stage = this.findById(id);
+
+    if(
+      expectedEndIn != null && 
+      expectedStartIn.compareTo(expectedEndIn) > 0
+    ) throw new ExpectedEndIsBeforeStart();
 
     stage.setName(name);
     stage.setDescription(description);

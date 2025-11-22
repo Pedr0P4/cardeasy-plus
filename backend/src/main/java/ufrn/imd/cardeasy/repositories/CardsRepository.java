@@ -1,7 +1,5 @@
 package ufrn.imd.cardeasy.repositories;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,7 +12,10 @@ import ufrn.imd.cardeasy.models.Card;
 @Repository
 public interface CardsRepository 
 extends JpaRepository<Card, Integer> {
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -29,7 +30,10 @@ extends JpaRepository<Card, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -44,7 +48,10 @@ extends JpaRepository<Card, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """

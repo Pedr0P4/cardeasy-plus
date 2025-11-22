@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -7,11 +8,30 @@ import { FaBars, FaPenToSquare, FaRightToBracket } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Toasts } from "@/services/toats";
-import { useAccount } from "@/stores/useAccount";
 import Avatar from "./Avatar";
 
 export default function Header() {
-  const account = useAccount((state) => state.account);
+  const query = useQuery({
+    queryKey: ["me"],
+    queryFn: () =>
+      Api.client()
+        .accounts()
+        .verify()
+        .then(async (account) => {
+          try {
+            const avatar = await Api.client()
+              .images()
+              .urlToData(`/avatars/${account.id}.webp`);
+
+            return {
+              ...account,
+              avatar,
+            };
+          } catch {
+            return account;
+          }
+        }),
+  });
 
   const onLogout = () => {
     Api.client()
@@ -34,18 +54,18 @@ export default function Header() {
           Cardeasy<span className="text-neutral">+</span>
         </p>
       </div>
-      {account && (
+      {query.data && (
         <div className="flex flex-row gap-4 items-center">
           <div className="flex flex-col items-end not-md:hidden">
-            <h2 className="font-semibold">{account.name}</h2>
-            <p className="font-thin text-sm -mt-1.5">{account.email}</p>
+            <h2 className="font-semibold">{query.data.name}</h2>
+            <p className="font-thin text-sm -mt-1.5">{query.data.email}</p>
           </div>
           <div className="relative">
             <div className="not-md:hidden">
               <Avatar
                 className="!size-8"
-                name={account.name ?? ""}
-                avatar={account.avatar}
+                name={query.data.name ?? ""}
+                avatar={query.data.avatar}
               />
             </div>
             <div

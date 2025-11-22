@@ -1,6 +1,5 @@
 package ufrn.imd.cardeasy.repositories;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Page;
@@ -55,7 +54,10 @@ extends JpaRepository<Project, Integer> {
     Pageable pageable
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -70,7 +72,10 @@ extends JpaRepository<Project, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
@@ -85,7 +90,10 @@ extends JpaRepository<Project, Integer> {
     Long index
   );
 
-  @Modifying
+  @Modifying(
+    clearAutomatically = true,
+    flushAutomatically = true
+  )
   @Query(
     // language=sql
     value = """
