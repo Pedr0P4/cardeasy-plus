@@ -167,10 +167,10 @@ export default function TeamProjects({ participation }: Props) {
       if (over !== null && active.id !== over.id) {
         const activeId = Number.parseInt(active.id as string, 10);
         const overId = Number.parseInt(over.id as string, 10);
+        
+        const index = handleProjectInsert(activeId, overId, _projects, setProjects);
 
-        const index = handleProjectInsert(activeId, overId, setProjects);
-
-        moveMutation.mutate({
+        if (index >= 0) moveMutation.mutate({
           project: activeId,
           team: participation.team.id,
           index,

@@ -5,38 +5,23 @@ import type { ProjectCardListsData } from "@/components/projects/ProjectCardList
 export default function handleCardListsInsert(
   activeId: number,
   overId: number,
+  data: ProjectCardListsData,
   setData: Dispatch<SetStateAction<ProjectCardListsData>>,
 ) {
-  let index = 0;
+  if (activeId === overId) return -1;
+  
+  const cardsLists = [...data.cardsLists];
+  const activeIndex = cardsLists.findIndex((item) => item.id === activeId);
+  const overIndex = cardsLists.findIndex((item) => item.id === overId);
 
-  setData((previous) => {
-    const cardsLists = [...previous.cardsLists];
+  if (activeIndex < 0 || overIndex < 0) return -1;
 
-    const activeIndex = cardsLists.findIndex(
-      (cardList) => cardList.id === activeId,
-    );
+  const index = cardsLists[overIndex].index;
 
-    if (activeIndex < 0) {
-      index = -1;
-      return previous;
-    }
-
-    const overIndex = cardsLists.findIndex(
-      (cardList) => cardList.id === overId,
-    );
-
-    if (overIndex < 0) {
-      index = -1;
-      return previous;
-    }
-
-    index = cardsLists[overIndex].index;
-
-    return {
-      cards: previous.cards,
-      cardsLists: arrayMove(cardsLists, activeIndex, overIndex),
-    };
-  });
+  setData((previous) => ({
+    ...previous,
+    cardsLists: arrayMove(previous.cardsLists, activeIndex, overIndex),
+  }));
 
   return index;
 }
