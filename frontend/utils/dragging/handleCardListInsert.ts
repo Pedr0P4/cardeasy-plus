@@ -16,12 +16,10 @@ export default function handleCardListsInsert(
 
   if (activeIndex < 0 || overIndex < 0) return -1;
 
-  const index = cardsLists[overIndex].index;
-
   setData((previous) => ({
     ...previous,
     cardsLists: arrayMove(previous.cardsLists, activeIndex, overIndex),
   }));
 
-  return index;
+  return overIndex;
 }

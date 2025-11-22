@@ -67,7 +67,10 @@ export default function EditStageFormSection({ project, stage }: Props) {
         .stages()
         .update(stage?.id, {
           ...data,
-          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+          expectedEndIn: withExpectedEndIn
+            ? (data.expectedEndIn ??
+              (data.expectedStartIn ? data.expectedStartIn - 1 : undefined))
+            : undefined,
         })
         .then(() => {
           Toasts.success("Etapa atualizada com sucesso!");
@@ -134,6 +137,16 @@ export default function EditStageFormSection({ project, stage }: Props) {
             setError("");
             setErrors({});
             setIsLoading(true);
+
+            if (withExpectedEndIn && !data.expectedEndIn) {
+              setErrors({
+                expectedEndIn: "não deve ser nulo"
+              });
+              
+              setIsLoading(false);
+              return;
+            };
+
             updateMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}

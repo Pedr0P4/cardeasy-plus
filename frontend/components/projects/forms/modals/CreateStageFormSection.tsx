@@ -43,11 +43,8 @@ export default function CreateStageFormSection({ project }: Props) {
         .create({
           ...data,
           expectedEndIn: withExpectedEndIn
-            ? data.expectedEndIn
-              ? data.expectedEndIn
-              : data.expectedStartIn
-                ? data.expectedStartIn - 1
-                : undefined
+            ? (data.expectedEndIn ??
+              (data.expectedStartIn ? data.expectedStartIn - 1 : undefined))
             : undefined,
         })
         .then(() => {
@@ -114,6 +111,16 @@ export default function CreateStageFormSection({ project }: Props) {
             setError("");
             setErrors({});
             setIsLoading(true);
+
+            if (withExpectedEndIn && !data.expectedEndIn) {
+              setErrors({
+                expectedEndIn: "não deve ser nulo"
+              });
+              
+              setIsLoading(false);
+              return;
+            };
+
             createMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}

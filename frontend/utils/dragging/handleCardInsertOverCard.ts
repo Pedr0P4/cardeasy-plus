@@ -34,14 +34,10 @@ export default function handleCardInsertOverCard(
 
     if (overIndex < 0) return -1;
 
-    let index = -1;
-
     if (putOnTop) {
       newOverCardList.splice(overIndex, 0, activeCard);
-      index = newOverCardList[overIndex].index;
     } else {
       newOverCardList.splice(overIndex + 1, 0, activeCard);
-      index = newOverCardList[overIndex].index + 1;
     }
 
     setData({
@@ -53,7 +49,7 @@ export default function handleCardInsertOverCard(
       cardsLists: data.cardsLists,
     });
 
-    return index;
+    return overIndex;
   } else {
     const cardList = data.cards[activeListId];
 
@@ -67,8 +63,6 @@ export default function handleCardInsertOverCard(
 
     if (overIndex < 0) return -1;
 
-    const index = cardList[overIndex].index;
-
     setData({
       cards: {
         ...data.cards,
@@ -77,6 +71,6 @@ export default function handleCardInsertOverCard(
       cardsLists: data.cardsLists,
     });
 
-    return index;
+    return overIndex;
   }
 }

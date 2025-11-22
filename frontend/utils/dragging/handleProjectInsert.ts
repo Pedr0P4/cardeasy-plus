@@ -18,9 +18,7 @@ export default function handleProjectInsert(
 
   if (overIndex < 0) return -1;
 
-  const index = projects[overIndex].index;
-
   setData(arrayMove(projects, activeIndex, overIndex));
 
-  return index;
+  return overIndex;
 }

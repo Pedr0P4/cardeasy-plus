@@ -28,13 +28,10 @@ export default function handleCardInsertOverCardList(
 
   if (putOnTop) {
     newOverCardList.unshift(activeCard);
-    if (newOverCardList.length > 1) index = newOverCardList[1].index;
-    else index = 0;
+    index = 0;
   } else {
     newOverCardList.push(activeCard);
-    if (newOverCardList.length > 1)
-      index = newOverCardList[newOverCardList.length - 2].index;
-    else index = 0;
+    index = newOverCardList.length - 1;
   }
 
   setData({
