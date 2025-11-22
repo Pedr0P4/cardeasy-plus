@@ -267,7 +267,12 @@ export default function ProjectCardLists({ project, role }: Props) {
           10,
         );
 
-        const index = handleCardListsInsert(_activeId, overListId, data, setData);
+        const index = handleCardListsInsert(
+          _activeId,
+          overListId,
+          data,
+          setData,
+        );
 
         if (mutate && index >= 0) {
           moveCardListMutation.mutate({

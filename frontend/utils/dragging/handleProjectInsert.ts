@@ -10,9 +10,7 @@ export default function handleProjectInsert(
 ) {
   const projects = [...data];
 
-  const activeIndex = projects.findIndex(
-    (project) => project.id === activeId,
-  );
+  const activeIndex = projects.findIndex((project) => project.id === activeId);
 
   if (activeIndex < 0) return -1;
 
@@ -25,4 +23,4 @@ export default function handleProjectInsert(
   setData(arrayMove(projects, activeIndex, overIndex));
 
   return index;
-};
+}

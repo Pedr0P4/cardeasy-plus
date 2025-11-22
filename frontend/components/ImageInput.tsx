@@ -69,7 +69,7 @@ export default function ImageInput({
 
   useEffect(() => {
     setSrc(file.url);
-  }, [file.url])
+  }, [file.url]);
 
   const onResetZoom = () => setZoom(1);
 
@@ -83,7 +83,7 @@ export default function ImageInput({
   };
 
   const onClickToUpload = () => {
-    if(!!inputRef.current) inputRef.current.value = "";
+    if (inputRef.current) inputRef.current.value = "";
     inputRef.current?.click();
   };
 
@@ -117,10 +117,13 @@ export default function ImageInput({
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.currentTarget.files !== null && (e.currentTarget.files as FileList).length > 0) {
+    if (
+      e.currentTarget.files !== null &&
+      (e.currentTarget.files as FileList).length > 0
+    ) {
       const file = (e.currentTarget.files as FileList)[0];
       onLoad(file);
-    };
+    }
   };
 
   const onDropImage = (e: DragEvent<HTMLButtonElement>) => {

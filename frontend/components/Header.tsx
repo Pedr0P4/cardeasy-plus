@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -8,30 +9,28 @@ import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Toasts } from "@/services/toats";
 import Avatar from "./Avatar";
-import { useQuery } from "@tanstack/react-query";
 
 export default function Header() {
   const query = useQuery({
-    queryKey: [
-      "me"
-    ],
-    queryFn: () => Api.client()
-      .accounts()
-      .verify()
-      .then(async(account) => {
-        try {
-          const avatar = await Api.client()
-            .images()
-            .urlToData(`/avatars/${account.id}.webp`);
+    queryKey: ["me"],
+    queryFn: () =>
+      Api.client()
+        .accounts()
+        .verify()
+        .then(async (account) => {
+          try {
+            const avatar = await Api.client()
+              .images()
+              .urlToData(`/avatars/${account.id}.webp`);
 
-          return {
-            ...account,
-            avatar
-          };
-        } catch {
-          return account;
-        };
-      })
+            return {
+              ...account,
+              avatar,
+            };
+          } catch {
+            return account;
+          }
+        }),
   });
 
   const onLogout = () => {

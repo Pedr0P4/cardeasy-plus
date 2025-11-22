@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
 import { redirect } from "next/navigation";
 import {
@@ -23,31 +24,29 @@ import type { EditAccountData } from "@/services/accounts";
 import { Api } from "@/services/api";
 import type { ApiErrorResponse } from "@/services/base/axios";
 import { Toasts } from "@/services/toats";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export default function EditAccountPage() {
   const queryClient = useQueryClient();
   const query = useQuery({
-    queryKey: [
-      "me"
-    ],
-    queryFn: () => Api.client()
-      .accounts()
-      .verify()
-      .then(async(account) => {
-        try {
-          const avatar = await Api.client()
-            .images()
-            .urlToData(`/avatars/${account.id}.webp`);
+    queryKey: ["me"],
+    queryFn: () =>
+      Api.client()
+        .accounts()
+        .verify()
+        .then(async (account) => {
+          try {
+            const avatar = await Api.client()
+              .images()
+              .urlToData(`/avatars/${account.id}.webp`);
 
-          return {
-            ...account,
-            avatar
-          };
-        } catch {
-          return account;
-        };
-      })
+            return {
+              ...account,
+              avatar,
+            };
+          } catch {
+            return account;
+          }
+        }),
   });
 
   const [_isLoading, startTransition] = useTransition();
@@ -71,7 +70,7 @@ export default function EditAccountPage() {
         password: "",
         newPassword: "",
       });
-    };
+    }
   }, [query.data, query.isFetching, query.isSuccess]);
 
   const onSubmit = async (e: FormEvent) => {
@@ -82,20 +81,18 @@ export default function EditAccountPage() {
     if (!query.data) {
       setError("erro inesperado");
       return;
-    };
+    }
 
     startTransition(async () => {
       const success = await Api.client()
         .accounts()
         .update({
           ...data,
-          newPassword: updatePassword? data.newPassword:undefined
+          newPassword: updatePassword ? data.newPassword : undefined,
         })
         .then(() => {
           queryClient.invalidateQueries({
-            queryKey: [
-              "me"
-            ],
+            queryKey: ["me"],
           });
           return true;
         })

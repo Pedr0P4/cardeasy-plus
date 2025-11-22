@@ -9,7 +9,7 @@ export default function handleCardListsInsert(
   setData: Dispatch<SetStateAction<ProjectCardListsData>>,
 ) {
   if (activeId === overId) return -1;
-  
+
   const cardsLists = [...data.cardsLists];
   const activeIndex = cardsLists.findIndex((item) => item.id === activeId);
   const overIndex = cardsLists.findIndex((item) => item.id === overId);

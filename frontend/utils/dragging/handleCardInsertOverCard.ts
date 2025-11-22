@@ -42,7 +42,7 @@ export default function handleCardInsertOverCard(
     } else {
       newOverCardList.splice(overIndex + 1, 0, activeCard);
       index = newOverCardList[overIndex].index + 1;
-    };
+    }
 
     setData({
       cards: {
@@ -66,7 +66,7 @@ export default function handleCardInsertOverCard(
     const overIndex = cardList.findIndex((card) => card.id === overId);
 
     if (overIndex < 0) return -1;
-    
+
     const index = cardList[overIndex].index;
 
     setData({
@@ -78,5 +78,5 @@ export default function handleCardInsertOverCard(
     });
 
     return index;
-  };
+  }
 }

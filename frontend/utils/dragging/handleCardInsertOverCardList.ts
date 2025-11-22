@@ -9,9 +9,9 @@ export default function handleCardInsertOverCardList(
   data: ProjectCardListsData,
   setData: Dispatch<SetStateAction<ProjectCardListsData>>,
 ) {
-  if(activeListId === overListId) return -1
+  if (activeListId === overListId) return -1;
   if (!data.cards[activeListId]) return -1;
-  
+
   const activeIndex = data.cards[activeListId].findIndex(
     (card) => card.id === activeId,
   );
@@ -35,7 +35,7 @@ export default function handleCardInsertOverCardList(
     if (newOverCardList.length > 1)
       index = newOverCardList[newOverCardList.length - 2].index;
     else index = 0;
-  };
+  }
 
   setData({
     cards: {

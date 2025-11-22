@@ -18,7 +18,7 @@ export class ImagesService extends Service {
   }
 
   async urlToData(url: string): Promise<ImageData> {
-    const _url = `${url}${url.includes('?') ? '&' : '?'}t=${Date.now()}`;
+    const _url = `${url}${url.includes("?") ? "&" : "?"}t=${Date.now()}`;
 
     return this.api
       .get<Blob>(_url, {

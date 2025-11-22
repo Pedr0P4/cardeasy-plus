@@ -42,7 +42,13 @@ export default function CreateStageFormSection({ project }: Props) {
         .stages()
         .create({
           ...data,
-          expectedEndIn: withExpectedEndIn ? data.expectedEndIn : undefined,
+          expectedEndIn: withExpectedEndIn
+            ? data.expectedEndIn
+              ? data.expectedEndIn
+              : data.expectedStartIn
+                ? data.expectedStartIn - 1
+                : undefined
+            : undefined,
         })
         .then(() => {
           Toasts.success("Etapa criada com sucesso!");
