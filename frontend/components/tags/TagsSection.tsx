@@ -64,9 +64,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
               project.id,
               "cards-lists",
               cardList.id,
-              "cards",
-              card.id,
-              "tags",
+              "cards"
             ],
           });
         })
@@ -124,9 +122,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
               project.id,
               "cards-lists",
               cardList.id,
-              "cards",
-              card.id,
-              "tags",
+              "cards"
             ],
           });
         })
