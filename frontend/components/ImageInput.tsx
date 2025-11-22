@@ -7,6 +7,7 @@ import {
   type ChangeEvent,
   type DetailedHTMLProps,
   type DragEvent,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -66,6 +67,10 @@ export default function ImageInput({
     height: 0,
   });
 
+  useEffect(() => {
+    setSrc(file.url);
+  }, [file.url])
+
   const onResetZoom = () => setZoom(1);
 
   const onChangeZoom = (e: ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +82,10 @@ export default function ImageInput({
     areaRef.current?.showModal();
   };
 
-  const onClickToUpload = () => inputRef.current?.click();
+  const onClickToUpload = () => {
+    if(!!inputRef.current) inputRef.current.value = "";
+    inputRef.current?.click();
+  };
 
   const onClickToClear = () => {
     onCancel();
@@ -109,12 +117,10 @@ export default function ImageInput({
   };
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.currentTarget.files !== null) {
+    if (e.currentTarget.files !== null && (e.currentTarget.files as FileList).length > 0) {
       const file = (e.currentTarget.files as FileList)[0];
       onLoad(file);
-    } else {
-      onLoad(new Blob());
-    }
+    };
   };
 
   const onDropImage = (e: DragEvent<HTMLButtonElement>) => {
@@ -148,6 +154,7 @@ export default function ImageInput({
     setZoom(1);
     setArea({ x: 0, y: 0, width: 0, height: 0 });
     setSrc(file.url);
+
     cropRef.current?.close();
     areaRef.current?.close();
   };
@@ -199,6 +206,7 @@ export default function ImageInput({
               className="hidden"
               accept="image/jpeg, image/jpg, image/png, image/webp"
               onChange={onChange}
+              onAbort={onCancel}
             />
             <p className="overflow-ellipsis overflow-hidden w-full text-nowrap font-light">
               {file.name ?? file.url ?? "Nenhum arquivo carregado..."}

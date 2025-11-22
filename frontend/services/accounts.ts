@@ -80,6 +80,7 @@ export class AccountsService extends Service {
   }
 
   async verify() {
-    return this.api.get<Account>("/accounts/verify");
+    return this.api.get<Account>("/accounts/verify")
+      .then((res) => res.data);
   }
 }

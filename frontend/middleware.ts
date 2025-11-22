@@ -12,10 +12,7 @@ export async function middleware(req: NextRequest) {
 
   if (token && typeof token === "string") {
     try {
-      const res = await Api.server().accounts().verify();
-
-      headers.set("x-user-account", JSON.stringify(res.data));
-
+      await Api.server().accounts().verify();
       if (isProtectedRoute) return NextResponse.next({ headers });
       return NextResponse.redirect(new URL("/home", req.url), { headers });
     } catch (_) {}

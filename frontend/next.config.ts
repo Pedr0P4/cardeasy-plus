@@ -11,7 +11,14 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
-    remotePatterns: [new URL("http://localhost:8080/avatars/**")],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8080',
+        pathname: '/avatars/**',
+      },
+    ],
   },
 };
 
