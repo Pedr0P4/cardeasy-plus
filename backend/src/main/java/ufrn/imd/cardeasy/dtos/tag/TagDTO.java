@@ -2,6 +2,8 @@ package ufrn.imd.cardeasy.dtos.tag;
 
 import java.util.List;
 
+import org.springframework.lang.Nullable;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import ufrn.imd.cardeasy.models.Tag;
 
@@ -16,6 +18,7 @@ public record TagDTO(
   Long usages,
 
   @Schema(description = "Used", example = "true")
+  @Nullable
   Boolean used
 ) {
   public static TagDTO from(Tag tag){
@@ -23,7 +26,7 @@ public record TagDTO(
       tag.getId(),
       tag.getContent(),
       (long) tag.getCards().size(),
-      tag.getCards().size() > 0
+      null
     );
   }
 

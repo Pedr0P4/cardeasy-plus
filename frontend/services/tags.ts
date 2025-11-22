@@ -4,7 +4,7 @@ export type Tag = {
   id: number;
   content: string;
   usages: number;
-  used: boolean;
+  used?: boolean;
 };
 
 export type CreateTagData = {

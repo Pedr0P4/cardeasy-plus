@@ -62,9 +62,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
             queryKey: [
               "projects",
               project.id,
-              "cards-lists",
-              cardList.id,
-              "cards"
+              "cards-lists"
             ],
           });
         })
@@ -120,9 +118,7 @@ export default function TagsSection({ project, cardList, card }: Props) {
             queryKey: [
               "projects",
               project.id,
-              "cards-lists",
-              cardList.id,
-              "cards"
+              "cards-lists"
             ],
           });
         })
