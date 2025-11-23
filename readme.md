@@ -5,6 +5,7 @@ Uma reconstrução do [Cardeasy](https://github.com/Pedr0P4/Cardeasy).
 - [Instruções para backend](#instruções-para-backend)
   - [Execução](#execução)
   - [Acesso e dados mockados](#acesso-e-dados-mockados)
+  - [Swagger](#swagger)
 - [Instruções para frontend](#instruções-para-frontend)
   - [Execução](#execução-1)
   - [Next.js](#nextjs)
@@ -53,6 +54,10 @@ Deixamos alguns dados `mockados` apenas para `testes` (alguns nomes e títulos p
 - Artur
   - E-mail: artur@gmail.com
   - Senha: artur
+
+## Swagger
+
+Uma vez em execução, você conseguirá acessar todas as informações das rotas através do caminho `http://localhost:8080/docs/swagger`.
 
 # Instruções para frontend
 
