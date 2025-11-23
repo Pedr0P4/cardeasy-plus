@@ -301,9 +301,8 @@ extends JpaRepository<Participation, ParticipationId> {
     Integer tagId
   );
 
-  //Ajeita essa bosta depois
   @Query (
-    // language = SQL
+    // language=sql
     value = """
     SELECT pt.* FROM participation AS pt
     JOIN project AS pj 
@@ -312,14 +311,14 @@ extends JpaRepository<Participation, ParticipationId> {
     ON cl.project_id = pj.id
     JOIN card AS cd
     ON cl.id = cd.list_id
-    JOIN attachment AS att
-    ON att.card_id = cd.id
+    JOIN attachment AS at
+    ON at.card_id = cd.id
     WHERE pt.account_id = ?1
-    AND att.id = ?2
+    AND at.id = ?2
     """,
     nativeQuery = true
   ) public Optional<Participation> findByAccountAndAttachment(
     UUID accountId,
-    Long attachmentId
+    Integer attachmentId
   );
 };

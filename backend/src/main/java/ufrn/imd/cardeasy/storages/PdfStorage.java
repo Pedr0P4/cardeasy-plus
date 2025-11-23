@@ -1,27 +1,49 @@
 package ufrn.imd.cardeasy.storages;
 
-import org.springframework.stereotype.Component;
+import java.nio.file.Path;
+
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
-import java.util.UUID;
+import ufrn.imd.cardeasy.errors.files.FileNotFoundException;
+import ufrn.imd.cardeasy.errors.files.InvalidPDFFormat;
 
-@Component
-public class PdfStorage extends DocumentStorage {
-  private Path getUserPdfsPath() {
+
+public abstract class PdfStorage extends FileStorage {
+  public PdfStorage() {
+    super("pdf");
+  };
+
+  protected Path getPdfsStoragePath() {
     return this.getStorageFolder()
       .resolve("pdfs");
   };
 
-  public void store(Long id, MultipartFile file) {
-    this.store(id.toString(), file, this.getUserPdfsPath());
+  @Override
+  public void validate(MultipartFile file) {
+    super.validate(file);
+
+    String type = file.getContentType();
+
+    if (type == null) throw new InvalidPDFFormat();
+
+    Boolean valid = type.contains("pdf");
+
+    if(!valid) throw new InvalidPDFFormat();
   };
 
-  public void delete(Long id) {
-    this.delete(id.toString(), this.getUserPdfsPath());
+  public Resource getFile(Integer id) {
+    try {
+      String filename = this.makeFilename(id.toString());
+    
+      Resource resource = new UrlResource(
+        this.getPdfsStoragePath().resolve(filename).toUri()
+      );
+        
+      return resource;
+    } catch (Exception e) {
+      throw new FileNotFoundException();
+    }
   };
-
-  public boolean exists(Long id) {
-    return this.exists(id.toString(), this.getUserPdfsPath());
-  };
-}
+};

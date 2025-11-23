@@ -55,12 +55,12 @@ public class AccountsController {
   })
   public ResponseEntity<Void> create(
     @RequestPart(name = "avatar", required = false) MultipartFile avatar,
-    @RequestPart("account") @Valid CreateAccountDTO account
+    @RequestPart(name = "body", required = true) @Valid CreateAccountDTO body
   ) {
     this.service.create(
-      account.name(),
-      account.email(),
-      account.password(),
+      body.name(),
+      body.email(),
+      body.password(),
       avatar
     );
 

@@ -47,7 +47,7 @@ export class AccountsService extends Service {
     if (avatar) form.append("avatar", avatar.blob, avatar.filename);
 
     form.append(
-      "account",
+      "body",
       new Blob([JSON.stringify(data)], {
         type: "application/json",
       }),

@@ -79,19 +79,7 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
         errors
       ));
   };
-
-  @ExceptionHandler({EmptyFileException.class, InvalidImageFormat.class})
-  public ResponseEntity<ErrorDTO> handleBadFileError(
-    FileException e
-  ) {
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(new ErrorDTO(
-        HttpStatus.BAD_REQUEST.value(),
-        e.getMessage()
-      ));
-  };
-
+  
   @ExceptionHandler(FileException.class)
   public ResponseEntity<ErrorDTO> handleFileError(
     FileException e

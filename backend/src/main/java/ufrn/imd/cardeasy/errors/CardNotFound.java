@@ -4,14 +4,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpStatusCodeException;
 
 public class CardNotFound extends HttpStatusCodeException {
-    public CardNotFound() {
-        super(
-            "Card não encontrado",
-            HttpStatus.NOT_FOUND,
-            null,
-            null,
-            null,
-            null
-        );
-    }
-}
+  public CardNotFound() {
+    super(
+      "card não encontrado",
+      HttpStatus.NOT_FOUND,
+      null,
+      null,
+      null,
+      null
+    );
+  };
+};
