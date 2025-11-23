@@ -135,7 +135,10 @@ export default function AssignmentsSection({ project, cardList, card }: Props) {
           placeholder="Pesquisar por nome ou email"
           icon={FaMagnifyingGlass}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(0);
+          }}
         />
         <p className="-mt-1 mb-2 font-thin">
           Clique para atribuir ou desfazer uma atribuição.

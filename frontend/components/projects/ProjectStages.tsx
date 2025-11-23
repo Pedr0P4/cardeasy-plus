@@ -63,7 +63,10 @@ export default function ProjectStages({ project, role }: Props) {
           placeholder="Pesquisar por título ou descrição"
           icon={FaMagnifyingGlass}
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(0);
+          }}
         />
       </div>
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
