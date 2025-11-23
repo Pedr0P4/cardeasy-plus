@@ -198,12 +198,12 @@ export default function BudgetFormSection({
 
               if (withDeadline && !data.deadline) {
                 setErrors({
-                  deadline: "não deve ser nulo"
+                  deadline: "não deve ser nulo",
                 });
 
                 setIsLoading(false);
                 return;
-              };
+              }
 
               if (project?.budget) {
                 updateMutation.mutate(project.budget);

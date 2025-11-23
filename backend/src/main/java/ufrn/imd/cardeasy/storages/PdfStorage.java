@@ -25,11 +25,13 @@ public abstract class PdfStorage extends FileStorage {
     super.validate(file);
 
     String type = file.getContentType();
+    String filename = file.getOriginalFilename();
 
-    if (type == null) throw new InvalidPDFFormat();
+    if (type == null || filename == null) throw new InvalidPDFFormat();
 
-    Boolean valid = type.contains("pdf");
-
+    Boolean valid = type.contains("application/octet-stream")
+      && filename.endsWith("pdf");
+    
     if(!valid) throw new InvalidPDFFormat();
   };
 

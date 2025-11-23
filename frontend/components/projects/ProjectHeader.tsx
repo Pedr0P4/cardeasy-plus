@@ -30,12 +30,16 @@ export default function ProjectHeader({ project }: Props) {
           <hr className="w-1/6 my-1 border-base-300" />
           <p className="font-extralight italic text-sm mt-2">
             Verba de{" "}
-            {query.data.budget.minValue === query.data.budget.maxValue? (<span className="bg-base-100 p-1 rounded-md">
-              {formatter.format(query.data.budget.minValue)}
-            </span>):(<span className="bg-base-100 p-1 rounded-md">
-              {formatter.format(query.data.budget.minValue)} ~{" "}
-              {formatter.format(query.data.budget.maxValue)}
-            </span>)}
+            {query.data.budget.minValue === query.data.budget.maxValue ? (
+              <span className="bg-base-100 p-1 rounded-md">
+                {formatter.format(query.data.budget.minValue)}
+              </span>
+            ) : (
+              <span className="bg-base-100 p-1 rounded-md">
+                {formatter.format(query.data.budget.minValue)} ~{" "}
+                {formatter.format(query.data.budget.maxValue)}
+              </span>
+            )}
             {query.data.budget.deadline && (
               <>
                 {" até "}

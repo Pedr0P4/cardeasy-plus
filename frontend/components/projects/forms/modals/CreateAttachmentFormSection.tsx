@@ -5,33 +5,37 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 import { type ChangeEvent, useState } from "react";
 import {
-  FaCalendarDay,
-  FaClipboardList,
-  FaPenClip,
+  FaFilePdf,
   FaPencil,
   FaPlus,
   FaTriangleExclamation,
 } from "react-icons/fa6";
+import Input from "@/components/Input";
 import { Api } from "@/services/api";
+import type { CreateAttachmentData } from "@/services/attachments";
 import type { ApiErrorResponse } from "@/services/base/axios";
+import type { CardList } from "@/services/cardLists";
+import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
-import type { CreateStageDTO } from "@/services/stages";
 import { Toasts } from "@/services/toats";
-import Input from "../../../Input";
 
 interface Props {
   project: Project;
+  cardList: CardList;
+  card: Card;
 }
 
-export default function CreateStageFormSection({ project }: Props) {
+export default function CreateAttachmentFormSection({
+  project,
+  cardList,
+  card,
+}: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
   const [errors, setErrors] = useState<Record<string, string>>();
-  const [withExpectedEndIn, setWithExpectedEndIn] = useState(false);
-  const [data, setData] = useState<CreateStageDTO>({
-    project: project.id,
-    name: "",
-    description: "",
+  const [data, setData] = useState<CreateAttachmentData>({
+    card: card.id,
+    filename: "",
   });
 
   const router = useRouter();
@@ -39,18 +43,24 @@ export default function CreateStageFormSection({ project }: Props) {
   const createMutation = useMutation({
     mutationFn: async () => {
       return await Api.client()
-        .stages()
-        .create({
-          ...data,
-          expectedEndIn: withExpectedEndIn
-            ? (data.expectedEndIn ??
-              (data.expectedStartIn ? data.expectedStartIn - 1 : undefined))
-            : undefined,
-        })
+        .attachments()
+        .create(data)
         .then(() => {
-          Toasts.success("Etapa criada com sucesso!");
-          queryClient.invalidateQueries({ queryKey: ["projects", project.id] });
-          router.push(`/home/teams/${project.team}/projects/${project.id}`);
+          Toasts.success("Anexo criado com sucesso!");
+
+          queryClient.invalidateQueries({
+            queryKey: [
+              "projects",
+              project.id,
+              "cards-lists",
+              cardList.id,
+              "cards",
+            ],
+          });
+
+          router.push(
+            `/home/teams/${project.team}/projects/${project.id}/card-lists/${cardList.id}/cards/${card.id}/attachments`,
+          );
         })
         .catch((err: ApiErrorResponse) => {
           if (err.isValidationError()) setErrors(err.errors);
@@ -61,26 +71,22 @@ export default function CreateStageFormSection({ project }: Props) {
     },
   });
 
-  const onChangeExpectedStartIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedStartIn: date ? date.getTime() : undefined,
-    }));
-
-  const onChangeExpectedEndIn = (date?: Date) =>
-    setData((data) => ({
-      ...data,
-      expectedEndIn: date ? date.getTime() : undefined,
-    }));
-
   const onChange = (e: ChangeEvent<HTMLInputElement>) =>
     setData((data) => ({
       ...data,
       [e.target.name]: e.target.value,
     }));
 
-  const onChangeWithExpectedEndIn = (e: ChangeEvent<HTMLInputElement>) => {
-    setWithExpectedEndIn(e.target.checked);
+  const onChangeFile = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.currentTarget.files && e.currentTarget.files.length > 0) {
+      const file = e.currentTarget.files.item(0) as File;
+
+      setData((data) => ({
+        ...data,
+        file,
+        filename: file.name,
+      }));
+    }
   };
 
   const isPending = isLoading || createMutation.isPending;
@@ -96,7 +102,7 @@ export default function CreateStageFormSection({ project }: Props) {
         )}
       >
         <FaPlus className="size-6" />
-        Criar nova etapa
+        Criar novo anexo
       </h1>
       <div
         className={clsx(
@@ -106,77 +112,36 @@ export default function CreateStageFormSection({ project }: Props) {
         )}
       >
         <form
-          onSubmit={(e) => {
+          onSubmit={async (e) => {
             e.preventDefault();
             setError("");
             setErrors({});
             setIsLoading(true);
-
-            if (withExpectedEndIn && !data.expectedEndIn) {
-              setErrors({
-                expectedEndIn: "não deve ser nulo",
-              });
-
-              setIsLoading(false);
-              return;
-            }
-
             createMutation.mutate();
           }}
           className={clsx("flex flex-col gap-4", "w-full sm:max-w-lg")}
         >
           <Input
-            name="name"
+            name="filename"
             type="text"
-            placeholder="Nome"
-            label="Nome"
-            icon={FaPenClip}
-            value={data.name}
+            placeholder="Nome do arquivo"
+            label="Nome do arquivo"
+            disabled={isPending}
+            icon={FaPencil}
+            value={data.filename}
             onChange={onChange}
             errors={errors}
             error={error}
             hiddenError={!!error}
           />
           <Input
-            name="description"
-            type="textarea"
-            placeholder="Descrição"
-            label="Descrição"
-            className="min-h-32"
-            icon={FaClipboardList}
-            value={data.description}
-            onChange={onChange}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="expectedStartIn"
-            type="day"
-            placeholder="Expectativa de início"
-            label="Expectativa de início"
-            icon={FaCalendarDay}
-            selected={
-              data.expectedStartIn ? new Date(data.expectedStartIn) : undefined
-            }
-            onSelect={onChangeExpectedStartIn}
-            errors={errors}
-            error={error}
-            hiddenError={!!error}
-          />
-          <Input
-            name="expectedEndIn"
-            type="day"
-            placeholder="Expectativa de termino"
-            label="Expectativa de termino"
-            onChangeOptional={onChangeWithExpectedEndIn}
-            optional
-            disabled={!withExpectedEndIn}
-            icon={FaCalendarDay}
-            selected={
-              data.expectedEndIn ? new Date(data.expectedEndIn) : undefined
-            }
-            onSelect={onChangeExpectedEndIn}
+            name="file"
+            type="file"
+            placeholder="Nenhum arquivo selecionado"
+            filename={data.file?.name}
+            onChange={onChangeFile}
+            icon={FaFilePdf}
+            disabled={isPending}
             errors={errors}
             error={error}
             hiddenError={!!error}

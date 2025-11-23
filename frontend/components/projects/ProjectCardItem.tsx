@@ -4,6 +4,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
+import { FaPaperclip } from "react-icons/fa6";
 import { Api } from "@/services/api";
 import type { CardList } from "@/services/cardLists";
 import type { Card } from "@/services/cards";
@@ -76,6 +77,9 @@ export default function ProjectCardItem({
     },
   });
 
+  const hasAvatarsOrTags =
+    queryAvatars.data.items.length > 0 || queryTags.data.items.length > 0;
+
   return (
     <li
       ref={ref}
@@ -105,8 +109,7 @@ export default function ProjectCardItem({
         <p className="font-light italic text-start text-xs">
           {card.description}
         </p>
-        {(queryAvatars.data.items.length > 0 ||
-          queryTags.data.items.length > 0) && (
+        {hasAvatarsOrTags && (
           <div className="flex flex-row gap-1 mt-2 flex-wrap items-center">
             {queryAvatars.data.items.length > 0 && (
               <AssingmentsAvatars
@@ -137,6 +140,20 @@ export default function ProjectCardItem({
                 )}
               </>
             )}
+          </div>
+        )}
+        {card.attachments > 0 && (
+          <div
+            className={clsx(
+              "flex flex-row gap-1 items-center",
+              hasAvatarsOrTags ? "mt-2" : "mt-1",
+            )}
+          >
+            <FaPaperclip className="size-3" />
+            <p className="text-xs font-light">
+              {card.attachments}
+              {card.attachments > 1 ? " anexos" : " anexo"}
+            </p>
           </div>
         )}
       </div>

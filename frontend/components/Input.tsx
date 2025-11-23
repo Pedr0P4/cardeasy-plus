@@ -10,6 +10,7 @@ import {
   useId,
 } from "react";
 import type { IconType } from "react-icons";
+import { FaUpload } from "react-icons/fa6";
 import DateInput, { type DateInputProps } from "./DateInput";
 
 interface InputProps
@@ -54,6 +55,10 @@ type Props = {
       selected?: Date;
       onSelect: (date: Date) => void;
     } & DateInputProps)
+  | ({
+      type: "file";
+      filename?: string;
+    } & InputProps)
   | InputProps
 );
 
@@ -145,6 +150,45 @@ export default function Input({
             message={message}
             {...(props as DateInputProps)}
           />
+        ) : type === "file" ? (
+          <div className="w-full flex flex-row gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                document.getElementById(inputId)?.click();
+              }}
+              type="button"
+              className="btn btn-neutral"
+            >
+              <FaUpload />
+              Importar
+            </button>
+            <label
+              className={clsx(
+                "input w-full",
+                message && "validator",
+                className,
+              )}
+              aria-invalid={message ? true : undefined}
+            >
+              {Icon && <Icon className={clsx(message && "text-error")} />}
+              {"filename" in props && props.filename ? (
+                <p>{props.filename}</p>
+              ) : (
+                "placeholder" in props &&
+                props.placeholder && <p>{props.placeholder}</p>
+              )}
+              <input
+                id={inputId}
+                aria-invalid={message ? true : undefined}
+                name={name}
+                disabled={disabled}
+                className="hidden"
+                type={type}
+                {...(props as InputProps)}
+              />{" "}
+            </label>
+          </div>
         ) : (
           <label
             className={clsx("input w-full", message && "validator", className)}

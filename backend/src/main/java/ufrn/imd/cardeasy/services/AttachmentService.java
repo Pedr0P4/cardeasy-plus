@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.services;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -10,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ufrn.imd.cardeasy.errors.AttachmentNotFound;
 import ufrn.imd.cardeasy.errors.CardNotFound;
+import ufrn.imd.cardeasy.errors.FilenameAlreadyInUse;
 import ufrn.imd.cardeasy.errors.files.UnableSaveFileException;
 import ufrn.imd.cardeasy.models.Attachment;
 import ufrn.imd.cardeasy.models.Card;
@@ -36,20 +39,23 @@ public class AttachmentService {
 
   @Transactional
   public Attachment create(Integer cardId, MultipartFile file) {
+    if (file.getOriginalFilename() == null)
+      throw new UnableSaveFileException();
+
+    Boolean filenameAlreadyInUse = this.attachments.findByCardAndFilename(
+      cardId,
+      file.getOriginalFilename()
+    ).isPresent();
+
+    if(filenameAlreadyInUse) throw new FilenameAlreadyInUse();
+
     Attachment attachment = new Attachment();
     
     Card card = this.cards.findById(cardId)
       .orElseThrow(CardNotFound::new);
     
     attachment.setCard(card);
-
-    if (file.getOriginalFilename() == null)
-      throw new UnableSaveFileException();
-
-    attachment.setFilename(
-      file.getOriginalFilename()
-        .replace(".pdf", "")
-    );
+    attachment.setFilename(file.getOriginalFilename());
 
     attachment.setSize(file.getSize());
 
@@ -87,15 +93,22 @@ public class AttachmentService {
 
   @Transactional
   public Attachment update(Integer id, MultipartFile file) {
-    Attachment attachment = this.findById(id);
-
     if (file.getOriginalFilename() == null)
       throw new UnableSaveFileException();
 
-    attachment.setFilename(
+    Attachment attachment = this.findById(id);
+
+    Optional<Attachment> candidate = this.attachments.findByCardAndFilename(
+      attachment.getCard().getId(),
       file.getOriginalFilename()
-        .replace(".pdf", "")
     );
+
+    if(
+      candidate.isPresent() && 
+      candidate.get().getId() != attachment.getId()
+    ) throw new FilenameAlreadyInUse();
+
+    attachment.setFilename(file.getOriginalFilename());
 
     this.pdfs.store(id, file);
 

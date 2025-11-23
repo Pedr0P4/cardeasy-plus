@@ -1,5 +1,6 @@
 package ufrn.imd.cardeasy.models;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,6 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+
+import java.util.List;
 import java.util.Set;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -50,4 +54,8 @@ public class Card {
 
   @ManyToMany(mappedBy = "cards") @ToString.Exclude
   private Set<Tag> tags;
+
+  @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+  @ToString.Exclude
+  private Set<Attachment> attachments;
 };

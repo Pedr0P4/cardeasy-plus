@@ -37,8 +37,6 @@ import ufrn.imd.cardeasy.services.AttachmentService;
 import ufrn.imd.cardeasy.services.CardsService;
 import ufrn.imd.cardeasy.services.ParticipationsService;
 
-// TODO - Remover find e update
-
 @RestController
 @RequestMapping("/attachments")
 @Tag(name = "Attachments")
@@ -64,6 +62,7 @@ public class AttachmentsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "201", description = "Attachment created"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "409", description = "Filename already in use", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Card not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
@@ -153,12 +152,12 @@ public class AttachmentsController {
     Resource content = this.attachments.findContentById(id);
 
     ContentDisposition contentDisposition = ContentDisposition.inline()
-      .filename(attachment.getFilename() + ".pdf", StandardCharsets.UTF_8)
+      .filename(attachment.getFilename(), StandardCharsets.UTF_8)
       .build();
 
     return ResponseEntity.ok()
       .headers((headers) -> headers.setContentDisposition(contentDisposition))
-      .header("Filename", attachment.getFilename() + ".pdf")
+      .header("Filename", attachment.getFilename())
       .contentType(MediaType.APPLICATION_PDF)
       .body(content);
   };
@@ -206,6 +205,7 @@ public class AttachmentsController {
   @ApiResponses(value = {
     @ApiResponse(responseCode = "200", description = "Attachment updated"),
     @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(oneOf = {ValidationErrorDTO.class, ErrorDTO.class}))),
+    @ApiResponse(responseCode = "409", description = "Filename already in use", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Participation not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "404", description = "Attachment not found", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
     @ApiResponse(responseCode = "401", description = "Unauthorized", content = @Content(schema = @Schema(implementation = ErrorDTO.class))),
