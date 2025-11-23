@@ -1,5 +1,7 @@
 package ufrn.imd.cardeasy.configurations;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -77,7 +79,8 @@ public class SecurityConfig {
     configuration.setAllowedOrigins(this.properties.getCors().getAllowed().getOrigins()); 
     configuration.setAllowedMethods(this.properties.getCors().getAllowed().getMethods()); 
     configuration.setAllowedHeaders(this.properties.getCors().getAllowed().getHeaders()); 
- 
+    configuration.setExposedHeaders(List.of("Filename", "Content-Disposition"));
+
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 
     source.registerCorsConfiguration("/**", configuration); 

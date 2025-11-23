@@ -107,7 +107,7 @@ public class ParticipationsService {
 
   public Participation findByAccountAndAttachment(
     UUID accountId,
-    Long attachmentId
+    Integer attachmentId
   ) {
     return this.participations
       .findByAccountAndAttachment(accountId, attachmentId)
@@ -319,17 +319,27 @@ public class ParticipationsService {
   public Participation checkAttachmentAccess(
     Role role,
     UUID accountId,
-    Long  attachmentId
+    Integer attachmentId
   ) {
-    Participation participation = this.findByAccountAndAttachment(accountId,attachmentId);
-    if (!participation.getRole().hasAccessOf(role)) throw new Forbidden();
+    Participation participation = this.findByAccountAndAttachment(
+      accountId,
+      attachmentId
+    );
+
+    if (!participation.getRole().hasAccessOf(role)) 
+      throw new Forbidden();
+
     return participation;
   }
 
   public Participation checkAttachmentAccess(
     UUID accountId,
-    Long  attachmentId
+    Integer attachmentId
   ) {
-    return this.checkAttachmentAccess(Role.MEMBER,accountId,attachmentId);
-  }
+    return this.checkAttachmentAccess(
+      Role.MEMBER,
+      accountId,
+      attachmentId
+    );
+  };
 };

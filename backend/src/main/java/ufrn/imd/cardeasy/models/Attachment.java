@@ -3,6 +3,7 @@ package ufrn.imd.cardeasy.models;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 @Data
 @Entity
@@ -10,11 +11,16 @@ import lombok.EqualsAndHashCode;
 public class Attachment {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+  private Integer id;
+
+  @Column(nullable = false)
   private Long size;
+  
+  @Column(nullable = false)
   private String filename;
 
-  @ManyToOne
-  @JoinColumn(name = "card_id")
+  @JoinColumn(name = "card_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @ToString.Exclude
   private Card card;
-}
+};

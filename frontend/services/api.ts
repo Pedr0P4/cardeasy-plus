@@ -10,6 +10,7 @@ import {
 } from "cookies-next/server";
 import { AccountsService } from "./accounts";
 import { AssignmentsService } from "./assignments";
+import { AttachmentsService } from "./attachments";
 import { Axios } from "./base/axios";
 import { client } from "./base/client";
 import { BudgetsService } from "./budgets";
@@ -147,6 +148,14 @@ export class Api {
 
   public images() {
     return new ImagesService(
+      this.getApi(this.getCookie),
+      this.getCookie,
+      this.setCookie,
+    );
+  }
+
+  public attachments() {
+    return new AttachmentsService(
       this.getApi(this.getCookie),
       this.getCookie,
       this.setCookie,

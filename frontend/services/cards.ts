@@ -6,6 +6,7 @@ export type Card = {
   title: string;
   description: string;
   cardList: number;
+  attachments: number;
 };
 
 export type CreateCardData = {

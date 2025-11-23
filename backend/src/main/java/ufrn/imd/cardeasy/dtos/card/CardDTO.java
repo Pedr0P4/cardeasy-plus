@@ -19,7 +19,10 @@ public record CardDTO(
   String title,
 
   @Schema(description = "CardList ID", example = "1")
-  Integer cardList
+  Integer cardList,
+
+  @Schema(description = "Attachments", example = "2")
+  Integer attachments
 ) {
   public static CardDTO from(Card card) {
     return new CardDTO(
@@ -27,7 +30,8 @@ public record CardDTO(
       card.getIndex(),
       card.getDescription(),
       card.getTitle(),
-      card.getList().getId()
+      card.getList().getId(),
+      card.getAttachments().size()
     );
   };
 

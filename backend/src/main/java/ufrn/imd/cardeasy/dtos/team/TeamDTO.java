@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import ufrn.imd.cardeasy.models.Project;
-import ufrn.imd.cardeasy.models.Role;
 import ufrn.imd.cardeasy.models.Team;
 
 public record TeamDTO(
@@ -20,9 +19,6 @@ public record TeamDTO(
 
   @Schema(description = "Participations", example = "4")
   Integer participations,
-
-  @Schema(description = "Role", example = "OWNER")
-  Role role,
 
   @Schema(description = "Code", example = "MqghzPIk")
   String code
@@ -41,8 +37,6 @@ public record TeamDTO(
       team.getTitle(),
       team.getDescription(),
       participations,
-      Role.ADMIN,
-      // TODO - Simplesmente errado, verificar se pode remover depois
       team.getCode()
     );
   };

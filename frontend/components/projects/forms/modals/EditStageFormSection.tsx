@@ -140,12 +140,12 @@ export default function EditStageFormSection({ project, stage }: Props) {
 
             if (withExpectedEndIn && !data.expectedEndIn) {
               setErrors({
-                expectedEndIn: "não deve ser nulo"
+                expectedEndIn: "não deve ser nulo",
               });
-              
+
               setIsLoading(false);
               return;
-            };
+            }
 
             updateMutation.mutate();
           }}
