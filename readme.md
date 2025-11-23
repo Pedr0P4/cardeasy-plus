@@ -8,7 +8,7 @@ Uma reconstrução do [Cardeasy](https://github.com/Pedr0P4/Cardeasy).
 - [Instruções para frontend](#instruções-para-frontend)
   - [Execução](#execução-1)
   - [Next.js](#nextjs)
-  - [Bugs conhecidos](#bugs-conhecidos)
+- [Coisas a melhorar](#coisas-a-melhorar)
 
 # Diagrama de classes
 
@@ -41,12 +41,12 @@ A image abaixo ilustra o console após a autenticação bem sucedida.
 ## Acesso e dados mockados
 
 Deixamos alguns dados `mockados` apenas para `testes` (alguns nomes e títulos podem não fazer muito sentido), pode alterar a vontade. Estão acessíveis através das contas:
-- Marcel
-  - E-mail: marcel@gmail.com
-  - Senha: marcel
 - Pedro
   - E-mail: pedro@gmail.com
   - Senha: pedro
+- Marcel
+  - E-mail: marcel@gmail.com
+  - Senha: marcel
 - Eric
   - E-mail: eric@gmail.com
   - Senha: eric
@@ -102,10 +102,17 @@ Exemplos de roteamento:
 │   ├── ├── page.tsx            # Página da rota "/teams/{id}"
 ```
 
-## Bugs conhecidos
+## Coisas a melhorar
 
-Como o foco foi `backend`, deixamos passar os seguintes bugs:
+Se tratando de uma aplicação acadêmica que visa apenas o aprendizado, tomamos algumas escolhas visando a entrega. Por exemplo:
 
-- Falha ao tentar trocar imagem após primeira tentativa de importação;
-- Falha de algumas validações de dados;
-- Cache das tags persistindo após alteração as vezes;
+- Não há página de cartão que reune todas as entidades ligadas ao cartão;
+  - O foco era o `backend`, e achamos mais fácil reutilizar componentes já existentes com tudo bem separado do que criar uma grande página para lidar com tudo que há nela.
+- Alguns elementos são arrastáveis, outros não;
+  - É chatinho de implementar e conflita com a paginação.
+- Em uma aplicação real provavelmente faz mais sentido alguns `id`s ser `long` ao invés de `int`;
+- Algumas entidades só deveriam ter chave composta feita com a chave estrangeira, justamente por serem entidades fracas no modelo `EER`. Mas ficou mais prático atribuir apenas o `id` próprio de cada entidade nos casos possíveis;
+- Só há relacionamento `1:1` por que foi uma das exigências;
+- Não deixamos um `dashboard` pronto para abrir no `grafana`, embora
+os containers necessários estejam configurados no `docker-compose.yml`;
+- Etc.
