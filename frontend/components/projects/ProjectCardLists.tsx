@@ -73,7 +73,7 @@ export default function ProjectCardLists({ project, role }: Props) {
   const [isMounted, setIsMounted] = useState(false);
   const [searchType, setSearchType] = useState<"list" | "card">("card");
   const [overlay, setOverlay] = useState<ProjectCardListOverlay>(null);
-
+  
   const projectQuery = useQuery({
     queryKey: ["projects", project.id],
     queryFn: () => Api.client().projects().get(project.id),

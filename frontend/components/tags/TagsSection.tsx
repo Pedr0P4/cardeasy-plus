@@ -214,7 +214,10 @@ export default function TagsSection({ project, cardList, card }: Props) {
             placeholder="Pesquisar por etiqueta"
             icon={FaMagnifyingGlass}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(0);
+            }}
           />
           <button
             disabled={!searchQuery || searchQuery.length < 3}

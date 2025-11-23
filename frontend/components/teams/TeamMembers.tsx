@@ -52,7 +52,10 @@ export default function TeamMembers({ participation }: Props) {
         placeholder="Pesquisar por nome ou email"
         icon={FaMagnifyingGlass}
         value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+        onChange={(e) => {
+          setSearchQuery(e.target.value);
+          setPage(0);
+        }}
       />
       <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {query.data.items.map((participation) => {
