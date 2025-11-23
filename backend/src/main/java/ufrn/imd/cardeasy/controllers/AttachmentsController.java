@@ -177,7 +177,7 @@ public class AttachmentsController {
     @RequestParam(name = "card", required = true) Integer cardId,
     @RequestParam(name = "query", defaultValue = "") String query,
     @RequestParam(name = "page", defaultValue = "0") Integer page,
-    @RequestParam(name = "itemsPerPage", defaultValue = "8") Integer itemsPerPage
+    @RequestParam(name = "itemsPerPage", defaultValue = "6") Integer itemsPerPage
   ) {
     this.cards.findById(cardId);
 

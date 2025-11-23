@@ -151,7 +151,7 @@ export default function Input({
             {...(props as DateInputProps)}
           />
         ) : type === "file" ? (
-          <div className="w-full flex flex-row gap-2">
+          <div className="w-full max-w-full flex flex-row flex-wrap gap-2 max-w-full">
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -165,7 +165,7 @@ export default function Input({
             </button>
             <label
               className={clsx(
-                "input w-full",
+                "input grow",
                 message && "validator",
                 className,
               )}
@@ -173,10 +173,10 @@ export default function Input({
             >
               {Icon && <Icon className={clsx(message && "text-error")} />}
               {"filename" in props && props.filename ? (
-                <p>{props.filename}</p>
+                <p className="max-w-[18rem] overflow-ellipsis overflow-hidden w-full text-nowrap font-light">{props.filename}</p>
               ) : (
                 "placeholder" in props &&
-                props.placeholder && <p>{props.placeholder}</p>
+                props.placeholder && <p className="max-w-[18rem] overflow-ellipsis overflow-hidden w-full text-nowrap font-light">{props.placeholder}</p>
               )}
               <input
                 id={inputId}

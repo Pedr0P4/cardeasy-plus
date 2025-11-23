@@ -118,9 +118,9 @@ export default function AttachmentsSection({ project, cardList, card }: Props) {
               >
                 <div
                   className={clsx(
-                    "bg-base-100 h-22 flex flex-row",
+                    "bg-base-100 h-18 flex flex-row",
                     "items-center justify-start",
-                    "rounded-md px-6 py-4 gap-4 relative w-full",
+                    "rounded-md px-5 py-4 gap-4 relative w-full",
                   )}
                 />
               </li>

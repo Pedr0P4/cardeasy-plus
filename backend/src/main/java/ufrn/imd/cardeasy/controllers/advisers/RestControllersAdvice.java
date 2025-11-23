@@ -18,14 +18,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import ufrn.imd.cardeasy.dtos.ErrorDTO;
 import ufrn.imd.cardeasy.dtos.ValidationErrorDTO;
 import ufrn.imd.cardeasy.errors.ValidationError;
-import ufrn.imd.cardeasy.errors.files.EmptyFileException;
 import ufrn.imd.cardeasy.errors.files.FileException;
-import ufrn.imd.cardeasy.errors.files.InvalidImageFormat;
 
 @RestControllerAdvice
 public class RestControllersAdvice extends ResponseEntityExceptionHandler {
@@ -142,6 +141,21 @@ public class RestControllersAdvice extends ResponseEntityExceptionHandler {
       .body(new ErrorDTO(
         status.value(),
         e.getMessage().toLowerCase()
+      ));
+  };
+
+  @Override
+  protected ResponseEntity<Object> handleMaxUploadSizeExceededException(
+    @NonNull MaxUploadSizeExceededException e,
+    @NonNull HttpHeaders headers,
+    @NonNull HttpStatusCode status,
+    @NonNull WebRequest request
+  ) {
+    return ResponseEntity
+      .status(HttpStatus.BAD_REQUEST)
+      .body(new ErrorDTO(
+        HttpStatus.BAD_REQUEST.value(),
+        "tamanho máximo é de 10 MB"
       ));
   };
 };

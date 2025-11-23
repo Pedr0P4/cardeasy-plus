@@ -7,6 +7,7 @@ import type { Card } from "@/services/cards";
 import type { Project } from "@/services/projects";
 import AttachmentContextMenu from "./AttachmentContextMenu";
 import { filesize } from "filesize";
+import { FaPaperclip } from "react-icons/fa6";
 
 interface Props {
   attachment: Attachment;
@@ -32,13 +33,14 @@ export default function AttachmentItem({
         disabled={disabled}
         onClick={onClick}
         className={clsx(
-          "btn bg-base-300 h-22 flex flex-row",
+          "btn bg-base-300 h-18 flex flex-row",
           "items-center justify-start",
-          "rounded-md px-6 py-4 gap-4 relative w-full",
+          "rounded-md px-5 py-4 gap-4 relative w-full",
         )}
       >
         <div className="flex flex-col justify-start items-start flex-1 overflow-hidden">
           <div className="flex flex-row gap-1.5 items-center justify-start w-full">
+            <FaPaperclip/>
             <h3 className="text-lg font-semibold truncate w-full pr-8 text-start">
               {attachment.filename}
             </h3>
